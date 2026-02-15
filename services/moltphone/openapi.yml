@@ -1,0 +1,144 @@
+openapi: "3.0.3"
+info:
+  title: MoltPhone API
+  version: "1.0.0"
+  description: Agent voice call service with Vapi integration
+servers:
+  - url: https://api.moltphone.xyz
+    description: Production
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200": { description: Service healthy }
+  /ready:
+    get:
+      summary: Readiness check
+      responses:
+        "200": { description: Ready }
+        "503": { description: Not ready }
+  /call:
+    post:
+      summary: Initiate an outbound call
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to_number, assistant_config]
+              properties:
+                to_number: { type: string, pattern: '^\+[1-9]\d{1,14}$' }
+                assistant_config:
+                  type: object
+                  required: [first_message, system_prompt]
+                  properties:
+                    first_message: { type: string }
+                    system_prompt: { type: string }
+                    voice: { type: string }
+      responses:
+        "201": { description: Call initiated }
+        "429": { description: Rate limit exceeded }
+  /call/end/{id}:
+    post:
+      summary: End an active call
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Call ended }
+        "404": { description: Call not found }
+  /calls:
+    get:
+      summary: Get call history (paginated)
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: offset
+          in: query
+          schema: { type: integer }
+      responses:
+        "200": { description: Call history }
+  /calls/{id}:
+    get:
+      summary: Get call details
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Call details }
+        "404": { description: Call not found }
+  /calls/stats:
+    get:
+      summary: Get aggregate call statistics
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Call statistics }
+  /calls/{id}/transcript:
+    get:
+      summary: Get full transcript for a call
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Call transcript }
+        "404": { description: Call not found }
+  /webhooks/vapi:
+    post:
+      summary: Receive webhook callbacks from Vapi
+      responses:
+        "200": { description: Processed }
+  /webhooks/subscribe:
+    post:
+      summary: Subscribe to call event webhooks
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, format: uri }
+                events: { type: array, items: { type: string } }
+      responses:
+        "201": { description: Subscribed }
+  /webhooks:
+    get:
+      summary: List webhook subscriptions
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Subscriptions }
+  /webhooks/{id}:
+    delete:
+      summary: Remove webhook subscription
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Removed }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

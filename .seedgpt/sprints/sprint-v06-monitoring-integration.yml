@@ -8,7 +8,9 @@ goal: |
     • Deployment: Docker + Cloud Run
     • Docs: OpenAPI spec + Swagger UI
     • Landing page: update to link to live product
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 18
 
 stories:
@@ -16,7 +18,8 @@ stories:
     title: "MoltPhone Database Schema"
     description: |
       Migration files for call-related tables.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-007]
     roadmap_refs: [v1-moltphone-api]
@@ -33,7 +36,8 @@ stories:
     description: |
       Initiate outbound calls via Vapi. Configure AI assistant persona,
       first message, voice settings. Return call ID for tracking.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: hard
     prd_refs: [PRD-007]
     roadmap_refs: [v1-moltphone-api]
@@ -55,7 +59,8 @@ stories:
     description: |
       Browse call history, get call details with cost and duration,
       retrieve full transcripts.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-007]
     roadmap_refs: [v1-moltphone-api]
@@ -74,7 +79,8 @@ stories:
     description: |
       Receive Vapi callbacks for call state changes and transcript updates.
       Forward events to agent-registered webhooks.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-007]
     roadmap_refs: [v1-moltphone-api]
@@ -96,7 +102,8 @@ stories:
     description: |
       Dockerize MoltPhone. Deploy to Cloud Run.
       Configure Vapi API key and webhook URL.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-007, PRD-008]
     roadmap_refs: [v1-moltphone-api, v0-deployment]
@@ -114,7 +121,8 @@ stories:
     title: "MoltPhone OpenAPI Docs"
     description: |
       OpenAPI 3.0 spec for all MoltPhone endpoints. Swagger UI at /docs.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-007, PRD-009]
     roadmap_refs: [v1-moltphone-api, v0-api-docs]
@@ -131,7 +139,8 @@ stories:
     description: |
       Rewire moltphone-webapp (app.moltphone.xyz) to use the real
       MoltPhone API. Add call initiation, history, transcript viewing.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: hard
     prd_refs: [PRD-007]
     roadmap_refs: [v1-moltphone-api]
