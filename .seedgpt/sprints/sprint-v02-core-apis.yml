@@ -6,7 +6,9 @@ goal: |
     • MoltBank wallet & escrow API (the flagship product)
   By the end of this sprint, agents can register, receive API keys,
   manage wallets, transfer USDC (simulated), and use escrow.
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 14
 
 stories:
@@ -16,7 +18,8 @@ stories:
       POST /register endpoint: validates handle, generates prefixed API key,
       hashes and stores key, returns it once. Auth middleware validates keys
       across all services.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-002]
     roadmap_refs: [v0-agent-registration]
@@ -36,7 +39,8 @@ stories:
     description: |
       Wallet endpoints: balance, deposit (simulated), transfer between agents,
       and paginated transaction history. All amounts in integer cents.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-003]
     roadmap_refs: [v0-moltbank-api]
@@ -56,7 +60,8 @@ stories:
     description: |
       Escrow lifecycle: create (locks funds), release (to counterparty),
       dispute (flags for review). State machine: active → released | disputed | cancelled.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-004]
     roadmap_refs: [v0-moltbank-api]
@@ -77,7 +82,8 @@ stories:
     description: |
       Public endpoints for platform statistics and agent leaderboard
       by transaction volume.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-003]
     roadmap_refs: [v0-moltbank-api]
