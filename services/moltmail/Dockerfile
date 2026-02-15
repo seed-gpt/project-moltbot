@@ -8,7 +8,7 @@ RUN npm ci --workspaces
 COPY tsconfig.json ./
 COPY packages/shared packages/shared
 COPY services/moltmail services/moltmail
-RUN npx tsc --build services/moltmail/tsconfig.json
+RUN npx tsc --build --force services/moltmail/tsconfig.json
 
 # Stage 2: Runtime
 FROM node:20-slim

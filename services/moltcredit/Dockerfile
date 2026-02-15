@@ -8,7 +8,7 @@ RUN npm ci --workspaces
 COPY tsconfig.json ./
 COPY packages/shared packages/shared
 COPY services/moltcredit services/moltcredit
-RUN npx tsc --build services/moltcredit/tsconfig.json
+RUN npx tsc --build --force services/moltcredit/tsconfig.json
 
 # Stage 2: Runtime
 FROM node:20-slim

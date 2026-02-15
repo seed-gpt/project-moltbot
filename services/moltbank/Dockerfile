@@ -17,7 +17,7 @@ COPY packages/shared ./packages/shared
 COPY services/moltbank ./services/moltbank
 
 # Build using project references (handles shared + moltbank together)
-RUN npx tsc --build services/moltbank/tsconfig.json
+RUN npx tsc --build --force services/moltbank/tsconfig.json
 
 # Stage 2: Runtime
 FROM node:20-slim
