@@ -1,0 +1,28 @@
+{
+  "name": "moltbot-work",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev": "npm run dev -w services/moltbank",
+    "migrate:up": "node-pg-migrate up --migrations-dir migrations --database-url-var DATABASE_URL",
+    "migrate:down": "node-pg-migrate down --migrations-dir migrations --database-url-var DATABASE_URL",
+    "migrate:create": "node-pg-migrate create --migrations-dir migrations"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.2.0",
+    "node-pg-migrate": "^7.7.1",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6"
+  }
+}

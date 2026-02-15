@@ -9,7 +9,9 @@ goal: |
     • Docker-compose for local Postgres
     • Jest + Supertest configured and passing
     • CI workflow (lint + test) on GitHub Actions
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 12
 
 stories:
@@ -19,7 +21,8 @@ stories:
       Create npm-workspace root. Set up packages/shared and services/moltbank
       directories with TypeScript project references. Move existing landing
       pages into services/{name}/static/ as per roadmap spec.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-001]
     roadmap_refs: [v0-monorepo-setup]
@@ -39,7 +42,8 @@ stories:
       Implement packages/shared with: database pool (pg + connection config),
       API-key generation & validation, Pino logger, env-var loader,
       request/response types, and error-handling middleware.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-001]
     roadmap_refs: [v0-shared-lib]
@@ -57,7 +61,8 @@ stories:
     description: |
       Create migration files for agents, wallets, transactions, and escrows
       tables using node-pg-migrate. Add seed data for local dev.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-001, PRD-002, PRD-003, PRD-004]
     roadmap_refs: [v0-database-schema]
@@ -77,7 +82,8 @@ stories:
     description: |
       docker-compose.yml with PostgreSQL 16, automatic migration execution,
       and documented .env.example.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-001, PRD-008]
     roadmap_refs: [v0-monorepo-setup]
@@ -93,7 +99,8 @@ stories:
     description: |
       GitHub Actions workflow that installs deps, lints, builds,
       and runs tests on push/PR. Covers all workspaces.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-010]
     roadmap_refs: [v0-monorepo-setup]
