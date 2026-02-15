@@ -9,7 +9,7 @@ COPY packages/shared/package*.json ./packages/shared/
 COPY services/moltbank/package*.json ./services/moltbank/
 
 # Install dependencies for all workspaces
-RUN npm ci --workspaces
+RUN npm install
 
 # Copy source code
 COPY tsconfig.json ./tsconfig.json
@@ -30,7 +30,7 @@ COPY packages/shared/package*.json ./packages/shared/
 COPY services/moltbank/package*.json ./services/moltbank/
 
 # Install production dependencies only
-RUN npm ci --workspaces --omit=dev
+RUN npm install --omit=dev
 
 # Copy built artifacts from builder stage
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist

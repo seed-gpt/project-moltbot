@@ -1,25 +1,47 @@
 # Stage 1: Build
 FROM node:20-slim AS builder
+
 WORKDIR /app
-COPY package.json package-lock.json ./
-COPY packages/shared/package.json packages/shared/
-COPY services/moltcredit/package.json services/moltcredit/
-RUN npm ci --workspaces
-COPY tsconfig.json ./
-COPY packages/shared packages/shared
-COPY services/moltcredit services/moltcredit
+
+# Copy package files from root and workspaces
+COPY package*.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY services/moltcredit/package*.json ./services/moltcredit/
+
+# Install dependencies for all workspaces
+RUN npm install
+
+# Copy source code
+COPY tsconfig.json ./tsconfig.json
+COPY packages/shared ./packages/shared
+COPY services/moltcredit ./services/moltcredit
+
+# Build using project references (handles shared + moltcredit together)
 RUN npx tsc --build --force services/moltcredit/tsconfig.json
 
 # Stage 2: Runtime
 FROM node:20-slim
+
 WORKDIR /app
-COPY --from=builder /app/node_modules node_modules
-COPY --from=builder /app/packages/shared/dist packages/shared/dist
-COPY --from=builder /app/packages/shared/package.json packages/shared/
-COPY --from=builder /app/services/moltcredit/dist services/moltcredit/dist
-COPY --from=builder /app/services/moltcredit/package.json services/moltcredit/
-COPY services/moltcredit/openapi.yml services/moltcredit/
-COPY package.json ./
-ENV NODE_ENV=production
+
+# Copy package files
+COPY package*.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY services/moltcredit/package*.json ./services/moltcredit/
+
+# Install production dependencies only
+RUN npm install --omit=dev
+
+# Copy built artifacts from builder stage
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/services/moltcredit/dist ./services/moltcredit/dist
+COPY services/moltcredit/openapi.yml ./services/moltcredit/
+
+# Set working directory to moltcredit service
+WORKDIR /app/services/moltcredit
+
+# Expose port
 EXPOSE 3000
-CMD ["node", "services/moltcredit/dist/index.js"]
+
+# Run the service
+CMD ["node", "dist/index.js"]
