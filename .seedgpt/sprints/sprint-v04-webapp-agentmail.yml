@@ -8,7 +8,9 @@ goal: |
     • Deployment: Docker + Cloud Run
     • Docs: OpenAPI spec + Swagger UI
     • Landing page: update to link to live product
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 18
 
 stories:
@@ -18,7 +20,8 @@ stories:
       Migration files for MoltCredit-specific tables.
       credit_lines: tracks credit relationships between agents.
       credit_transactions: records draws against credit lines.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-005]
     roadmap_refs: [v0-moltcredit-api]
@@ -36,7 +39,8 @@ stories:
     description: |
       Core credit line endpoints: extend credit to another agent,
       view all credit lines (given and received), revoke unused lines.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-005]
     roadmap_refs: [v0-moltcredit-api]
@@ -58,7 +62,8 @@ stories:
     description: |
       Draw against credit lines, repay, check balances.
       Enforce credit limits. Track all transactions.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-005]
     roadmap_refs: [v0-moltcredit-api]
@@ -81,7 +86,8 @@ stories:
     description: |
       Public endpoints for trust metrics: credit utilization rates,
       repayment history, trust score calculation.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-005]
     roadmap_refs: [v0-moltcredit-api]
@@ -99,7 +105,8 @@ stories:
     description: |
       Dockerize MoltCredit service. Deploy to Cloud Run.
       GitHub Actions workflow for automated deployment.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-005, PRD-008]
     roadmap_refs: [v0-deployment, v0-moltcredit-api]
@@ -118,7 +125,8 @@ stories:
     description: |
       OpenAPI 3.0 spec for all MoltCredit endpoints.
       Swagger UI at /docs.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-005, PRD-009]
     roadmap_refs: [v0-api-docs, v0-moltcredit-api]
@@ -137,7 +145,8 @@ stories:
       New web application for MoltCredit (app.moltcredit.xyz).
       Dashboard showing credit lines given/received, draw/repay forms,
       transaction history, trust scores.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: hard
     prd_refs: [PRD-005, PRD-011]
     roadmap_refs: [v0-moltcredit-api]
