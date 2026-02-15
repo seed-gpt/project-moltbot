@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { randomBytes, createHmac } from 'node:crypto';
 
 const PREFIXES: Record<string, string> = {
   moltbank: 'mb_',
@@ -9,13 +9,13 @@ const PREFIXES: Record<string, string> = {
 
 export function generateApiKey(service: string = 'moltbank'): string {
   const prefix = PREFIXES[service] || 'mk_';
-  const key = crypto.randomBytes(32).toString('hex');
+  const key = randomBytes(32).toString('hex');
   return `${prefix}${key}`;
 }
 
 export function hashApiKey(apiKey: string): string {
   const salt = process.env.API_KEY_SALT || 'default-salt';
-  return crypto.createHmac('sha256', salt).update(apiKey).digest('hex');
+  return createHmac('sha256', salt).update(apiKey).digest('hex');
 }
 
 // Express middleware

@@ -12,6 +12,7 @@ COPY services/moltbank/package*.json ./services/moltbank/
 RUN npm ci --workspaces
 
 # Copy source code
+COPY tsconfig.json ./tsconfig.json
 COPY packages/shared ./packages/shared
 COPY services/moltbank ./services/moltbank
 
