@@ -18,7 +18,7 @@ versions:
       Transform the naive prototypes into production-ready services.
       Focus on MoltBank as the flagship product with real backend,
       database, and deployment infrastructure.
-    status: planned
+    status: complete
     items:
       - id: v0-monorepo-setup
         description: |
@@ -29,7 +29,7 @@ versions:
           - Add root package.json with workspace configuration
           - Move existing landing pages to `services/{name}/static/`
         priority: high
-        status: planned
+        status: complete
         sprint_refs: [SP-V01-001, SP-V01-004, SP-V01-005]
         dependencies: []
 
@@ -43,7 +43,7 @@ versions:
           - Environment variable handling
           - Error handling utilities
         priority: high
-        status: planned
+        status: complete
         sprint_refs: [SP-V01-002]
         dependencies:
           - v0-monorepo-setup
@@ -58,7 +58,7 @@ versions:
           - Create migration files using node-pg-migrate or similar
           - Add seed data for development
         priority: high
-        status: planned
+        status: complete
         sprint_refs: [SP-V01-003]
         dependencies:
           - v0-shared-lib
@@ -73,7 +73,7 @@ versions:
           - Return API key only once on creation
           - Add to shared auth middleware
         priority: high
-        status: planned
+        status: complete
         sprint_refs: [SP-V02-001]
         dependencies:
           - v0-database-schema
@@ -92,7 +92,7 @@ versions:
           - GET /leaderboard — top agents by volume
           - GET /stats — global statistics
         priority: high
-        status: planned
+        status: complete
         sprint_refs: [SP-V02-002, SP-V02-003, SP-V02-004]
         dependencies:
           - v0-agent-registration
@@ -108,7 +108,7 @@ versions:
           - GET /trust/:handle — trust score and credit summary
           - Add credit_lines and credit_transactions tables to database schema
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V04-001, SP-V04-002, SP-V04-003, SP-V04-004, SP-V04-009]
         dependencies:
           - v0-agent-registration
@@ -123,7 +123,7 @@ versions:
           - Health check endpoints (/health, /ready)
           - Structured logging (JSON format)
         priority: high
-        status: planned
+        status: complete
         sprint_refs: [SP-V03-001, SP-V03-002, SP-V04-005, SP-V05-006, SP-V06-005, SP-V07-007]
         dependencies:
           - v0-moltbank-api
@@ -139,7 +139,7 @@ versions:
           - Include authentication examples
           - Add to each service's static files
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V03-003, SP-V04-006, SP-V05-007, SP-V06-006]
         dependencies:
           - v0-moltbank-api
@@ -155,7 +155,7 @@ versions:
           - Fix authentication flow on all webapps
           - Handle error states and loading states properly
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V03-004, SP-V03-005, SP-V04-007, SP-V04-008, SP-V05-008, SP-V05-009, SP-V06-007, SP-V06-008]
         dependencies:
           - v0-deployment
@@ -166,7 +166,7 @@ versions:
       Complete the Molt ecosystem with AgentMail and MoltPhone,
       add comprehensive testing, monitoring, cross-service integration,
       and production hardening.
-    status: planned
+    status: complete
     items:
       - id: v1-moltmail-api
         description: |
@@ -181,7 +181,7 @@ versions:
           - Integration with email provider (Resend/Postmark)
           - Add emails, email_addresses, and email_webhooks tables
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V05-001, SP-V05-002, SP-V05-003, SP-V05-004, SP-V05-005, SP-V05-010]
         dependencies:
           - v0-deployment
@@ -197,7 +197,7 @@ versions:
           - Rate limiting (10 concurrent calls per agent)
           - Add calls, transcripts, and call_webhooks tables
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V06-001, SP-V06-002, SP-V06-003, SP-V06-004, SP-V06-009]
         dependencies:
           - v0-deployment
@@ -212,7 +212,7 @@ versions:
           - E2E smoke tests across all services
           - CI workflow with Postgres service container
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V04-009, SP-V05-010, SP-V06-009, SP-V08-003, SP-V08-004]
         dependencies:
           - v1-moltmail-api
@@ -227,7 +227,7 @@ versions:
           - GCP Cloud Monitoring dashboards
           - Alerting for critical failures
         priority: low
-        status: planned
+        status: complete
         sprint_refs: [SP-V08-001, SP-V08-002]
         dependencies:
           - v1-testing
@@ -239,7 +239,7 @@ versions:
           - Trust score integration in MoltBank leaderboard
           - Unified agent directory across services
         priority: low
-        status: planned
+        status: complete
         sprint_refs: [SP-V07-001, SP-V07-002, SP-V07-003]
         dependencies:
           - v1-moltmail-api
@@ -253,7 +253,7 @@ versions:
           - Trust score display
           - Transaction history per credit line
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V04-007]
         dependencies:
           - v0-moltcredit-api
@@ -266,7 +266,7 @@ versions:
           - Sent folder, webhook management
           - Email address management
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V05-008]
         dependencies:
           - v1-moltmail-api
@@ -279,7 +279,7 @@ versions:
           - SEO meta tags and OG images
           - Mobile responsive verification
         priority: low
-        status: planned
+        status: complete
         sprint_refs: [SP-V03-005, SP-V04-008, SP-V05-009, SP-V06-008, SP-V08-005]
         dependencies:
           - v0-webapp-integration
@@ -292,7 +292,7 @@ versions:
           - Input validation audit (Zod on all endpoints)
           - SQL injection prevention review
         priority: medium
-        status: planned
+        status: complete
         sprint_refs: [SP-V07-004, SP-V07-005, SP-V07-006]
         dependencies:
           - v1-testing

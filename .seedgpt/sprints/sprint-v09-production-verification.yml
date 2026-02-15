@@ -1,0 +1,83 @@
+sprint: v09
+name: "Production Verification & Status Sync"
+goal: |
+  Verify all 4 services are operational on Cloud Run with a live database.
+  Run migrations, configure environment variables, smoke test health endpoints,
+  and update roadmap.yml + PRD.yml statuses to reflect reality.
+status: in_progress
+estimated_hours: 4
+
+stories:
+  - id: SP-V09-001
+    title: "Cloud Run Environment Configuration"
+    description: |
+      Verify and configure environment variables for all 4 Cloud Run services:
+      - DATABASE_URL pointing to production PostgreSQL
+      - NODE_ENV=production
+      - Any service-specific env vars (e.g., email provider keys, Vapi keys)
+      Ensure Artifact Registry images are accessible and services can start.
+    status: planned
+    prd_refs: [PRD-008]
+    roadmap_refs: [v0-deployment]
+    acceptance_criteria:
+      - All 4 services have DATABASE_URL configured in Cloud Run
+      - Services appear in gcloud run services list
+      - Health check endpoints respond with 200
+    tests:
+      - "curl <service-url>/health returns 200 for all 4 services"
+
+  - id: SP-V09-002
+    title: "Database Migration on Production"
+    description: |
+      Run all 13 migrations against the production PostgreSQL database.
+      Verify tables are created: agents, wallets, transactions, escrows,
+      credit_lines, credit_transactions, email_addresses, emails,
+      email_webhooks, calls, transcripts, call_webhooks.
+    status: planned
+    prd_refs: [PRD-001, PRD-003, PRD-005, PRD-006, PRD-007]
+    roadmap_refs: [v0-database-schema]
+    acceptance_criteria:
+      - All 13 migrations run successfully
+      - All expected tables exist in database
+      - Seed data loaded
+    tests:
+      - "npm run migrate:up completes without errors"
+
+  - id: SP-V09-003
+    title: "Production Smoke Tests"
+    description: |
+      Run health and readiness checks against all 4 deployed services.
+      Verify /health returns 200 (basic), /ready returns 200 (DB connected).
+      Test basic registration and wallet operations on MoltBank.
+    status: planned
+    prd_refs: [PRD-008, PRD-010]
+    roadmap_refs: [v0-deployment]
+    acceptance_criteria:
+      - GET /health returns 200 on all 4 services
+      - GET /ready returns 200 (DB connected) on all 4 services
+      - POST /register + GET /me flow works on MoltBank
+    tests:
+      - "curl <moltbank-url>/health"
+      - "curl <moltbank-url>/ready"
+      - "curl -X POST <moltbank-url>/register -d '{\"handle\":\"smoke-test\",\"name\":\"Smoke Test\"}'"
+
+  - id: SP-V09-004
+    title: "Update Roadmap & PRD Status"
+    description: |
+      Update roadmap.yml items from 'planned' to 'complete' for all items
+      delivered in sprints v01-v08. Update PRD.yml feature statuses to match.
+      Update traceability section.
+    status: planned
+    prd_refs: [PRD-001, PRD-002, PRD-003, PRD-004, PRD-005, PRD-006, PRD-007, PRD-008, PRD-009, PRD-010, PRD-011, PRD-012, PRD-013, PRD-014]
+    roadmap_refs: [v0-monorepo-setup, v0-shared-lib, v0-database-schema, v0-agent-registration, v0-moltbank-api, v0-moltcredit-api, v0-deployment, v0-api-docs, v0-webapp-integration]
+    acceptance_criteria:
+      - All roadmap v0 items marked complete
+      - All roadmap v1 items marked complete
+      - PRD feature statuses updated
+      - Traceability section statuses updated
+    tests:
+      - "grep 'status: complete' .seedgpt/roadmap.yml | wc -l shows all items updated"
+      - "grep 'status: complete' .seedgpt/PRD.yml | wc -l shows all features updated"
+
+dependencies:
+  - sprint-v08-monitoring-polish

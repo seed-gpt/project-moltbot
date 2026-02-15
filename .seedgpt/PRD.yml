@@ -40,7 +40,7 @@ features:
       - "API key authentication middleware"
       - "Request logging and error handling"
     priority: high
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-001
     sprint_refs: [SP-V01-001, SP-V01-002, SP-V01-004, SP-V01-005]
 
@@ -53,7 +53,7 @@ features:
       - "API key validates across all services"
       - "Agent profiles stored in database"
     priority: high
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-002
     sprint_refs: [SP-V02-001, SP-V07-002, SP-V07-005]
 
@@ -66,7 +66,7 @@ features:
       - "POST /wallet/transfer sends to other agents"
       - "Balance tracking with double-entry accounting"
     priority: high
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-003
     sprint_refs: [SP-V02-002, SP-V02-004, SP-V03-004, SP-V07-001, SP-V07-003]
 
@@ -79,7 +79,7 @@ features:
       - "POST /escrow/{id}/dispute initiates dispute"
       - "Escrow states: active, released, disputed, cancelled"
     priority: high
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-004
     sprint_refs: [SP-V02-003, SP-V03-004]
 
@@ -93,7 +93,7 @@ features:
       - "Balance tracking with credit limit enforcement"
       - "Trust score calculation based on repayment history"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-005
     sprint_refs: [SP-V04-001, SP-V04-002, SP-V04-003, SP-V04-004, SP-V04-005, SP-V04-006, SP-V04-009, SP-V07-001, SP-V07-003]
 
@@ -106,7 +106,7 @@ features:
       - "GET /inbox returns received emails"
       - "Webhook delivery for incoming mail"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-001
     sprint_refs: [SP-V05-001, SP-V05-002, SP-V05-003, SP-V05-004, SP-V05-005, SP-V05-006, SP-V05-007, SP-V05-010]
 
@@ -119,7 +119,7 @@ features:
       - "Webhook callbacks for call completion"
       - "Transcript storage and retrieval"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-002
     sprint_refs: [SP-V06-001, SP-V06-002, SP-V06-003, SP-V06-004, SP-V06-005, SP-V06-006, SP-V06-009]
 
@@ -133,7 +133,7 @@ features:
       - "Health check endpoints"
       - "Logging to cloud logging service"
     priority: high
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-006
     sprint_refs: [SP-V03-001, SP-V03-002, SP-V04-005, SP-V05-006, SP-V06-005, SP-V07-007, SP-V08-006]
 
@@ -145,7 +145,7 @@ features:
       - "Auto-generated API docs page"
       - "Example requests and responses"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v0-007
     sprint_refs: [SP-V03-003, SP-V04-006, SP-V05-007, SP-V06-006]
 
@@ -159,7 +159,7 @@ features:
       - "CI runs tests on PRs"
       - "E2E smoke tests across all services"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-003
     sprint_refs: [SP-V04-009, SP-V05-010, SP-V06-009, SP-V08-003, SP-V08-004]
 
@@ -173,7 +173,7 @@ features:
       - "Trust score display"
       - "Transaction history per credit line"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-004
     sprint_refs: [SP-V04-007]
 
@@ -187,7 +187,7 @@ features:
       - "Sent folder view"
       - "Webhook management panel"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-005
     sprint_refs: [SP-V05-008]
 
@@ -201,7 +201,7 @@ features:
       - "Real product screenshots"
       - "Proper SEO meta tags"
     priority: low
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-006
     sprint_refs: [SP-V03-005, SP-V04-008, SP-V05-009, SP-V06-008, SP-V08-005]
 
@@ -215,7 +215,7 @@ features:
       - "SQL injection prevention verified"
       - "Error tracking via Sentry"
     priority: medium
-    status: planned
+    status: complete
     roadmap_ref: RM-v1-007
     sprint_refs: [SP-V07-004, SP-V07-005, SP-V07-006, SP-V08-001, SP-V08-002]
 
@@ -236,56 +236,56 @@ traceability:
   - prd_id: PRD-001
     roadmap_ref: RM-v0-001
     sprint_refs: [SP-V01-001, SP-V01-002, SP-V01-004, SP-V01-005]
-    status: planned
+    status: complete
   - prd_id: PRD-002
     roadmap_ref: RM-v0-002
     sprint_refs: [SP-V02-001, SP-V07-002, SP-V07-005]
-    status: planned
+    status: complete
   - prd_id: PRD-003
     roadmap_ref: RM-v0-003
     sprint_refs: [SP-V02-002, SP-V02-004, SP-V03-004, SP-V07-001, SP-V07-003]
-    status: planned
+    status: complete
   - prd_id: PRD-004
     roadmap_ref: RM-v0-004
     sprint_refs: [SP-V02-003, SP-V03-004]
-    status: planned
+    status: complete
   - prd_id: PRD-005
     roadmap_ref: RM-v0-005
     sprint_refs: [SP-V04-001, SP-V04-002, SP-V04-003, SP-V04-004, SP-V04-005, SP-V04-006, SP-V04-009, SP-V07-001, SP-V07-003]
-    status: planned
+    status: complete
   - prd_id: PRD-006
     roadmap_ref: RM-v1-001
     sprint_refs: [SP-V05-001, SP-V05-002, SP-V05-003, SP-V05-004, SP-V05-005, SP-V05-006, SP-V05-007, SP-V05-010]
-    status: planned
+    status: complete
   - prd_id: PRD-007
     roadmap_ref: RM-v1-002
     sprint_refs: [SP-V06-001, SP-V06-002, SP-V06-003, SP-V06-004, SP-V06-005, SP-V06-006, SP-V06-009]
-    status: planned
+    status: complete
   - prd_id: PRD-008
     roadmap_ref: RM-v0-006
     sprint_refs: [SP-V03-001, SP-V03-002, SP-V04-005, SP-V05-006, SP-V06-005, SP-V07-007, SP-V08-006]
-    status: planned
+    status: complete
   - prd_id: PRD-009
     roadmap_ref: RM-v0-007
     sprint_refs: [SP-V03-003, SP-V04-006, SP-V05-007, SP-V06-006]
-    status: planned
+    status: complete
   - prd_id: PRD-010
     roadmap_ref: RM-v1-003
     sprint_refs: [SP-V04-009, SP-V05-010, SP-V06-009, SP-V08-003, SP-V08-004]
-    status: planned
+    status: complete
   - prd_id: PRD-011
     roadmap_ref: RM-v1-004
     sprint_refs: [SP-V04-007]
-    status: planned
+    status: complete
   - prd_id: PRD-012
     roadmap_ref: RM-v1-005
     sprint_refs: [SP-V05-008]
-    status: planned
+    status: complete
   - prd_id: PRD-013
     roadmap_ref: RM-v1-006
     sprint_refs: [SP-V03-005, SP-V04-008, SP-V05-009, SP-V06-008, SP-V08-005]
-    status: planned
+    status: complete
   - prd_id: PRD-014
     roadmap_ref: RM-v1-007
     sprint_refs: [SP-V07-004, SP-V07-005, SP-V07-006, SP-V08-001, SP-V08-002]
-    status: planned
+    status: complete
