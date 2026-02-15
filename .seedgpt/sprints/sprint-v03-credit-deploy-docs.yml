@@ -6,7 +6,9 @@ goal: |
     • OpenAPI docs with Swagger UI
     • Connect the existing webapp to the real API
     • Update landing page to link to live webapp and API docs
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 12
 
 stories:
@@ -16,7 +18,8 @@ stories:
       Multi-stage Dockerfile for services/moltbank.
       Health (/health) and readiness (/ready) endpoints.
       Structured JSON logging via Pino.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-008]
     roadmap_refs: [v0-deployment]
@@ -35,7 +38,8 @@ stories:
     description: |
       GitHub Actions workflow: build Docker image, push to Artifact Registry,
       deploy to Cloud Run. Env vars via Cloud Run config.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-008]
     roadmap_refs: [v0-deployment]
@@ -56,7 +60,8 @@ stories:
       OpenAPI 3.0 spec covering all MoltBank endpoints.
       Swagger UI served at /docs. Includes auth examples,
       error codes, and request/response schemas.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-009]
     roadmap_refs: [v0-api-docs]
@@ -77,7 +82,8 @@ stories:
       Rewire moltbank-webapp to call the deployed MoltBank API instead of
       being a static mockup. Add auth flow, real wallet display, transaction
       forms, and proper error/loading states.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: hard
     prd_refs: [PRD-003, PRD-004]
     roadmap_refs: [v0-webapp-integration]
@@ -102,7 +108,8 @@ stories:
       Update moltbank-landing (molt-bank.com) to link to the live webapp
       and API docs. Add 'Get Started' CTA pointing to registration,
       link to /docs, and show real-time stats if possible.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-003]
     roadmap_refs: [v0-webapp-integration]
