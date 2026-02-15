@@ -1,0 +1,66 @@
+# Sprint Status Tracking
+# Generated: {{date}}
+# Project: {{project_name}}
+
+# ====================
+# STATUS DEFINITIONS:
+# ====================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story detailed and ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+#
+# ====================
+# WORKFLOW NOTES:
+# ====================
+# - Mark epic as 'in-progress' when starting work on its first story
+# - Create next story ONLY after previous one is 'done' to incorporate learnings
+# - Move story to 'review' when ready for code review
+
+project: "{{project_name}}"
+generated: "{{date}}"
+tracking_system: file-system
+story_location: ".seedgpt/sprints/stories/"
+
+# ====================
+# DEVELOPMENT STATUS:
+# ====================
+# Each story should include:
+#   - prd_refs: List of PRD requirement IDs this story fulfills (e.g., [PRD-001, PRD-002])
+#   - roadmap_refs: List of roadmap item IDs this story belongs to (e.g., [RM-v1.0-001])
+#
+development_status:
+  # --- Epic 1: {{epic_1_title}} ---
+  epic-1: backlog
+  SP-001-001:
+    slug: {{story_1_1_slug}}
+    status: backlog
+    prd_refs: [PRD-001]
+    roadmap_refs: [RM-v1.0-001]
+  SP-001-002:
+    slug: {{story_1_2_slug}}
+    status: backlog
+    prd_refs: [PRD-002]
+    roadmap_refs: [RM-v1.0-001]
+  epic-1-retrospective: optional
+
+  # --- Epic 2: {{epic_2_title}} ---
+  epic-2: backlog
+  SP-002-001:
+    slug: {{story_2_1_slug}}
+    status: backlog
+    prd_refs: []
+    roadmap_refs: [RM-v1.0-002]
+  SP-002-002:
+    slug: {{story_2_2_slug}}
+    status: backlog
+    prd_refs: []
+    roadmap_refs: [RM-v1.0-002]
+  epic-2-retrospective: optional

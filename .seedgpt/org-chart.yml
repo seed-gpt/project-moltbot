@@ -1,0 +1,134 @@
+# Org Chart Configuration — Moltbot Work
+#
+# Defines roles for role-driven orchestration via SeedGpt.
+# Each role has a specific focus area and technology lens.
+
+roles:
+  - key: backend
+    name: "Backend Engineer"
+    focus: >
+      Implement TypeScript/Node.js backend services including API endpoints,
+      database operations, authentication, and business logic.
+    loop_closure: >
+      Backend task is complete when the API endpoint works, handles errors
+      gracefully, has proper validation, and integrates with the database.
+    labels:
+      - role:backend
+      - api
+      - database
+    tech:
+      areas:
+        - backend
+        - api
+        - database
+      primary_components:
+        - node-20
+        - express
+        - pg
+        - typescript
+        - zod
+      constraints:
+        - "Use async/await for all database operations"
+        - "Return consistent error responses"
+        - "Log all errors with context"
+
+  - key: infra
+    name: "Infrastructure Engineer"
+    focus: >
+      Set up and maintain deployment infrastructure including Docker,
+      Cloud Run, database provisioning, and CI/CD pipelines.
+    loop_closure: >
+      Infrastructure task is complete when services can be deployed,
+      health checks pass, and logs are accessible.
+    labels:
+      - role:infra
+      - deployment
+      - ci/cd
+      - docker
+    tech:
+      areas:
+        - hosting
+        - ci_cd
+        - observability
+      primary_components:
+        - docker
+        - gcp-cloud-run
+        - github-actions
+        - pino
+      constraints:
+        - "Use multi-stage Docker builds"
+        - "Environment variables for all config"
+        - "Include health check endpoints"
+
+  - key: docs
+    name: "Documentation Engineer"
+    focus: >
+      Create and maintain API documentation, OpenAPI specs, and
+      developer guides for all Molt services.
+    loop_closure: >
+      Documentation task is complete when the OpenAPI spec is valid,
+      examples work, and docs are accessible at /docs endpoint.
+    labels:
+      - role:docs
+      - documentation
+      - openapi
+    tech:
+      areas:
+        - apis
+      primary_components:
+        - openapi-3.0
+      constraints:
+        - "Include request/response examples"
+        - "Document error codes"
+
+  - key: qa
+    name: "QA Engineer"
+    focus: >
+      Write and maintain tests for all services including unit tests,
+      integration tests, and end-to-end API tests.
+    loop_closure: >
+      QA task is complete when tests pass, coverage is reasonable,
+      and edge cases are handled.
+    labels:
+      - role:qa
+      - testing
+    tech:
+      areas:
+        - testing
+      primary_components:
+        - jest
+        - supertest
+      constraints:
+        - "Use test database for integration tests"
+        - "Clean up test data after tests"
+
+  - key: frontend
+    name: "Frontend Engineer"
+    focus: >
+      Update existing webapps to integrate with real backends,
+      fix UI issues, and improve user experience.
+    loop_closure: >
+      Frontend task is complete when the webapp works with the
+      production API and handles all states (loading, error, success).
+    labels:
+      - role:frontend
+      - webapp
+      - ui
+    tech:
+      areas:
+        - frontend
+      primary_components:
+        - vanilla-html
+        - vanilla-js
+      constraints:
+        - "Keep existing styling patterns"
+        - "Handle offline/error states"
+
+# Fractional allocations for each role (how much "AI employee" time)
+# Higher numbers = more issues generated for that role
+org_chart:
+  backend: 1.0  # Primary focus — most work is backend
+  infra: 0.5    # Significant but less than backend
+  docs: 0.3     # Important but lightweight tasks
+  qa: 0.4       # Testing is important
+  frontend: 0.3 # Minimal frontend changes needed

@@ -1,0 +1,38 @@
+name: 🌱 SeedPy Issue Generator
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"
+
+jobs:
+  generate_issues:
+    runs-on: self-hosted
+    permissions:
+      issues: write
+      contents: read
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      SEEDPY_BRANCH: ${{ vars.SEEDPY_BRANCH || 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-seedgpt
+        with:
+          git-token: ${{ secrets.PAT_TOKEN }}
+
+      - uses: ./.github/actions/ensure-claude-cli
+
+      - name: Run SeedPy Issue Generator
+        id: generator
+        run: seedgpt agent generate-issues
+
+      - uses: ./.github/actions/seedgpt-summary
+        if: always()
+        with:
+          title: "Issue Generator"
+          emoji: "🎫"
+          status: ${{ job.status }}
+          extra_fields: "Trigger=${{ github.event_name }},Branch=${{ github.ref_name }}"

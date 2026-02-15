@@ -1,0 +1,34 @@
+org_chart_path: .seedgpt/org-chart.yml
+roadmap_path: .seedgpt/roadmap.yml
+sprints_path: .seedgpt/sprints
+tech_stack_path: .seedgpt/tech-stack.yml
+auto_merge_enabled: false
+team_size_fte: 2.5
+monthly_minutes_per_employee: 100
+avg_run_minutes: 10
+claude_md_refresh_every_n_resolutions: 5
+agents:
+  issue_generator:
+    min_issues: 10
+  issue_resolver:
+    labels_to_handle:
+    - role:backend
+    - role:infra
+    - role:docs
+    - role:qa
+    - role:frontend
+    labels_to_skip:
+    - wip
+    - blocked
+    - on-hold
+    - needs-discussion
+    - needs-approval
+    - seedgpt:resolving
+workflows:
+  issue_generator:
+    create_labels: true
+    cron: 0 */12 * * *
+  issue_resolver:
+    create_branch: true
+    branch_prefix: seedgpt/
+    cron: 0 9 * * *

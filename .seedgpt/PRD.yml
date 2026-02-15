@@ -1,0 +1,215 @@
+# PRD.yml — Structured Mini-PRD (for task management & traceability)
+#
+# This is the STRUCTURED, machine-readable version of the PRD.
+# For the FULL prose PRD, see: .seedgpt/prd.md
+#
+# CROSS-REFERENCE SCHEMA:
+#   PRD-###           → PRD Requirement ID
+#   roadmap_ref       → Link to roadmap item (RM-{version}-###)
+#   sprint_refs       → Links to sprint tasks implementing this (SP-###-###)
+
+project:
+  name: "Moltbot Work — AI Agent Infrastructure Ecosystem"
+  description: >
+    A collection of production-ready infrastructure services for AI agents:
+    MoltBank (payments/wallets), MoltCredit (trust/credit), AgentMail (email),
+    and MoltPhone (voice calls). Currently naive prototypes, to be rebuilt as
+    full-stack production applications.
+  goals:
+    - Transform static landing pages into production APIs
+    - Implement real backend services with databases
+    - Create unified agent authentication across services
+    - Deploy to production with proper operations
+    - Enable agent-to-agent commerce and communication
+  non_goals:
+    - Real cryptocurrency/blockchain integration (simulated only)
+    - Financial regulatory compliance
+    - Mobile applications
+    - Rebuilding SeedGpt (configure only)
+
+features:
+  - id: PRD-001
+    name: "Shared Backend Infrastructure"
+    description: "Common Node.js/TypeScript backend structure shared across all Molt services"
+    acceptance_criteria:
+      - "TypeScript project structure with shared utilities"
+      - "Express or Fastify-based API framework"
+      - "PostgreSQL database connection pooling"
+      - "API key authentication middleware"
+      - "Request logging and error handling"
+    priority: high
+    status: planned
+    roadmap_ref: RM-v0-001
+    sprint_refs: []
+
+  - id: PRD-002
+    name: "Agent Registration System"
+    description: "Unified agent registration that works across all Molt services"
+    acceptance_criteria:
+      - "POST /register endpoint accepts handle, name, optional metadata"
+      - "Returns API key on successful registration"
+      - "API key validates across all services"
+      - "Agent profiles stored in database"
+    priority: high
+    status: planned
+    roadmap_ref: RM-v0-002
+    sprint_refs: []
+
+  - id: PRD-003
+    name: "MoltBank Wallet API"
+    description: "USDC wallet management for AI agents"
+    acceptance_criteria:
+      - "GET /wallet returns balance and transaction history"
+      - "POST /wallet/deposit adds funds (simulated)"
+      - "POST /wallet/transfer sends to other agents"
+      - "Balance tracking with double-entry accounting"
+    priority: high
+    status: planned
+    roadmap_ref: RM-v0-003
+    sprint_refs: []
+
+  - id: PRD-004
+    name: "MoltBank Escrow System"
+    description: "Escrow service for secure agent-to-agent payments"
+    acceptance_criteria:
+      - "POST /escrow/create locks funds with counterparty"
+      - "POST /escrow/{id}/release releases to counterparty"
+      - "POST /escrow/{id}/dispute initiates dispute"
+      - "Escrow states: active, released, disputed, cancelled"
+    priority: high
+    status: planned
+    roadmap_ref: RM-v0-004
+    sprint_refs: []
+
+  - id: PRD-005
+    name: "MoltCredit Credit Lines"
+    description: "Trust-based credit extension between agents"
+    acceptance_criteria:
+      - "POST /credit/extend creates credit line with limit"
+      - "GET /credit shows incoming/outgoing credit lines"
+      - "POST /transact records transactions against credit"
+      - "Balance tracking with credit limit enforcement"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v0-005
+    sprint_refs: []
+
+  - id: PRD-006
+    name: "AgentMail Email Service"
+    description: "Email infrastructure for AI agents"
+    acceptance_criteria:
+      - "Agent registration provisions @agentmail.xyz address"
+      - "POST /send endpoint sends emails"
+      - "GET /inbox returns received emails"
+      - "Webhook delivery for incoming mail"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v1-001
+    sprint_refs: []
+
+  - id: PRD-007
+    name: "MoltPhone Voice API"
+    description: "Voice call capabilities via Vapi integration"
+    acceptance_criteria:
+      - "POST /call initiates outbound call with AI"
+      - "GET /calls returns call history"
+      - "Webhook callbacks for call completion"
+      - "Transcript storage and retrieval"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v1-002
+    sprint_refs: []
+
+  - id: PRD-008
+    name: "Production Deployment"
+    description: "Deploy all services to production infrastructure"
+    acceptance_criteria:
+      - "Docker containers for all services"
+      - "Cloud Run deployment configuration"
+      - "Environment variable management"
+      - "Health check endpoints"
+      - "Logging to cloud logging service"
+    priority: high
+    status: planned
+    roadmap_ref: RM-v0-006
+    sprint_refs: []
+
+  - id: PRD-009
+    name: "API Documentation"
+    description: "OpenAPI documentation for all endpoints"
+    acceptance_criteria:
+      - "OpenAPI 3.0 spec for each service"
+      - "Auto-generated API docs page"
+      - "Example requests and responses"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v0-007
+    sprint_refs: []
+
+  - id: PRD-010
+    name: "Test Coverage"
+    description: "Unit and integration tests for all services"
+    acceptance_criteria:
+      - "Unit tests for business logic"
+      - "Integration tests for API endpoints"
+      - "Test database setup/teardown"
+      - "CI runs tests on PRs"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v1-003
+    sprint_refs: []
+
+constraints:
+  - "Monorepo with all services in subdirectories"
+  - "TypeScript for all backend code"
+  - "PostgreSQL as primary database"
+  - "GCP Cloud Run for deployment"
+  - "Existing static HTML files to be preserved as documentation"
+
+dependencies:
+  - "PostgreSQL database (Cloud SQL or equivalent)"
+  - "GCP Cloud Run for hosting"
+  - "Vapi.ai for voice call integration (MoltPhone)"
+  - "Email provider for AgentMail (Resend, Postmark, or equivalent)"
+
+traceability:
+  - prd_id: PRD-001
+    roadmap_ref: RM-v0-001
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-002
+    roadmap_ref: RM-v0-002
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-003
+    roadmap_ref: RM-v0-003
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-004
+    roadmap_ref: RM-v0-004
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-005
+    roadmap_ref: RM-v0-005
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-006
+    roadmap_ref: RM-v1-001
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-007
+    roadmap_ref: RM-v1-002
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-008
+    roadmap_ref: RM-v0-006
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-009
+    roadmap_ref: RM-v0-007
+    sprint_refs: []
+    status: planned
+  - prd_id: PRD-010
+    roadmap_ref: RM-v1-003
+    sprint_refs: []
+    status: planned

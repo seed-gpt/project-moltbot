@@ -1,0 +1,57 @@
+name: 💬 SeedGPT Comment Handler
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  handle-comment:
+    name: Handle Comment
+    runs-on: self-hosted
+    if: |
+      (github.event.comment.user.login != 'github-actions[bot]') &&
+      contains(github.event.comment.body, '@seedgpt')
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install seedpy
+        run: |
+          pip install --no-cache-dir "seedpy @ git+https://x-access-token:${GITHUB_TOKEN}@github.com/seed-gpt/seedpy.git@main#egg=seedpy"
+
+      - name: Handle Issue Comment
+        if: github.event_name == 'issue_comment' && !github.event.issue.pull_request
+        run: |
+          seedgpt agent handle-comment \
+            --comment-id ${{ github.event.comment.id }} \
+            --issue-number ${{ github.event.issue.number }}
+
+      - name: Handle PR Comment
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request
+        run: |
+          seedgpt agent handle-comment \
+            --comment-id ${{ github.event.comment.id }} \
+            --pr-number ${{ github.event.issue.number }}
+
+      - name: Handle PR Review Comment
+        if: github.event_name == 'pull_request_review_comment'
+        run: |
+          seedgpt agent handle-comment \
+            --comment-id ${{ github.event.comment.id }} \
+            --pr-number ${{ github.event.pull_request.number }} \
+            --review-comment

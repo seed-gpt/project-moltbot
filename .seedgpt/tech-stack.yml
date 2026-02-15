@@ -1,0 +1,59 @@
+# Technology Stack Specification — Moltbot Work
+#
+# This file documents the project's technology choices.
+# Used by SeedGpt agents to make consistent implementation decisions.
+
+primary_language: typescript
+
+secondary_languages:
+  - sql  # Database migrations and queries
+  - html  # Static landing pages (existing)
+  - css  # Styling for landing pages
+
+frontend:
+  - vanilla-html  # Existing static landing pages
+  - vanilla-js  # Client-side scripts in webapps
+
+backend:
+  - node-20  # Node.js runtime (LTS version)
+  - express  # Web framework (alternative: fastify)
+  - pg  # PostgreSQL client
+  - zod  # Runtime type validation
+
+apis:
+  - rest  # RESTful API design
+  - openapi-3.0  # API documentation standard
+
+datastores:
+  - postgresql  # Primary relational database
+
+messaging: []
+  # No message queues initially
+
+hosting:
+  - gcp-cloud-run  # Container hosting
+  - gcp-cloud-sql  # Managed PostgreSQL (optional)
+  - github-pages  # Static landing pages (current)
+
+testing:
+  - jest  # Test runner
+  - supertest  # HTTP testing
+
+ci_cd:
+  - github-actions  # CI/CD pipelines
+  - docker  # Containerization
+
+observability:
+  - pino  # Structured logging
+  - gcp-logging  # Cloud logging integration
+
+constraints:
+  - "Use TypeScript for all new backend code"
+  - "Keep existing static HTML landing pages as-is initially"
+  - "Use npm workspaces for monorepo management"
+  - "PostgreSQL for all persistent data"
+  - "Do not introduce additional web frameworks (stick to Express)"
+  - "API keys use prefix format: mb_ (MoltBank), mc_ (MoltCredit), mm_ (MoltMail), mp_ (MoltPhone)"
+  - "All financial amounts stored as integers (cents) to avoid floating point issues"
+  - "Use connection pooling for database connections"
+  - "Environment variables for all configuration (12-factor app)"

@@ -1,0 +1,220 @@
+# SeedGPT Roadmap — Moltbot Work
+#
+# This file tracks the project roadmap with versions and items.
+# v0 = MVP: Core infrastructure + MoltBank production-ready
+# v1 = Growth: Complete ecosystem with all services
+#
+# CROSS-REFERENCE SCHEMA:
+#   RM-{version}-###  → Roadmap Item ID
+#   prd_refs          → Links to PRD requirements (PRD-###)
+#   sprint_refs       → Links to sprint tasks (SP-###-###)
+
+current_version: v0
+
+versions:
+  - id: v0
+    label: "MVP"
+    description: >
+      Transform the naive prototypes into production-ready services.
+      Focus on MoltBank as the flagship product with real backend,
+      database, and deployment infrastructure.
+    status: planned
+    items:
+      - id: v0-monorepo-setup
+        description: |
+          Set up the monorepo structure for all Molt services:
+          - Create `packages/` directory for shared code
+          - Create `services/` directory for each service (moltbank, moltcredit, moltmail, moltphone)
+          - Set up TypeScript configuration with project references
+          - Add root package.json with workspace configuration
+          - Move existing landing pages to `services/{name}/static/`
+        priority: high
+        status: planned
+        dependencies: []
+
+      - id: v0-shared-lib
+        description: |
+          Create shared library package (`packages/shared`):
+          - Database connection utilities (pg-pool)
+          - API key generation and validation
+          - Request/response type definitions
+          - Logger configuration (pino or similar)
+          - Environment variable handling
+          - Error handling utilities
+        priority: high
+        status: planned
+        dependencies:
+          - v0-monorepo-setup
+
+      - id: v0-database-schema
+        description: |
+          Design and implement PostgreSQL database schema:
+          - `agents` table: id, handle, name, api_key_hash, metadata, created_at
+          - `wallets` table: agent_id, balance, currency, created_at
+          - `transactions` table: id, from_agent, to_agent, amount, type, memo, created_at
+          - `escrows` table: id, creator_id, counterparty_id, amount, status, description, created_at
+          - Create migration files using node-pg-migrate or similar
+          - Add seed data for development
+        priority: high
+        status: planned
+        dependencies:
+          - v0-shared-lib
+
+      - id: v0-agent-registration
+        description: |
+          Implement agent registration service:
+          - POST /register endpoint
+          - Handle validation (alphanumeric, unique, etc.)
+          - API key generation (secure random with prefix)
+          - Hash API keys before storage
+          - Return API key only once on creation
+          - Add to shared auth middleware
+        priority: high
+        status: planned
+        dependencies:
+          - v0-database-schema
+
+      - id: v0-moltbank-api
+        description: |
+          Implement MoltBank backend API (`services/moltbank`):
+          - GET /wallet — balance and recent transactions
+          - POST /wallet/deposit — add funds (simulated)
+          - POST /wallet/transfer — send to other agent
+          - GET /wallet/transactions — paginated history
+          - POST /escrow/create — lock funds in escrow
+          - GET /escrow — list agent's escrows
+          - POST /escrow/:id/release — release to counterparty
+          - POST /escrow/:id/dispute — flag for dispute
+          - GET /leaderboard — top agents by volume
+          - GET /stats — global statistics
+        priority: high
+        status: planned
+        dependencies:
+          - v0-agent-registration
+
+      - id: v0-moltcredit-api
+        description: |
+          Implement MoltCredit backend API (`services/moltcredit`):
+          - POST /credit/extend — create credit line
+          - GET /credit — view incoming/outgoing lines
+          - POST /transact — record transaction against credit
+          - GET /balance/:handle — check balance with specific agent
+          - Add credit_lines table to database schema
+        priority: medium
+        status: planned
+        dependencies:
+          - v0-agent-registration
+
+      - id: v0-deployment
+        description: |
+          Set up production deployment infrastructure:
+          - Dockerfile for each service
+          - docker-compose.yml for local development
+          - Cloud Run deployment configuration
+          - Environment variable documentation
+          - Health check endpoints (/health, /ready)
+          - Structured logging (JSON format)
+        priority: high
+        status: planned
+        dependencies:
+          - v0-moltbank-api
+
+      - id: v0-api-docs
+        description: |
+          Create OpenAPI documentation:
+          - OpenAPI 3.0 spec for MoltBank
+          - OpenAPI 3.0 spec for MoltCredit
+          - Serve docs at /docs endpoint (Swagger UI)
+          - Include authentication examples
+          - Add to each service's static files
+        priority: medium
+        status: planned
+        dependencies:
+          - v0-moltbank-api
+          - v0-moltcredit-api
+
+      - id: v0-webapp-integration
+        description: |
+          Update existing webapps to use real backends:
+          - Update moltbank-webapp to call deployed API
+          - Fix authentication flow
+          - Handle error states properly
+          - Add loading states
+        priority: medium
+        status: planned
+        dependencies:
+          - v0-deployment
+
+  - id: v1
+    label: "Growth"
+    description: >
+      Complete the Molt ecosystem with AgentMail and MoltPhone,
+      add comprehensive testing, and improve operational capabilities.
+    status: planned
+    items:
+      - id: v1-moltmail-api
+        description: |
+          Implement AgentMail backend API (`services/moltmail`):
+          - Agent email provisioning (handle@agentmail.xyz)
+          - POST /send — send email
+          - GET /inbox — list received emails
+          - GET /inbox/:id — get specific email
+          - Webhook registration for incoming mail
+          - Integration with email provider (Resend/Postmark)
+          - Add emails table to database schema
+        priority: medium
+        status: planned
+        dependencies:
+          - v0-deployment
+
+      - id: v1-moltphone-api
+        description: |
+          Implement MoltPhone backend API (`services/moltphone`):
+          - POST /call — initiate outbound call
+          - GET /calls — list call history
+          - GET /calls/:id — get call details with transcript
+          - Webhook endpoint for Vapi callbacks
+          - Rate limiting per agent
+          - Add calls table to database schema
+        priority: medium
+        status: planned
+        dependencies:
+          - v0-deployment
+
+      - id: v1-testing
+        description: |
+          Add comprehensive test coverage:
+          - Jest configuration for all packages
+          - Unit tests for shared library
+          - Integration tests for each API
+          - Test database setup with migrations
+          - CI workflow to run tests on PRs
+        priority: medium
+        status: planned
+        dependencies:
+          - v1-moltmail-api
+          - v1-moltphone-api
+
+      - id: v1-monitoring
+        description: |
+          Add monitoring and alerting:
+          - Error tracking (Sentry integration)
+          - Request metrics (latency, error rates)
+          - Database connection monitoring
+          - Alerting for critical failures
+        priority: low
+        status: planned
+        dependencies:
+          - v1-testing
+
+      - id: v1-cross-service
+        description: |
+          Implement cross-service integrations:
+          - MoltBank settlement from MoltCredit
+          - Trust score integration in MoltBank leaderboard
+          - Unified agent directory across services
+        priority: low
+        status: planned
+        dependencies:
+          - v1-moltmail-api
+          - v1-moltphone-api

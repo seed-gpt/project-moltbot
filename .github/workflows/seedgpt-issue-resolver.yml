@@ -1,0 +1,71 @@
+name: 🔧 SeedGPT Issue Resolver
+
+on:
+  # - unlabeled: when approval-required label is removed, trigger processing
+  issues:
+    types: [opened, unlabeled]
+  # Trigger when PR is merged (to process linked issues)
+  pull_request:
+    types: [closed]
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Specific issue number (optional)"
+        required: false
+  schedule:
+    - cron: "0 9 * * *"
+
+jobs:
+  resolve_issue:
+    # Skip if PR was closed without merging
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.merged == true }}
+    runs-on: self-hosted
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      SEEDPY_BRANCH: ${{ vars.SEEDPY_BRANCH || 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - uses: ./.github/actions/setup-seedgpt
+        with:
+          git-token: ${{ secrets.PAT_TOKEN }}
+
+      - uses: ./.github/actions/ensure-claude-cli
+
+      - name: Run SeedPy Issue Resolver
+        id: resolver
+        env:
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || '' }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${ISSUE_NUMBER}" ]; then
+            seedgpt agent resolve-issue --issue "${ISSUE_NUMBER}"
+          else
+            seedgpt agent resolve-issue
+          fi
+
+      - uses: ./.github/actions/seedgpt-summary
+        if: always()
+        with:
+          title: "Issue Resolver"
+          emoji: "🔨"
+          status: ${{ job.status }}
+          extra_fields: "Trigger=${{ github.event_name }},Issue=${{ github.event.inputs.issue_number || 'auto-detect' }},Branch=${{ github.ref_name }}"
+
+      - uses: ./.github/actions/seedgpt-create-patch
+        if: failure()
+        with:
+          prefix: "seedpy-resolver"
+          run_id: ${{ github.run_id }}
+          run_attempt: ${{ github.run_attempt }}
