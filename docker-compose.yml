@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   postgres:
     image: postgres:16
@@ -11,9 +13,65 @@ services:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U moltbot"]
-      interval: 5s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 5
+
+  moltbank:
+    build:
+      context: .
+      dockerfile: services/moltbank/Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_URL: postgres://moltbot:moltbot@postgres:5432/moltbot
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  moltcredit:
+    build:
+      context: .
+      dockerfile: services/moltcredit/Dockerfile
+    ports:
+      - "3002:3000"
+    environment:
+      DATABASE_URL: postgres://moltbot:moltbot@postgres:5432/moltbot
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  moltmail:
+    build:
+      context: .
+      dockerfile: services/moltmail/Dockerfile
+    ports:
+      - "3003:3000"
+    environment:
+      DATABASE_URL: postgres://moltbot:moltbot@postgres:5432/moltbot
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  moltphone:
+    build:
+      context: .
+      dockerfile: services/moltphone/Dockerfile
+    ports:
+      - "3004:3000"
+    environment:
+      DATABASE_URL: postgres://moltbot:moltbot@postgres:5432/moltbot
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   pgdata:

@@ -230,4 +230,66 @@ router.post('/credit/:id/revoke', authMiddleware(query), async (req: Request, re
   }
 });
 
+// POST /credit/:id/settle - Settle a credit line
+router.post('/credit/:id/settle', authMiddleware(query), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const agent = (req as any).agent;
+    const { id } = req.params;
+
+    // Get credit line - must be grantor
+    const lineResult = await query(
+      'SELECT * FROM credit_lines WHERE id = $1 AND grantor_id = $2',
+      [id, agent.id]
+    );
+
+    if (lineResult.rows.length === 0) {
+      throw new AppError(404, 'Credit line not found or you are not the grantor', 'CREDIT_LINE_NOT_FOUND');
+    }
+
+    const line = lineResult.rows[0];
+    const usedAmount = line.used_amount;
+
+    // Only create settlement if there's an outstanding balance
+    if (usedAmount > 0) {
+      // Create settlement record
+      const settlementResult = await query(
+        `INSERT INTO credit_transactions (credit_line_id, amount, type, memo, created_at)
+         VALUES ($1, $2, $3, $4, NOW())
+         RETURNING id, amount, type, memo, created_at`,
+        [id, usedAmount, 'settlement', 'Credit line settlement']
+      );
+
+      const settlement = settlementResult.rows[0];
+
+      // Reset used_amount to 0
+      await query(
+        'UPDATE credit_lines SET used_amount = 0, updated_at = NOW() WHERE id = $1',
+        [id]
+      );
+
+      res.json({
+        message: 'Credit line settled successfully',
+        settlement: {
+          id: settlement.id,
+          credit_line_id: id,
+          amount: settlement.amount,
+          type: settlement.type,
+          memo: settlement.memo,
+          created_at: settlement.created_at,
+        },
+        previous_balance: usedAmount,
+        new_balance: 0,
+      });
+    } else {
+      res.json({
+        message: 'No outstanding balance to settle',
+        credit_line_id: id,
+        balance: 0,
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

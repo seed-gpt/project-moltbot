@@ -94,4 +94,45 @@ router.get('/me', authMiddleware(query), async (req: Request, res: Response, nex
   }
 });
 
+// POST /rotate-key - Rotate API key
+router.post('/rotate-key', authMiddleware(query), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const agent = (req as any).agent;
+
+    // Generate new API key
+    const newApiKey = generateApiKey('moltbank');
+    const newApiKeyHash = hashApiKey(newApiKey);
+
+    // Store old key with expiry (24 hours from now)
+    const oldKeyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Get current key hash to store as old key
+    const currentKeyResult = await query(
+      'SELECT api_key_hash FROM agents WHERE id = $1',
+      [agent.id]
+    );
+
+    if (currentKeyResult.rows.length === 0) {
+      throw new AppError(404, 'Agent not found');
+    }
+
+    const oldKeyHash = currentKeyResult.rows[0].api_key_hash;
+
+    // Update agent with new key
+    await query(
+      'UPDATE agents SET api_key_hash = $1, old_api_key_hash = $2, old_key_expires_at = $3 WHERE id = $4',
+      [newApiKeyHash, oldKeyHash, oldKeyExpiry, agent.id]
+    );
+
+    res.json({
+      api_key: newApiKey,
+      message: 'API key rotated successfully. Store this key securely - it will not be shown again.',
+      old_key_expires_at: oldKeyExpiry,
+      note: 'Your old API key will remain valid for 24 hours to allow for migration.',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

@@ -9,6 +9,7 @@ import agentsRouter from './routes/agents.js';
 import walletRouter from './routes/wallet.js';
 import escrowRouter from './routes/escrow.js';
 import statsRouter from './routes/stats.js';
+import directoryRouter from './routes/directory.js';
 
 export function createApp() {
   const app = express();
@@ -46,6 +47,7 @@ export function createApp() {
   app.use('/', walletRouter);        // /wallet, /wallet/deposit, /wallet/transfer, /wallet/transactions
   app.use('/', escrowRouter);        // /escrow/create, /escrow, /escrow/:id/release, /escrow/:id/dispute
   app.use('/', statsRouter);         // /leaderboard, /stats
+  app.use('/', directoryRouter);     // /directory, /directory/:handle
 
   // Error handling middleware (must be last)
   app.use(notFoundMiddleware);

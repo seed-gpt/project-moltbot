@@ -7,7 +7,9 @@ goal: |
     • Trust scores in MoltBank leaderboard
     • Rate limiting, API key rotation, input validation audit
     • docker-compose for full local stack (all 4 services + DB)
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 14
 
 stories:
@@ -16,7 +18,8 @@ stories:
     description: |
       When settling a credit line, trigger a MoltBank wallet transfer.
       Atomic: if wallet transfer fails, settlement rolls back.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: hard
     prd_refs: [PRD-003, PRD-005]
     roadmap_refs: [v1-cross-service]
@@ -37,7 +40,8 @@ stories:
     description: |
       Cross-service endpoint showing all agents and which services
       they are active on. Queryable by handle or capabilities.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-002]
     roadmap_refs: [v1-cross-service]
@@ -56,7 +60,8 @@ stories:
     description: |
       Integrate MoltCredit trust scores into MoltBank leaderboard.
       Leaderboard can sort by volume, trust score, or combined.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-003, PRD-005]
     roadmap_refs: [v1-cross-service]
@@ -73,7 +78,8 @@ stories:
     description: |
       Express middleware for configurable per-agent rate limiting.
       Apply to all services with sensible defaults.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-008, PRD-014]
     roadmap_refs: [v1-monitoring]
@@ -92,7 +98,8 @@ stories:
     description: |
       Allow agents to rotate their API key without losing access.
       Grace period where both old and new keys work.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-002, PRD-014]
     roadmap_refs: [v1-monitoring]
@@ -110,7 +117,8 @@ stories:
     description: |
       Audit all endpoints for input validation, SQL injection prevention,
       and security best practices.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-008, PRD-014]
     roadmap_refs: [v1-monitoring]
@@ -129,7 +137,8 @@ stories:
     description: |
       docker-compose.yml that starts all 4 services + PostgreSQL.
       Single command to run the entire ecosystem locally.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-008]
     roadmap_refs: [v0-deployment]
