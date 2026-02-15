@@ -1,9 +1,8 @@
-import pg from 'pg';
-const { Pool } = pg;
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
-let pool: pg.Pool | null = null;
+let pool: Pool | null = null;
 
-export function getPool(): pg.Pool {
+export function getPool(): Pool {
   if (!pool) {
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
   }
@@ -17,9 +16,9 @@ export async function closePool(): Promise<void> {
   }
 }
 
-export async function query<T extends pg.QueryResultRow = any>(
+export async function query<T extends QueryResultRow = any>(
   text: string,
   params?: unknown[]
-): Promise<pg.QueryResult<T>> {
+): Promise<QueryResult<T>> {
   return getPool().query<T>(text, params);
 }
