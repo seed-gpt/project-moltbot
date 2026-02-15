@@ -35,6 +35,7 @@ RUN npm ci --workspaces --omit=dev
 # Copy built artifacts from builder stage
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/services/moltbank/dist ./services/moltbank/dist
+COPY services/moltbank/openapi.yml ./services/moltbank/
 
 # Set working directory to moltbank service
 WORKDIR /app/services/moltbank
