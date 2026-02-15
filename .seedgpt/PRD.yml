@@ -21,6 +21,8 @@ project:
     - Create unified agent authentication across services
     - Deploy to production with proper operations
     - Enable agent-to-agent commerce and communication
+    - Build user-facing webapps for each service
+    - Update landing pages with live product links
   non_goals:
     - Real cryptocurrency/blockchain integration (simulated only)
     - Financial regulatory compliance
@@ -40,7 +42,7 @@ features:
     priority: high
     status: planned
     roadmap_ref: RM-v0-001
-    sprint_refs: []
+    sprint_refs: [SP-V01-001, SP-V01-002, SP-V01-004, SP-V01-005]
 
   - id: PRD-002
     name: "Agent Registration System"
@@ -53,7 +55,7 @@ features:
     priority: high
     status: planned
     roadmap_ref: RM-v0-002
-    sprint_refs: []
+    sprint_refs: [SP-V02-001, SP-V07-002, SP-V07-005]
 
   - id: PRD-003
     name: "MoltBank Wallet API"
@@ -66,7 +68,7 @@ features:
     priority: high
     status: planned
     roadmap_ref: RM-v0-003
-    sprint_refs: []
+    sprint_refs: [SP-V02-002, SP-V02-004, SP-V03-004, SP-V07-001, SP-V07-003]
 
   - id: PRD-004
     name: "MoltBank Escrow System"
@@ -79,7 +81,7 @@ features:
     priority: high
     status: planned
     roadmap_ref: RM-v0-004
-    sprint_refs: []
+    sprint_refs: [SP-V02-003, SP-V03-004]
 
   - id: PRD-005
     name: "MoltCredit Credit Lines"
@@ -89,10 +91,11 @@ features:
       - "GET /credit shows incoming/outgoing credit lines"
       - "POST /transact records transactions against credit"
       - "Balance tracking with credit limit enforcement"
+      - "Trust score calculation based on repayment history"
     priority: medium
     status: planned
     roadmap_ref: RM-v0-005
-    sprint_refs: []
+    sprint_refs: [SP-V04-001, SP-V04-002, SP-V04-003, SP-V04-004, SP-V04-005, SP-V04-006, SP-V04-009, SP-V07-001, SP-V07-003]
 
   - id: PRD-006
     name: "AgentMail Email Service"
@@ -105,7 +108,7 @@ features:
     priority: medium
     status: planned
     roadmap_ref: RM-v1-001
-    sprint_refs: []
+    sprint_refs: [SP-V05-001, SP-V05-002, SP-V05-003, SP-V05-004, SP-V05-005, SP-V05-006, SP-V05-007, SP-V05-010]
 
   - id: PRD-007
     name: "MoltPhone Voice API"
@@ -118,7 +121,7 @@ features:
     priority: medium
     status: planned
     roadmap_ref: RM-v1-002
-    sprint_refs: []
+    sprint_refs: [SP-V06-001, SP-V06-002, SP-V06-003, SP-V06-004, SP-V06-005, SP-V06-006, SP-V06-009]
 
   - id: PRD-008
     name: "Production Deployment"
@@ -132,7 +135,7 @@ features:
     priority: high
     status: planned
     roadmap_ref: RM-v0-006
-    sprint_refs: []
+    sprint_refs: [SP-V03-001, SP-V03-002, SP-V04-005, SP-V05-006, SP-V06-005, SP-V07-007, SP-V08-006]
 
   - id: PRD-009
     name: "API Documentation"
@@ -144,7 +147,7 @@ features:
     priority: medium
     status: planned
     roadmap_ref: RM-v0-007
-    sprint_refs: []
+    sprint_refs: [SP-V03-003, SP-V04-006, SP-V05-007, SP-V06-006]
 
   - id: PRD-010
     name: "Test Coverage"
@@ -154,10 +157,67 @@ features:
       - "Integration tests for API endpoints"
       - "Test database setup/teardown"
       - "CI runs tests on PRs"
+      - "E2E smoke tests across all services"
     priority: medium
     status: planned
     roadmap_ref: RM-v1-003
-    sprint_refs: []
+    sprint_refs: [SP-V04-009, SP-V05-010, SP-V06-009, SP-V08-003, SP-V08-004]
+
+  - id: PRD-011
+    name: "MoltCredit Webapp"
+    description: "Web application for managing credit lines, trust scores, and transactions"
+    acceptance_criteria:
+      - "Login/register with API key"
+      - "Dashboard showing credit lines given and received"
+      - "Extend credit, draw, and repay forms"
+      - "Trust score display"
+      - "Transaction history per credit line"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v1-004
+    sprint_refs: [SP-V04-007]
+
+  - id: PRD-012
+    name: "AgentMail Webapp"
+    description: "Web application for managing agent email: inbox, compose, sent, webhooks"
+    acceptance_criteria:
+      - "Login/register with API key"
+      - "Inbox view with received emails"
+      - "Compose and send email form"
+      - "Sent folder view"
+      - "Webhook management panel"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v1-005
+    sprint_refs: [SP-V05-008]
+
+  - id: PRD-013
+    name: "Landing Page Integration"
+    description: "Update all landing pages to link to live webapps and API docs"
+    acceptance_criteria:
+      - "All landing pages link to live webapps"
+      - "All landing pages link to API docs"
+      - "Feature lists match real capabilities"
+      - "Real product screenshots"
+      - "Proper SEO meta tags"
+    priority: low
+    status: planned
+    roadmap_ref: RM-v1-006
+    sprint_refs: [SP-V03-005, SP-V04-008, SP-V05-009, SP-V06-008, SP-V08-005]
+
+  - id: PRD-014
+    name: "Production Hardening"
+    description: "Security, rate limiting, and operational hardening for production"
+    acceptance_criteria:
+      - "Per-agent rate limiting on all services"
+      - "API key rotation with grace period"
+      - "Input validation audit (Zod schemas on all endpoints)"
+      - "SQL injection prevention verified"
+      - "Error tracking via Sentry"
+    priority: medium
+    status: planned
+    roadmap_ref: RM-v1-007
+    sprint_refs: [SP-V07-004, SP-V07-005, SP-V07-006, SP-V08-001, SP-V08-002]
 
 constraints:
   - "Monorepo with all services in subdirectories"
@@ -175,41 +235,57 @@ dependencies:
 traceability:
   - prd_id: PRD-001
     roadmap_ref: RM-v0-001
-    sprint_refs: []
+    sprint_refs: [SP-V01-001, SP-V01-002, SP-V01-004, SP-V01-005]
     status: planned
   - prd_id: PRD-002
     roadmap_ref: RM-v0-002
-    sprint_refs: []
+    sprint_refs: [SP-V02-001, SP-V07-002, SP-V07-005]
     status: planned
   - prd_id: PRD-003
     roadmap_ref: RM-v0-003
-    sprint_refs: []
+    sprint_refs: [SP-V02-002, SP-V02-004, SP-V03-004, SP-V07-001, SP-V07-003]
     status: planned
   - prd_id: PRD-004
     roadmap_ref: RM-v0-004
-    sprint_refs: []
+    sprint_refs: [SP-V02-003, SP-V03-004]
     status: planned
   - prd_id: PRD-005
     roadmap_ref: RM-v0-005
-    sprint_refs: []
+    sprint_refs: [SP-V04-001, SP-V04-002, SP-V04-003, SP-V04-004, SP-V04-005, SP-V04-006, SP-V04-009, SP-V07-001, SP-V07-003]
     status: planned
   - prd_id: PRD-006
     roadmap_ref: RM-v1-001
-    sprint_refs: []
+    sprint_refs: [SP-V05-001, SP-V05-002, SP-V05-003, SP-V05-004, SP-V05-005, SP-V05-006, SP-V05-007, SP-V05-010]
     status: planned
   - prd_id: PRD-007
     roadmap_ref: RM-v1-002
-    sprint_refs: []
+    sprint_refs: [SP-V06-001, SP-V06-002, SP-V06-003, SP-V06-004, SP-V06-005, SP-V06-006, SP-V06-009]
     status: planned
   - prd_id: PRD-008
     roadmap_ref: RM-v0-006
-    sprint_refs: []
+    sprint_refs: [SP-V03-001, SP-V03-002, SP-V04-005, SP-V05-006, SP-V06-005, SP-V07-007, SP-V08-006]
     status: planned
   - prd_id: PRD-009
     roadmap_ref: RM-v0-007
-    sprint_refs: []
+    sprint_refs: [SP-V03-003, SP-V04-006, SP-V05-007, SP-V06-006]
     status: planned
   - prd_id: PRD-010
     roadmap_ref: RM-v1-003
-    sprint_refs: []
+    sprint_refs: [SP-V04-009, SP-V05-010, SP-V06-009, SP-V08-003, SP-V08-004]
+    status: planned
+  - prd_id: PRD-011
+    roadmap_ref: RM-v1-004
+    sprint_refs: [SP-V04-007]
+    status: planned
+  - prd_id: PRD-012
+    roadmap_ref: RM-v1-005
+    sprint_refs: [SP-V05-008]
+    status: planned
+  - prd_id: PRD-013
+    roadmap_ref: RM-v1-006
+    sprint_refs: [SP-V03-005, SP-V04-008, SP-V05-009, SP-V06-008, SP-V08-005]
+    status: planned
+  - prd_id: PRD-014
+    roadmap_ref: RM-v1-007
+    sprint_refs: [SP-V07-004, SP-V07-005, SP-V07-006, SP-V08-001, SP-V08-002]
     status: planned

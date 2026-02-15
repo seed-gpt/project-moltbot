@@ -1,0 +1,190 @@
+sprint: v04
+name: "MoltCredit — Full-Stack Working App"
+goal: |
+  Build MoltCredit from scratch as a complete full-stack application:
+    • Database: credit_lines + credit_transactions tables
+    • Backend API: credit extension, transacting, balance tracking, settlement prep
+    • Webapp: new web interface for managing credit lines
+    • Deployment: Docker + Cloud Run
+    • Docs: OpenAPI spec + Swagger UI
+    • Landing page: update to link to live product
+status: planned
+estimated_hours: 18
+
+stories:
+  - id: SP-V04-001
+    title: "MoltCredit Database Schema"
+    description: |
+      Migration files for MoltCredit-specific tables.
+      credit_lines: tracks credit relationships between agents.
+      credit_transactions: records draws against credit lines.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-005]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "Migration creates credit_lines table (id, grantor_id FK, grantee_id FK, limit_amount INTEGER, used_amount INTEGER, currency, status, created_at, updated_at)"
+      - "Migration creates credit_transactions table (id, credit_line_id FK, amount INTEGER, type ENUM(draw/repay), memo, created_at)"
+      - "Foreign keys reference agents table from Sprint v01"
+      - "Indexes on grantor_id, grantee_id for fast lookups"
+      - "npm run migrate:up applies cleanly"
+    tests:
+      - "Migration up + down round-trip"
+
+  - id: SP-V04-002
+    title: "MoltCredit API — Credit Line Management"
+    description: |
+      Core credit line endpoints: extend credit to another agent,
+      view all credit lines (given and received), revoke unused lines.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-005]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "POST /credit/extend {grantee_handle, limit_amount, memo?} creates credit line"
+      - "GET /credit returns {given: [...], received: [...]} credit lines with balances"
+      - "GET /credit/:id returns detailed credit line with transaction history"
+      - "POST /credit/:id/revoke revokes unused credit line (fails if used > 0)"
+      - "Cannot extend credit to yourself"
+      - "Duplicate credit line to same grantee returns 409"
+    tests:
+      - "Integration: extend credit → verify in GET /credit"
+      - "Integration: revoke unused line → verify removed"
+      - "Edge case: extend to self → 400"
+      - "Edge case: duplicate → 409"
+
+  - id: SP-V04-003
+    title: "MoltCredit API — Transactions & Balances"
+    description: |
+      Draw against credit lines, repay, check balances.
+      Enforce credit limits. Track all transactions.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-005]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "POST /credit/:id/draw {amount, memo?} draws against credit line"
+      - "POST /credit/:id/repay {amount, memo?} repays credit line"
+      - "Draw fails with 400 if amount > (limit - used)"
+      - "Repay fails with 400 if amount > used"
+      - "GET /credit/balance/:handle returns net balance with specific agent"
+      - "GET /credit/:id/transactions returns paginated transaction history"
+      - "All amounts stored as integers (cents)"
+    tests:
+      - "Integration: extend → draw → verify used_amount updated"
+      - "Integration: draw → repay → verify balance restored"
+      - "Edge case: draw exceeding limit → 400"
+      - "Edge case: repay more than owed → 400"
+
+  - id: SP-V04-004
+    title: "MoltCredit API — Trust Scores & Stats"
+    description: |
+      Public endpoints for trust metrics: credit utilization rates,
+      repayment history, trust score calculation.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-005]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "GET /trust/:handle returns trust score and credit summary for an agent"
+      - "Trust score based on: repayment rate, total credit received, age of lines"
+      - "GET /stats returns global credit network stats"
+      - "Endpoints are public (no auth required)"
+    tests:
+      - "Integration: extend + draw + repay → verify trust score increases"
+      - "Unit test: trust score calculation formula"
+
+  - id: SP-V04-005
+    title: "MoltCredit Docker & Cloud Run Deploy"
+    description: |
+      Dockerize MoltCredit service. Deploy to Cloud Run.
+      GitHub Actions workflow for automated deployment.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-005, PRD-008]
+    roadmap_refs: [v0-deployment, v0-moltcredit-api]
+    acceptance_criteria:
+      - "Dockerfile for services/moltcredit (multi-stage)"
+      - "Health check endpoints (/health, /ready)"
+      - "GitHub Actions deploy workflow"
+      - "Cloud Run service accessible (api.moltcredit.xyz)"
+      - "Structured JSON logging"
+    tests:
+      - "docker build succeeds"
+      - "curl https://api.moltcredit.xyz/health returns 200"
+
+  - id: SP-V04-006
+    title: "MoltCredit OpenAPI Docs"
+    description: |
+      OpenAPI 3.0 spec for all MoltCredit endpoints.
+      Swagger UI at /docs.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-005, PRD-009]
+    roadmap_refs: [v0-api-docs, v0-moltcredit-api]
+    acceptance_criteria:
+      - "OpenAPI 3.0 spec for all endpoints"
+      - "GET /docs serves Swagger UI"
+      - "Auth scheme documented"
+      - "All error responses documented"
+    tests:
+      - "swagger-cli validate"
+      - "Browse /docs"
+
+  - id: SP-V04-007
+    title: "MoltCredit Webapp"
+    description: |
+      New web application for MoltCredit (app.moltcredit.xyz).
+      Dashboard showing credit lines given/received, draw/repay forms,
+      transaction history, trust scores.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-005, PRD-011]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "Login/register with API key"
+      - "Dashboard: credit lines given (with utilization bars)"
+      - "Dashboard: credit lines received (with available balance)"
+      - "Extend credit form (recipient handle, limit amount)"
+      - "Draw/repay forms per credit line"
+      - "Transaction history per credit line"
+      - "Trust score display for self and other agents"
+      - "Loading and error states throughout"
+    tests:
+      - "Manual: register → extend credit → draw → repay"
+      - "Manual: view trust score after transactions"
+
+  - id: SP-V04-008
+    title: "MoltCredit Landing Page Update"
+    description: |
+      Update moltcredit-landing to link to live webapp and API docs.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-005, PRD-013]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "'Get Started' CTA links to app.moltcredit.xyz"
+      - "'API Docs' links to api.moltcredit.xyz/docs"
+      - "Feature list reflects actual capabilities"
+    tests:
+      - "All links resolve to live URLs"
+
+  - id: SP-V04-009
+    title: "MoltCredit Tests"
+    description: |
+      Unit tests for business logic (trust score, credit limits).
+      Integration tests for all API endpoints.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-005, PRD-010]
+    roadmap_refs: [v0-moltcredit-api]
+    acceptance_criteria:
+      - "Unit tests for trust score calculation"
+      - "Unit tests for credit limit enforcement"
+      - "Integration tests for all CRUD endpoints"
+      - "Test coverage > 80% for business logic"
+    tests:
+      - "npm test -w services/moltcredit"
+
+dependencies:
+  - sprint-v03-moltbank-ship

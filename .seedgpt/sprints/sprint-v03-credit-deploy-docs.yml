@@ -1,0 +1,118 @@
+sprint: v03
+name: "MoltBank Ship — Deploy, Docs, Webapp & Landing"
+goal: |
+  Take MoltBank from working API (Sprint v02) to a fully shipped product:
+    • Dockerize and deploy to Cloud Run
+    • OpenAPI docs with Swagger UI
+    • Connect the existing webapp to the real API
+    • Update landing page to link to live webapp and API docs
+status: planned
+estimated_hours: 12
+
+stories:
+  - id: SP-V03-001
+    title: "MoltBank Docker & Health Checks"
+    description: |
+      Multi-stage Dockerfile for services/moltbank.
+      Health (/health) and readiness (/ready) endpoints.
+      Structured JSON logging via Pino.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-008]
+    roadmap_refs: [v0-deployment]
+    acceptance_criteria:
+      - "Dockerfile builds successfully (multi-stage: build → runtime)"
+      - "GET /health returns 200 with {status: 'ok'}"
+      - "GET /ready returns 200 only when DB is connected, 503 otherwise"
+      - "All logs output as structured JSON via Pino"
+      - "Docker image size < 200MB"
+    tests:
+      - "docker build -t moltbank . && docker run health check"
+      - "Unit test: /ready returns 503 when DB pool closed"
+
+  - id: SP-V03-002
+    title: "MoltBank Cloud Run Deployment"
+    description: |
+      GitHub Actions workflow: build Docker image, push to Artifact Registry,
+      deploy to Cloud Run. Env vars via Cloud Run config.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-008]
+    roadmap_refs: [v0-deployment]
+    acceptance_criteria:
+      - "GitHub Actions workflow triggers on push to main (services/moltbank/**)"
+      - "Image pushed to GCP Artifact Registry"
+      - "Cloud Run service deployed and accessible"
+      - "Environment variables configured (DATABASE_URL, API_KEY_SALT, etc.)"
+      - "Custom domain mapped (api.molt-bank.com)"
+      - "curl https://api.molt-bank.com/health returns 200"
+    tests:
+      - "Push to main, verify deployment succeeds"
+      - "curl production /health and /ready"
+
+  - id: SP-V03-003
+    title: "MoltBank OpenAPI Documentation"
+    description: |
+      OpenAPI 3.0 spec covering all MoltBank endpoints.
+      Swagger UI served at /docs. Includes auth examples,
+      error codes, and request/response schemas.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-009]
+    roadmap_refs: [v0-api-docs]
+    acceptance_criteria:
+      - "OpenAPI 3.0 YAML spec for all MoltBank endpoints"
+      - "GET /docs serves Swagger UI"
+      - "Spec includes Bearer auth security scheme"
+      - "All request/response bodies have JSON Schema definitions"
+      - "Error responses documented (400, 401, 404, 409, 500)"
+      - "Example values for all parameters"
+    tests:
+      - "npx @apidevtools/swagger-cli validate spec.yml"
+      - "Browse /docs, try POST /register from Swagger UI"
+
+  - id: SP-V03-004
+    title: "MoltBank Webapp — Connect to Real API"
+    description: |
+      Rewire moltbank-webapp to call the deployed MoltBank API instead of
+      being a static mockup. Add auth flow, real wallet display, transaction
+      forms, and proper error/loading states.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-003, PRD-004]
+    roadmap_refs: [v0-webapp-integration]
+    acceptance_criteria:
+      - "Login/register form that obtains API key"
+      - "Dashboard shows real wallet balance from GET /wallet"
+      - "Deposit form calls POST /wallet/deposit, updates balance"
+      - "Transfer form calls POST /wallet/transfer with recipient handle"
+      - "Transaction history populated from GET /wallet/transactions (paginated)"
+      - "Escrow create/release/dispute forms working"
+      - "Loading spinners during API calls"
+      - "Error toasts for failed operations (insufficient balance, invalid handle, etc.)"
+      - "Leaderboard page showing GET /leaderboard data"
+    tests:
+      - "Manual: register → deposit → transfer → verify balance"
+      - "Manual: create escrow → release → verify funds moved"
+      - "Manual: trigger error states (empty balance transfer)"
+
+  - id: SP-V03-005
+    title: "MoltBank Landing Page Update"
+    description: |
+      Update moltbank-landing (molt-bank.com) to link to the live webapp
+      and API docs. Add 'Get Started' CTA pointing to registration,
+      link to /docs, and show real-time stats if possible.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-003]
+    roadmap_refs: [v0-webapp-integration]
+    acceptance_criteria:
+      - "'Get Started' button links to app.molt-bank.com"
+      - "'API Docs' link to api.molt-bank.com/docs"
+      - "Hero section updated with real product screenshots"
+      - "Feature list matches actual API capabilities"
+    tests:
+      - "All links on landing page resolve to live URLs"
+
+dependencies:
+  - sprint-v02-core-apis

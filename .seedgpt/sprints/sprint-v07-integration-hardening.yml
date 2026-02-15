@@ -1,0 +1,148 @@
+sprint: v07
+name: "Cross-Service Integration & Production Hardening"
+goal: |
+  Connect all four services together and harden for production:
+    • MoltCredit ↔ MoltBank settlement (settle credit via wallet transfer)
+    • Unified agent directory across all services
+    • Trust scores in MoltBank leaderboard
+    • Rate limiting, API key rotation, input validation audit
+    • docker-compose for full local stack (all 4 services + DB)
+status: planned
+estimated_hours: 14
+
+stories:
+  - id: SP-V07-001
+    title: "MoltCredit → MoltBank Settlement"
+    description: |
+      When settling a credit line, trigger a MoltBank wallet transfer.
+      Atomic: if wallet transfer fails, settlement rolls back.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-003, PRD-005]
+    roadmap_refs: [v1-cross-service]
+    acceptance_criteria:
+      - "POST /credit/:id/settle triggers wallet transfer in MoltBank"
+      - "Settlement amount = used_amount on credit line"
+      - "Grantee wallet debited, grantor wallet credited"
+      - "Credit line used_amount reset to 0 after settlement"
+      - "Settlement record created in both services"
+      - "If wallet transfer fails (insufficient funds), settlement rolls back"
+      - "Settlement history visible in credit line detail view"
+    tests:
+      - "Integration: extend → draw → settle → verify wallet balances"
+      - "Integration: settle with insufficient funds → verify rollback"
+
+  - id: SP-V07-002
+    title: "Unified Agent Directory"
+    description: |
+      Cross-service endpoint showing all agents and which services
+      they are active on. Queryable by handle or capabilities.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-002]
+    roadmap_refs: [v1-cross-service]
+    acceptance_criteria:
+      - "GET /directory returns paginated agent list with services array"
+      - "GET /directory/:handle returns agent profile with all active services"
+      - "Services array includes: moltbank, moltcredit, moltmail, moltphone"
+      - "GET /directory?service=moltbank filters agents by service"
+      - "Includes trust score from MoltCredit"
+      - "Includes wallet balance tier from MoltBank (no exact amount)"
+    tests:
+      - "Integration: register on multiple services → verify directory entry"
+
+  - id: SP-V07-003
+    title: "Trust Score in MoltBank Leaderboard"
+    description: |
+      Integrate MoltCredit trust scores into MoltBank leaderboard.
+      Leaderboard can sort by volume, trust score, or combined.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-003, PRD-005]
+    roadmap_refs: [v1-cross-service]
+    acceptance_criteria:
+      - "GET /leaderboard includes trust_score field"
+      - "GET /leaderboard?sort=trust sorts by trust score"
+      - "GET /leaderboard?sort=combined uses weighted combination"
+      - "Agents without credit history show trust_score=0"
+    tests:
+      - "Integration: agents with credit history rank higher"
+
+  - id: SP-V07-004
+    title: "Rate Limiting — All Services"
+    description: |
+      Express middleware for configurable per-agent rate limiting.
+      Apply to all services with sensible defaults.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-008, PRD-014]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "Rate limit middleware in packages/shared"
+      - "Configurable per-endpoint limits"
+      - "Default limits: 100 req/min for reads, 20 req/min for writes"
+      - "Returns 429 with Retry-After header"
+      - "X-RateLimit-Remaining header on all responses"
+      - "Applied to all four services"
+    tests:
+      - "Integration: exceed limit → verify 429 + Retry-After"
+
+  - id: SP-V07-005
+    title: "API Key Rotation"
+    description: |
+      Allow agents to rotate their API key without losing access.
+      Grace period where both old and new keys work.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-002, PRD-014]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "POST /rotate-key returns new API key"
+      - "Old key valid for 24hr grace period"
+      - "After grace period, old key returns 401"
+      - "New key works immediately"
+      - "Key rotation logged for audit"
+    tests:
+      - "Integration: rotate → use old key → use new key → wait → old key 401"
+
+  - id: SP-V07-006
+    title: "Input Validation & Security Audit"
+    description: |
+      Audit all endpoints for input validation, SQL injection prevention,
+      and security best practices.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-008, PRD-014]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "All endpoints use Zod schemas for input validation"
+      - "All SQL queries use parameterized queries (zero string interpolation)"
+      - "XSS prevention on any user-facing content (email bodies, etc.)"
+      - "Content-Type enforcement on all endpoints"
+      - "Max request body size enforced"
+    tests:
+      - "Security test: SQL injection attempt → 400"
+      - "Security test: oversized body → 413"
+
+  - id: SP-V07-007
+    title: "Full Local Stack — docker-compose"
+    description: |
+      docker-compose.yml that starts all 4 services + PostgreSQL.
+      Single command to run the entire ecosystem locally.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-008]
+    roadmap_refs: [v0-deployment]
+    acceptance_criteria:
+      - "docker-compose.yml defines: postgres, moltbank, moltcredit, moltmail, moltphone"
+      - "Migrations run automatically on startup"
+      - "All services accessible on distinct local ports"
+      - "Seed data creates test agents"
+      - "README documents docker-compose up workflow"
+    tests:
+      - "docker-compose up -d → curl all health endpoints"
+
+dependencies:
+  - sprint-v04-moltcredit-full
+  - sprint-v05-agentmail-full
+  - sprint-v06-moltphone-full

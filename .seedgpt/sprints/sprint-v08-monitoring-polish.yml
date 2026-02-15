@@ -1,0 +1,135 @@
+sprint: v08
+name: "Monitoring, E2E Testing & Production Polish"
+goal: |
+  Final production-readiness sprint:
+    • Error tracking and monitoring (Sentry, GCP metrics)
+    • End-to-end smoke tests covering all services
+    • CI/CD: full test matrix with Postgres service container
+    • Final landing page polish and SEO
+    • Production readiness checklist sign-off
+status: planned
+estimated_hours: 12
+
+stories:
+  - id: SP-V08-001
+    title: "Error Tracking — Sentry Integration"
+    description: |
+      Add Sentry SDK to all four services. Capture unhandled errors
+      with context (agent_id, endpoint, request body).
+    status: planned
+    effort: medium
+    prd_refs: [PRD-008]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "Sentry SDK installed in all 4 services"
+      - "Unhandled exceptions captured with stack trace"
+      - "Error context includes: agent_id, endpoint, method"
+      - "Sentry DSN configured via environment variable"
+      - "Source maps uploaded for TypeScript debugging"
+      - "Alert rules: notify on first occurrence of new error"
+    tests:
+      - "Trigger intentional error → verify in Sentry dashboard"
+
+  - id: SP-V08-002
+    title: "Request Metrics & GCP Monitoring"
+    description: |
+      Structured logging for request metrics. GCP Cloud Monitoring
+      dashboards for latency, error rates, and throughput.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-008]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "Request log entries include: method, path, status, duration_ms, agent_id"
+      - "GCP Cloud Monitoring custom dashboard per service"
+      - "Latency P50/P95/P99 visible"
+      - "Error rate tracking (4xx and 5xx)"
+      - "DB connection pool utilization metric"
+      - "Alert policy: P95 latency > 1s for 5 min"
+    tests:
+      - "Generate load → verify metrics in GCP dashboard"
+
+  - id: SP-V08-003
+    title: "E2E Smoke Tests — All Services"
+    description: |
+      End-to-end test suite that exercises the full agent lifecycle:
+      register → use each service → verify cross-service interactions.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-010]
+    roadmap_refs: [v1-testing]
+    acceptance_criteria:
+      - "E2E test: register agent → get API key → use across all services"
+      - "E2E test: MoltBank: deposit → transfer → escrow lifecycle"
+      - "E2E test: MoltCredit: extend → draw → repay → settle via MoltBank"
+      - "E2E test: AgentMail: send email → check sent folder"
+      - "E2E test: MoltPhone: initiate call (mocked) → verify transcript"
+      - "E2E test: cross-service: verify agent directory, leaderboard with trust"
+      - "Tests run against local docker-compose stack"
+    tests:
+      - "npm run test:e2e"
+
+  - id: SP-V08-004
+    title: "CI/CD — Full Test Matrix"
+    description: |
+      GitHub Actions workflow with Postgres service container.
+      Run unit tests, integration tests, and E2E tests on every PR.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-010]
+    roadmap_refs: [v1-testing]
+    acceptance_criteria:
+      - "CI workflow uses PostgreSQL service container (postgres:16)"
+      - "Runs: lint → build → unit tests → integration tests → E2E"
+      - "All workspaces tested"
+      - "Failed tests block merge"
+      - "Test results visible as GitHub check annotations"
+      - "Coverage report posted as PR comment"
+    tests:
+      - "Push branch → verify full pipeline passes"
+
+  - id: SP-V08-005
+    title: "Landing Pages — Final Polish & SEO"
+    description: |
+      Final visual and SEO polish for all four landing pages.
+      Ensure consistent branding, meta tags, real screenshots.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-013]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "All landing pages have proper meta title, description, OG tags"
+      - "Real product screenshots replace mockup images"
+      - "Consistent branding across all four landing pages"
+      - "Mobile responsive design verified"
+      - "All links to webapps and API docs working"
+      - "Google Analytics or equivalent tags added"
+    tests:
+      - "Lighthouse scores > 90 on all landing pages"
+      - "OG tag previews correct on social media"
+
+  - id: SP-V08-006
+    title: "Production Readiness Checklist"
+    description: |
+      Final sign-off checklist before declaring v1 complete.
+      Verify all services are running, documented, tested, and monitored.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-008]
+    roadmap_refs: [v1-monitoring]
+    acceptance_criteria:
+      - "All 4 services deployed and healthy on Cloud Run"
+      - "All 4 OpenAPI specs valid and accessible at /docs"
+      - "All 4 webapps functional and linked from landing pages"
+      - "All 4 landing pages live with correct links"
+      - "CI pipeline passing with full test suite"
+      - "Sentry capturing errors for all services"
+      - "GCP monitoring dashboards active"
+      - "README.md updated with final architecture and setup guide"
+      - ".env.example documenting all environment variables"
+      - "docker-compose.yml running full stack locally"
+    tests:
+      - "Verify each checklist item manually"
+
+dependencies:
+  - sprint-v07-integration-hardening

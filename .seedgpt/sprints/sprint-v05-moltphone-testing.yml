@@ -1,0 +1,203 @@
+sprint: v05
+name: "AgentMail — Full-Stack Working App"
+goal: |
+  Build AgentMail (MoltMail) from scratch as a complete full-stack application:
+    • Database: emails + email_addresses tables
+    • Backend API: email provisioning, sending, inbox, webhooks
+    • Webapp: new web interface for managing agent email
+    • Deployment: Docker + Cloud Run
+    • Docs: OpenAPI spec + Swagger UI
+    • Landing page: update to link to live product
+    • Integration with email provider (Resend or Postmark)
+status: planned
+estimated_hours: 20
+
+stories:
+  - id: SP-V05-001
+    title: "AgentMail Database Schema"
+    description: |
+      Migration files for email-specific tables.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-006]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "Migration creates email_addresses table (id, agent_id FK, address VARCHAR UNIQUE, verified BOOLEAN, created_at)"
+      - "Migration creates emails table (id, from_address, to_address, subject, body_text, body_html, status ENUM(queued/sent/delivered/failed/received), direction ENUM(inbound/outbound), message_id VARCHAR, created_at)"
+      - "Migration creates email_webhooks table (id, agent_id FK, url VARCHAR, events VARCHAR[], active BOOLEAN, created_at)"
+      - "Indexes on from_address, to_address, agent_id"
+    tests:
+      - "Migration up + down round-trip"
+
+  - id: SP-V05-002
+    title: "AgentMail API — Email Provisioning"
+    description: |
+      When an agent registers, provision a handle@agentmail.xyz address.
+      Manage email addresses per agent.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-006]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "Agent registration auto-provisions handle@agentmail.xyz"
+      - "GET /addresses returns agent's email addresses"
+      - "POST /addresses/add allows adding alias addresses"
+      - "Email address uniqueness enforced"
+      - "Domain validation (only @agentmail.xyz allowed)"
+    tests:
+      - "Integration: register agent → verify address created"
+      - "Edge case: duplicate address → 409"
+
+  - id: SP-V05-003
+    title: "AgentMail API — Sending Emails"
+    description: |
+      Send emails via provider (Resend/Postmark).
+      Support text and HTML bodies. Track delivery status.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-006]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "POST /send {to, subject, body_text, body_html?} sends email"
+      - "From address defaults to agent's @agentmail.xyz address"
+      - "Email stored in DB with status=queued, updated to sent/delivered/failed"
+      - "Rate limiting: max 100 emails/hour per agent"
+      - "Input validation: valid email format, max body size"
+      - "Returns message_id for tracking"
+    tests:
+      - "Integration with mocked provider: send → verify stored with correct status"
+      - "Rate limit: 101st email → 429"
+      - "Invalid email → 400"
+
+  - id: SP-V05-004
+    title: "AgentMail API — Inbox & Message Retrieval"
+    description: |
+      Receive and store incoming emails. Provide inbox browsing endpoints.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-006]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "GET /inbox returns paginated list of received emails"
+      - "GET /inbox/:id returns full email with headers"
+      - "DELETE /inbox/:id deletes email"
+      - "GET /inbox?unread=true filters unread messages"
+      - "GET /sent returns paginated list of sent emails"
+      - "Inbox supports pagination (limit, offset)"
+    tests:
+      - "Integration: receive (mock webhook) → GET /inbox → verify"
+      - "Pagination: create 25 emails → verify page 1 and page 2"
+
+  - id: SP-V05-005
+    title: "AgentMail API — Inbound Webhooks"
+    description: |
+      Webhook endpoint for email provider to deliver incoming mail.
+      Agent-configurable webhook forwarding for real-time notifications.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-006]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "POST /webhooks/inbound receives incoming email from provider"
+      - "Incoming email stored in DB with direction=inbound"
+      - "POST /webhooks/subscribe {url, events[]} registers agent webhook"
+      - "GET /webhooks returns agent's webhook subscriptions"
+      - "DELETE /webhooks/:id removes subscription"
+      - "When email received, forward to all active agent webhooks"
+      - "Webhook signature verification from provider"
+    tests:
+      - "Integration: simulate inbound webhook → verify stored"
+      - "Integration: subscribe webhook → receive email → verify forwarded"
+
+  - id: SP-V05-006
+    title: "AgentMail Docker & Cloud Run Deploy"
+    description: |
+      Dockerize AgentMail. Deploy to Cloud Run.
+      Configure email provider API keys and domain verification.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-006, PRD-008]
+    roadmap_refs: [v1-moltmail-api, v0-deployment]
+    acceptance_criteria:
+      - "Dockerfile for services/moltmail (multi-stage)"
+      - "Health check endpoints (/health, /ready)"
+      - "GitHub Actions deploy workflow"
+      - "Cloud Run service accessible (api.moltmail.xyz)"
+      - "Email provider API key configured"
+      - "agentmail.xyz domain SPF/DKIM/DMARC configured"
+    tests:
+      - "curl https://api.moltmail.xyz/health"
+
+  - id: SP-V05-007
+    title: "AgentMail OpenAPI Docs"
+    description: |
+      OpenAPI 3.0 spec for all AgentMail endpoints. Swagger UI at /docs.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-006, PRD-009]
+    roadmap_refs: [v1-moltmail-api, v0-api-docs]
+    acceptance_criteria:
+      - "OpenAPI 3.0 spec for all endpoints"
+      - "GET /docs serves Swagger UI"
+      - "Webhook schemas documented"
+      - "Rate limit headers documented"
+    tests:
+      - "swagger-cli validate"
+
+  - id: SP-V05-008
+    title: "AgentMail Webapp"
+    description: |
+      New web application for AgentMail (app.moltmail.xyz or app.agentmail.xyz).
+      Inbox view, compose form, sent folder, webhook management.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-006, PRD-012]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "Login/register with API key"
+      - "Inbox view: list of received emails with subject, sender, date"
+      - "Email detail view: full body (text or HTML rendered)"
+      - "Compose form: to, subject, body with send button"
+      - "Sent folder view"
+      - "Webhook management: add/remove webhook URLs"
+      - "Email address management"
+      - "Unread count indicator"
+      - "Loading and error states"
+    tests:
+      - "Manual: register → send email → check sent folder"
+      - "Manual: receive email (via webhook test) → view in inbox"
+
+  - id: SP-V05-009
+    title: "AgentMail Landing Page Update"
+    description: |
+      Update moltmail-landing to link to live webapp and API docs.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-006, PRD-013]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "'Get Started' CTA links to webapp"
+      - "'API Docs' links to api.moltmail.xyz/docs"
+      - "Feature list matches real capabilities"
+    tests:
+      - "All links resolve"
+
+  - id: SP-V05-010
+    title: "AgentMail Tests"
+    description: |
+      Unit tests for email logic. Integration tests for all endpoints.
+      Mock email provider for testability.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-006, PRD-010]
+    roadmap_refs: [v1-moltmail-api]
+    acceptance_criteria:
+      - "Unit tests for email validation, rate limiting, webhook signing"
+      - "Integration tests for all CRUD endpoints"
+      - "Mock email provider for send tests"
+      - "Test coverage > 80% for business logic"
+    tests:
+      - "npm test -w services/moltmail"
+
+dependencies:
+  - sprint-v03-moltbank-ship

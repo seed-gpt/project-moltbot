@@ -1,0 +1,107 @@
+sprint: v01
+name: "Foundation — Monorepo, Shared Library & Database Schema"
+goal: |
+  Bootstrap the entire project from static HTML prototypes into a real
+  TypeScript monorepo.  At the end of this sprint the following will exist:
+    • npm workspace root with packages/shared and services/moltbank scaffolds
+    • Shared library: database pool, auth middleware, logger, env handling, error utils
+    • PostgreSQL schema with migration files (agents, wallets, transactions, escrows)
+    • Docker-compose for local Postgres
+    • Jest + Supertest configured and passing
+    • CI workflow (lint + test) on GitHub Actions
+status: planned
+estimated_hours: 12
+
+stories:
+  - id: SP-V01-001
+    title: "Monorepo Scaffold"
+    description: |
+      Create npm-workspace root. Set up packages/shared and services/moltbank
+      directories with TypeScript project references. Move existing landing
+      pages into services/{name}/static/ as per roadmap spec.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-001]
+    roadmap_refs: [v0-monorepo-setup]
+    acceptance_criteria:
+      - "Root package.json with workspaces config"
+      - "tsconfig.json with project references"
+      - "packages/shared/ compiles independently"
+      - "services/moltbank/ compiles independently"
+      - "Existing static HTML preserved under services/{name}/static/"
+    tests:
+      - "npm install succeeds from root"
+      - "npm run build succeeds from root"
+
+  - id: SP-V01-002
+    title: "Shared Library — Core Utilities"
+    description: |
+      Implement packages/shared with: database pool (pg + connection config),
+      API-key generation & validation, Pino logger, env-var loader,
+      request/response types, and error-handling middleware.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-001]
+    roadmap_refs: [v0-shared-lib]
+    acceptance_criteria:
+      - "db.ts exports a pg Pool factory using DATABASE_URL"
+      - "auth.ts generates prefixed API keys and hashes them"
+      - "logger.ts exports a configured Pino logger"
+      - "env.ts loads and validates required env vars via zod"
+      - "errors.ts exports AppError class and Express error middleware"
+    tests:
+      - "npm test -w packages/shared"
+
+  - id: SP-V01-003
+    title: "Database Schema & Migrations"
+    description: |
+      Create migration files for agents, wallets, transactions, and escrows
+      tables using node-pg-migrate. Add seed data for local dev.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-001, PRD-002, PRD-003, PRD-004]
+    roadmap_refs: [v0-database-schema]
+    acceptance_criteria:
+      - "Migration file creates agents table (id, handle, name, api_key_hash, metadata, created_at)"
+      - "Migration file creates wallets table (agent_id FK, balance INTEGER, currency, created_at)"
+      - "Migration file creates transactions table (id, from_agent, to_agent, amount, type, memo, created_at)"
+      - "Migration file creates escrows table (id, creator_id, counterparty_id, amount, status, description, created_at)"
+      - "npm run migrate:up applies all migrations"
+      - "npm run migrate:down reverts cleanly"
+      - "Seed script creates test agents with wallets"
+    tests:
+      - "npm run migrate:up && npm run migrate:down (round-trip)"
+
+  - id: SP-V01-004
+    title: "Local Dev Environment"
+    description: |
+      docker-compose.yml with PostgreSQL 16, automatic migration execution,
+      and documented .env.example.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-001, PRD-008]
+    roadmap_refs: [v0-monorepo-setup]
+    acceptance_criteria:
+      - "docker-compose up -d starts PostgreSQL"
+      - ".env.example documents all required env vars"
+      - "npm run dev works after docker-compose up"
+    tests:
+      - "docker-compose up -d && npm run migrate:up && npm run dev"
+
+  - id: SP-V01-005
+    title: "CI Pipeline — Lint & Test"
+    description: |
+      GitHub Actions workflow that installs deps, lints, builds,
+      and runs tests on push/PR. Covers all workspaces.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-010]
+    roadmap_refs: [v0-monorepo-setup]
+    acceptance_criteria:
+      - "Workflow triggers on push to main and PRs"
+      - "Steps: install → lint → build → test"
+      - "Uses Node 20"
+    tests:
+      - "Push to branch and verify Actions pass"
+
+dependencies: []

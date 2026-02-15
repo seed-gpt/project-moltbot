@@ -1,0 +1,183 @@
+sprint: v06
+name: "MoltPhone — Full-Stack Working App"
+goal: |
+  Build MoltPhone from scratch as a complete full-stack application:
+    • Database: calls + transcripts tables
+    • Backend API: call initiation via Vapi, history, transcripts, webhooks
+    • Webapp: update existing webapp to use real backend
+    • Deployment: Docker + Cloud Run
+    • Docs: OpenAPI spec + Swagger UI
+    • Landing page: update to link to live product
+status: planned
+estimated_hours: 18
+
+stories:
+  - id: SP-V06-001
+    title: "MoltPhone Database Schema"
+    description: |
+      Migration files for call-related tables.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-007]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "Migration creates calls table (id, agent_id FK, direction ENUM(inbound/outbound), to_number VARCHAR, from_number VARCHAR, status ENUM(queued/ringing/in_progress/completed/failed/cancelled), duration_seconds INTEGER, vapi_call_id VARCHAR, cost_cents INTEGER, created_at, ended_at)"
+      - "Migration creates transcripts table (id, call_id FK, role ENUM(agent/user), content TEXT, timestamp_ms INTEGER)"
+      - "Migration creates call_webhooks table (id, agent_id FK, url VARCHAR, events VARCHAR[], active BOOLEAN)"
+      - "Indexes on agent_id, vapi_call_id, status"
+    tests:
+      - "Migration up + down round-trip"
+
+  - id: SP-V06-002
+    title: "MoltPhone API — Call Initiation"
+    description: |
+      Initiate outbound calls via Vapi. Configure AI assistant persona,
+      first message, voice settings. Return call ID for tracking.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-007]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "POST /call {to_number, assistant_config: {first_message, system_prompt, voice?}} initiates call"
+      - "Call created in DB with status=queued"
+      - "Vapi API called to create outbound call"
+      - "Returns {call_id, status, vapi_call_id}"
+      - "Rate limiting: max 10 concurrent calls per agent"
+      - "Input validation: E.164 phone number format"
+      - "POST /call/end/:id ends an active call"
+    tests:
+      - "Integration with mocked Vapi: initiate → verify DB record"
+      - "Rate limit: 11th concurrent call → 429"
+      - "Invalid phone number → 400"
+
+  - id: SP-V06-003
+    title: "MoltPhone API — Call History & Transcripts"
+    description: |
+      Browse call history, get call details with cost and duration,
+      retrieve full transcripts.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-007]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "GET /calls returns paginated call history with filters (status, date range)"
+      - "GET /calls/:id returns call details (status, duration, cost, to/from)"
+      - "GET /calls/:id/transcript returns full transcript as ordered messages"
+      - "GET /calls/stats returns agent's call statistics (total calls, total duration, total cost)"
+      - "Pagination with limit/offset"
+    tests:
+      - "Integration: create calls → verify in GET /calls"
+      - "Transcript ordering verified by timestamp_ms"
+
+  - id: SP-V06-004
+    title: "MoltPhone API — Vapi Webhooks"
+    description: |
+      Receive Vapi callbacks for call state changes and transcript updates.
+      Forward events to agent-registered webhooks.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-007]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "POST /webhooks/vapi receives Vapi callbacks (call.started, call.ended, transcript.update)"
+      - "Call status updated in DB based on webhook events"
+      - "Transcript entries created from transcript.update events"
+      - "Duration and cost populated from call.ended event"
+      - "POST /webhooks/subscribe registers agent webhook"
+      - "Events forwarded to agent webhooks"
+      - "Vapi webhook signature verification"
+    tests:
+      - "Integration: simulate call.started → verify status=in_progress"
+      - "Integration: simulate call.ended → verify duration/cost populated"
+      - "Integration: simulate transcript.update → verify transcript stored"
+
+  - id: SP-V06-005
+    title: "MoltPhone Docker & Cloud Run Deploy"
+    description: |
+      Dockerize MoltPhone. Deploy to Cloud Run.
+      Configure Vapi API key and webhook URL.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-007, PRD-008]
+    roadmap_refs: [v1-moltphone-api, v0-deployment]
+    acceptance_criteria:
+      - "Dockerfile for services/moltphone (multi-stage)"
+      - "Health check endpoints (/health, /ready)"
+      - "GitHub Actions deploy workflow"
+      - "Cloud Run service accessible (api.moltphone.xyz)"
+      - "Vapi API key configured"
+      - "Vapi webhook URL set to api.moltphone.xyz/webhooks/vapi"
+    tests:
+      - "curl https://api.moltphone.xyz/health"
+
+  - id: SP-V06-006
+    title: "MoltPhone OpenAPI Docs"
+    description: |
+      OpenAPI 3.0 spec for all MoltPhone endpoints. Swagger UI at /docs.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-007, PRD-009]
+    roadmap_refs: [v1-moltphone-api, v0-api-docs]
+    acceptance_criteria:
+      - "OpenAPI 3.0 spec for all endpoints"
+      - "GET /docs serves Swagger UI"
+      - "Webhook payload schemas documented"
+      - "E.164 phone number format documented"
+    tests:
+      - "swagger-cli validate"
+
+  - id: SP-V06-007
+    title: "MoltPhone Webapp — Connect to Real API"
+    description: |
+      Rewire moltphone-webapp (app.moltphone.xyz) to use the real
+      MoltPhone API. Add call initiation, history, transcript viewing.
+    status: planned
+    effort: hard
+    prd_refs: [PRD-007]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "Login/register with API key"
+      - "Call initiation form: phone number, AI persona config"
+      - "Active call display with status updates"
+      - "Call history list with status, duration, cost"
+      - "Transcript viewer for completed calls"
+      - "Call stats dashboard"
+      - "Webhook management panel"
+      - "Loading and error states"
+    tests:
+      - "Manual: register → make call → view in history → read transcript"
+
+  - id: SP-V06-008
+    title: "MoltPhone Landing Page Update"
+    description: |
+      Update moltphone-landing to link to live webapp and API docs.
+    status: planned
+    effort: easy
+    prd_refs: [PRD-007, PRD-013]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "'Get Started' CTA links to app.moltphone.xyz"
+      - "'API Docs' links to api.moltphone.xyz/docs"
+      - "Feature list matches real capabilities"
+    tests:
+      - "All links resolve"
+
+  - id: SP-V06-009
+    title: "MoltPhone Tests"
+    description: |
+      Unit tests for call logic and rate limiting.
+      Integration tests with mocked Vapi.
+    status: planned
+    effort: medium
+    prd_refs: [PRD-007, PRD-010]
+    roadmap_refs: [v1-moltphone-api]
+    acceptance_criteria:
+      - "Unit tests for rate limiting, E.164 validation"
+      - "Integration tests for all endpoints with mocked Vapi"
+      - "Webhook processing tests"
+      - "Test coverage > 80% for business logic"
+    tests:
+      - "npm test -w services/moltphone"
+
+dependencies:
+  - sprint-v03-moltbank-ship

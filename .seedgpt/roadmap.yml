@@ -2,7 +2,7 @@
 #
 # This file tracks the project roadmap with versions and items.
 # v0 = MVP: Core infrastructure + MoltBank production-ready
-# v1 = Growth: Complete ecosystem with all services
+# v1 = Growth: Complete ecosystem with all services as full-stack apps
 #
 # CROSS-REFERENCE SCHEMA:
 #   RM-{version}-###  → Roadmap Item ID
@@ -30,6 +30,7 @@ versions:
           - Move existing landing pages to `services/{name}/static/`
         priority: high
         status: planned
+        sprint_refs: [SP-V01-001, SP-V01-004, SP-V01-005]
         dependencies: []
 
       - id: v0-shared-lib
@@ -43,6 +44,7 @@ versions:
           - Error handling utilities
         priority: high
         status: planned
+        sprint_refs: [SP-V01-002]
         dependencies:
           - v0-monorepo-setup
 
@@ -57,6 +59,7 @@ versions:
           - Add seed data for development
         priority: high
         status: planned
+        sprint_refs: [SP-V01-003]
         dependencies:
           - v0-shared-lib
 
@@ -71,6 +74,7 @@ versions:
           - Add to shared auth middleware
         priority: high
         status: planned
+        sprint_refs: [SP-V02-001]
         dependencies:
           - v0-database-schema
 
@@ -89,6 +93,7 @@ versions:
           - GET /stats — global statistics
         priority: high
         status: planned
+        sprint_refs: [SP-V02-002, SP-V02-003, SP-V02-004]
         dependencies:
           - v0-agent-registration
 
@@ -97,11 +102,14 @@ versions:
           Implement MoltCredit backend API (`services/moltcredit`):
           - POST /credit/extend — create credit line
           - GET /credit — view incoming/outgoing lines
-          - POST /transact — record transaction against credit
-          - GET /balance/:handle — check balance with specific agent
-          - Add credit_lines table to database schema
+          - POST /credit/:id/draw — draw against credit
+          - POST /credit/:id/repay — repay credit
+          - GET /credit/balance/:handle — check balance with specific agent
+          - GET /trust/:handle — trust score and credit summary
+          - Add credit_lines and credit_transactions tables to database schema
         priority: medium
         status: planned
+        sprint_refs: [SP-V04-001, SP-V04-002, SP-V04-003, SP-V04-004, SP-V04-009]
         dependencies:
           - v0-agent-registration
 
@@ -116,6 +124,7 @@ versions:
           - Structured logging (JSON format)
         priority: high
         status: planned
+        sprint_refs: [SP-V03-001, SP-V03-002, SP-V04-005, SP-V05-006, SP-V06-005, SP-V07-007]
         dependencies:
           - v0-moltbank-api
 
@@ -124,24 +133,30 @@ versions:
           Create OpenAPI documentation:
           - OpenAPI 3.0 spec for MoltBank
           - OpenAPI 3.0 spec for MoltCredit
+          - OpenAPI 3.0 spec for AgentMail
+          - OpenAPI 3.0 spec for MoltPhone
           - Serve docs at /docs endpoint (Swagger UI)
           - Include authentication examples
           - Add to each service's static files
         priority: medium
         status: planned
+        sprint_refs: [SP-V03-003, SP-V04-006, SP-V05-007, SP-V06-006]
         dependencies:
           - v0-moltbank-api
           - v0-moltcredit-api
 
       - id: v0-webapp-integration
         description: |
-          Update existing webapps to use real backends:
-          - Update moltbank-webapp to call deployed API
-          - Fix authentication flow
-          - Handle error states properly
-          - Add loading states
+          Update existing webapps and create new ones to use real backends:
+          - Update moltbank-webapp to call deployed MoltBank API
+          - Create moltcredit-webapp for credit management
+          - Create agentmail-webapp for email management
+          - Update moltphone-webapp to call deployed MoltPhone API
+          - Fix authentication flow on all webapps
+          - Handle error states and loading states properly
         priority: medium
         status: planned
+        sprint_refs: [SP-V03-004, SP-V03-005, SP-V04-007, SP-V04-008, SP-V05-008, SP-V05-009, SP-V06-007, SP-V06-008]
         dependencies:
           - v0-deployment
 
@@ -149,7 +164,8 @@ versions:
     label: "Growth"
     description: >
       Complete the Molt ecosystem with AgentMail and MoltPhone,
-      add comprehensive testing, and improve operational capabilities.
+      add comprehensive testing, monitoring, cross-service integration,
+      and production hardening.
     status: planned
     items:
       - id: v1-moltmail-api
@@ -159,25 +175,30 @@ versions:
           - POST /send — send email
           - GET /inbox — list received emails
           - GET /inbox/:id — get specific email
-          - Webhook registration for incoming mail
+          - POST /webhooks/inbound — receive incoming mail from provider
+          - POST /webhooks/subscribe — agent webhook registration
+          - Rate limiting (100 emails/hour per agent)
           - Integration with email provider (Resend/Postmark)
-          - Add emails table to database schema
+          - Add emails, email_addresses, and email_webhooks tables
         priority: medium
         status: planned
+        sprint_refs: [SP-V05-001, SP-V05-002, SP-V05-003, SP-V05-004, SP-V05-005, SP-V05-010]
         dependencies:
           - v0-deployment
 
       - id: v1-moltphone-api
         description: |
           Implement MoltPhone backend API (`services/moltphone`):
-          - POST /call — initiate outbound call
+          - POST /call — initiate outbound call via Vapi
           - GET /calls — list call history
           - GET /calls/:id — get call details with transcript
-          - Webhook endpoint for Vapi callbacks
-          - Rate limiting per agent
-          - Add calls table to database schema
+          - POST /webhooks/vapi — receive Vapi callbacks
+          - POST /webhooks/subscribe — agent webhook registration
+          - Rate limiting (10 concurrent calls per agent)
+          - Add calls, transcripts, and call_webhooks tables
         priority: medium
         status: planned
+        sprint_refs: [SP-V06-001, SP-V06-002, SP-V06-003, SP-V06-004, SP-V06-009]
         dependencies:
           - v0-deployment
 
@@ -185,12 +206,14 @@ versions:
         description: |
           Add comprehensive test coverage:
           - Jest configuration for all packages
-          - Unit tests for shared library
+          - Unit tests for shared library and all services
           - Integration tests for each API
           - Test database setup with migrations
-          - CI workflow to run tests on PRs
+          - E2E smoke tests across all services
+          - CI workflow with Postgres service container
         priority: medium
         status: planned
+        sprint_refs: [SP-V04-009, SP-V05-010, SP-V06-009, SP-V08-003, SP-V08-004]
         dependencies:
           - v1-moltmail-api
           - v1-moltphone-api
@@ -201,9 +224,11 @@ versions:
           - Error tracking (Sentry integration)
           - Request metrics (latency, error rates)
           - Database connection monitoring
+          - GCP Cloud Monitoring dashboards
           - Alerting for critical failures
         priority: low
         status: planned
+        sprint_refs: [SP-V08-001, SP-V08-002]
         dependencies:
           - v1-testing
 
@@ -215,6 +240,59 @@ versions:
           - Unified agent directory across services
         priority: low
         status: planned
+        sprint_refs: [SP-V07-001, SP-V07-002, SP-V07-003]
         dependencies:
           - v1-moltmail-api
           - v1-moltphone-api
+
+      - id: v1-moltcredit-webapp
+        description: |
+          Web application for MoltCredit (app.moltcredit.xyz):
+          - Dashboard with credit lines given and received
+          - Extend credit, draw, repay forms
+          - Trust score display
+          - Transaction history per credit line
+        priority: medium
+        status: planned
+        sprint_refs: [SP-V04-007]
+        dependencies:
+          - v0-moltcredit-api
+
+      - id: v1-agentmail-webapp
+        description: |
+          Web application for AgentMail (app.agentmail.xyz):
+          - Inbox view with received emails
+          - Compose and send email form
+          - Sent folder, webhook management
+          - Email address management
+        priority: medium
+        status: planned
+        sprint_refs: [SP-V05-008]
+        dependencies:
+          - v1-moltmail-api
+
+      - id: v1-landing-updates
+        description: |
+          Update all four landing pages to link to live products:
+          - Add CTAs to webapps and API docs
+          - Real product screenshots
+          - SEO meta tags and OG images
+          - Mobile responsive verification
+        priority: low
+        status: planned
+        sprint_refs: [SP-V03-005, SP-V04-008, SP-V05-009, SP-V06-008, SP-V08-005]
+        dependencies:
+          - v0-webapp-integration
+
+      - id: v1-production-hardening
+        description: |
+          Security and production hardening:
+          - Per-agent rate limiting on all services
+          - API key rotation with grace period
+          - Input validation audit (Zod on all endpoints)
+          - SQL injection prevention review
+        priority: medium
+        status: planned
+        sprint_refs: [SP-V07-004, SP-V07-005, SP-V07-006]
+        dependencies:
+          - v1-testing
