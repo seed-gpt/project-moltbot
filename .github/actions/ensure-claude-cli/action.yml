@@ -1,0 +1,38 @@
+name: 'Ensure Claude CLI'
+description: 'Installs Claude CLI with race-condition-safe flock locking for self-hosted runners'
+
+runs:
+  using: composite
+  steps:
+    - name: Ensure Claude CLI is available
+      shell: bash
+      run: |
+        # Add ~/.local/bin to PATH (common install location for claude)
+        export PATH="$HOME/.local/bin:$PATH"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+        if command -v claude >/dev/null 2>&1; then
+          echo "✅ Claude CLI already installed"
+        else
+          echo "Installing Claude CLI..."
+          if command -v flock >/dev/null 2>&1; then
+            # Use flock to prevent race conditions on self-hosted runners.
+            LOCK_FILE="/tmp/claude-install.lock"
+            (
+              flock -w 120 200 || { echo "⏳ Timeout waiting for lock"; exit 1; }
+              # Re-check after acquiring lock (another process may have installed)
+              if command -v claude >/dev/null 2>&1; then
+                echo "✅ Claude CLI installed by another process"
+              else
+                curl -fsSL https://claude.ai/install.sh | bash -s -- stable
+              fi
+            ) 200>"$LOCK_FILE"
+          else
+            curl -fsSL https://claude.ai/install.sh | bash -s -- stable
+          fi
+        fi
+
+        if ! command -v claude >/dev/null 2>&1; then
+          echo "❌ Claude CLI is required but could not be installed. Aborting."
+          exit 1
+        fi

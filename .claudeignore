@@ -1,0 +1,95 @@
+# ============================================================================
+# .claudeignore - Files and directories to exclude from Claude Code indexing
+# ============================================================================
+# This file uses .gitignore syntax. Claude Code automatically respects
+# .gitignore, but this file provides additional exclusions for LLM context
+# optimization (reducing token usage and costs).
+#
+# Created by SeedGPT Genesis.
+
+# =============================================================================
+# Dependencies (typically the largest folders)
+# =============================================================================
+node_modules/
+.venv/
+venv/
+.env/
+env/
+__pycache__/
+*.pyc
+.pnp/
+.pnp.js
+
+# =============================================================================
+# Build outputs
+# =============================================================================
+.next/
+out/
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+.tox/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# =============================================================================
+# Lock files (huge, Claude doesn't need to read them)
+# =============================================================================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+poetry.lock
+Cargo.lock
+Gemfile.lock
+composer.lock
+
+# =============================================================================
+# IDE and system files
+# =============================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# =============================================================================
+# Logs and temporary files
+# =============================================================================
+*.log
+logs/
+tmp/
+temp/
+
+# =============================================================================
+# Media and assets (large binary files)
+# =============================================================================
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
+*.mkv
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# =============================================================================
+# Generated documentation
+# =============================================================================
+site/
+docs/_build/
+.docusaurus/
+
+# =============================================================================
+# Test fixtures/data (can be large)
+# =============================================================================
+*.sql
+*.db
+*.sqlite
+*.sqlite3

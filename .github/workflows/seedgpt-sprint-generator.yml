@@ -1,0 +1,84 @@
+name: 📋 SeedGPT Sprint Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      instructions:
+        description: "Special instructions for sprint planning"
+        required: false
+        type: string
+      max_items:
+        description: "Maximum items to include in sprint"
+        required: false
+        default: "10"
+        type: string
+      model:
+        description: "Claude model to use (leave empty for default)"
+        required: false
+        type: string
+      sprint_name:
+        description: "Sprint Name (leave empty for auto-generated date)"
+        required: false
+        type: string
+  schedule:
+    - cron: "0 0 * * 1"
+
+jobs:
+  generate_sprint:
+    runs-on: self-hosted
+    permissions:
+      contents: write
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      SEEDPY_BRANCH: ${{ vars.SEEDPY_BRANCH || 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-seedgpt
+        with:
+          git-token: ${{ secrets.PAT_TOKEN }}
+
+      - uses: ./.github/actions/ensure-claude-cli
+
+      - name: Run SeedPy Sprint Generator
+        id: generator
+        run: |
+          # Determine Sprint Name
+          if [[ -n "${{ inputs.sprint_name }}" ]]; then
+            SPRINT_NAME="${{ inputs.sprint_name }}"
+          else
+            SPRINT_NAME="sprint-$(date +'%Y-%m-%d')"
+          fi
+          echo "SPRINT_NAME=$SPRINT_NAME" >> $GITHUB_ENV
+
+          # Construct Command Flags
+          CMD_FLAGS="--name \"$SPRINT_NAME\""
+          
+          if [[ -n "${{ inputs.max_items }}" ]]; then
+            CMD_FLAGS="$CMD_FLAGS --capacity ${{ inputs.max_items }}"
+          fi
+          
+          if [[ -n "${{ inputs.instructions }}" ]]; then
+            echo "Instructions: ${{ inputs.instructions }}"
+          fi
+          
+          echo "Running: seedgpt manage create-sprint $CMD_FLAGS"
+          eval seedgpt manage create-sprint $CMD_FLAGS
+
+      - name: Commit and Push Sprint
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .seedgpt/sprints/
+          git commit -m "feat: generate sprint ${{ env.SPRINT_NAME }}" || exit 0
+          git push
+
+      - uses: ./.github/actions/seedgpt-summary
+        if: always()
+        with:
+          title: "Sprint Generator"
+          emoji: "🚀"
+          status: ${{ job.status }}
+          extra_fields: "Sprint=${{ env.SPRINT_NAME }},Items Max=${{ inputs.max_items || 10 }},Trigger=${{ github.event_name }},Branch=${{ github.ref_name }}"

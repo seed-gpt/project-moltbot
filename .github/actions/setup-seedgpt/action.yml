@@ -1,0 +1,19 @@
+name: 'Setup SeedGPT Environment'
+description: 'Sets up Python 3.11 and installs seedpy from private repo'
+
+inputs:
+  git-token:
+    description: 'GitHub token with access to seed-gpt/seedpy private repository'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install seedpy (includes embedded engine)
+      shell: bash
+      run: |
+        pip install --no-cache-dir --force-reinstall "seedpy @ git+https://x-access-token:${{ inputs.git-token }}@github.com/seed-gpt/seedpy.git@main#egg=seedpy"

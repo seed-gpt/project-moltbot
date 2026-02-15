@@ -1,0 +1,39 @@
+name: 'SeedGPT Summary'
+description: 'Generates GitHub step summary with formatted table'
+
+inputs:
+  title:
+    description: 'Summary title (without emoji)'
+    required: true
+  emoji:
+    description: 'Emoji to prefix the title'
+    required: true
+  status:
+    description: 'Job status'
+    required: true
+  extra_fields:
+    description: 'Extra fields as "Key1=Value1,Key2=Value2" format'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Generate Summary
+      shell: bash
+      run: |
+        echo "## ${{ inputs.emoji }} ${{ inputs.title }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| **Status** | ${{ inputs.status }} |" >> $GITHUB_STEP_SUMMARY
+        
+        # Parse and add extra fields
+        if [ -n "${{ inputs.extra_fields }}" ]; then
+          IFS=',' read -ra FIELDS <<< "${{ inputs.extra_fields }}"
+          for field in "${FIELDS[@]}"; do
+            KEY="${field%%=*}"
+            VALUE="${field#*=}"
+            echo "| **${KEY}** | ${VALUE} |" >> $GITHUB_STEP_SUMMARY
+          done
+        fi

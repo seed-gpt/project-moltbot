@@ -1,0 +1,63 @@
+name: 📢 SeedPy Failure Reporter
+
+on:
+  workflow_run:
+    workflows: ['run-tests.yml']
+    types:
+      - completed
+
+jobs:
+  report-failure:
+    runs-on: self-hosted
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'pull_request'
+    
+    permissions:
+      issues: write
+      contents: read
+      actions: read  # Required to fetch logs
+
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      SEEDPY_BRANCH: ${{ vars.SEEDPY_BRANCH || 'main' }}
+      # Claude CLI config
+      DISABLE_TELEMETRY: "1"
+      DISABLE_ERROR_REPORTING: "1"
+      DISABLE_AUTOUPDATER: "1"
+
+    steps:
+      - name: Log Failure Details
+        run: |
+          echo "REPORTING FAILURE FOR:"
+          echo "Run ID: ${{ github.event.workflow_run.id }}"
+          echo "Workflow: ${{ github.event.workflow_run.name }}"
+          echo "Event: ${{ github.event.workflow_run.event }}"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.workflow_run.head_branch }} 
+
+      - uses: ./.github/actions/setup-seedgpt
+        with:
+          git-token: ${{ secrets.PAT_TOKEN }}
+
+      - uses: ./.github/actions/ensure-claude-cli
+
+      - name: Run SeedPy Failure Reporter
+        id: reporter
+        run: |
+          set -euo pipefail
+          seedgpt agent report-failure \
+            --run-id ${{ github.event.workflow_run.id }}
+
+      - uses: ./.github/actions/seedgpt-summary
+        if: always()
+        with:
+          title: "Failure Reporter"
+          emoji: "📋"
+          status: ${{ job.status }}
+          extra_fields: "Failed Workflow=${{ github.event.workflow_run.name }},Failed Run ID=${{ github.event.workflow_run.id }},Branch=${{ github.event.workflow_run.head_branch }},Commit=${{ github.event.workflow_run.head_sha }}"

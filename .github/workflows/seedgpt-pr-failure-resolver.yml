@@ -1,0 +1,130 @@
+name: 🔄 SeedGPT PR Failure Resolver
+
+on:
+  pull_request:
+    types:
+      - synchronize
+      - edited
+      - reopened
+
+  # Manual trigger for specific PR or auto-detection
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Specific PR number to fix (optional, defaults to auto-detect)"
+        required: false
+
+  # Trigger on push to default branches to catch conflicts
+  push:
+    branches:
+      - main
+
+env:
+  MAX_EXECUTION_TIME: ${{ vars.MAX_EXECUTION_TIME || '8' }}
+
+jobs:
+  resolve-pr-failure:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    # Prevent infinite loop: skip if triggered by the bot itself
+    if: github.actor != 'seedgpt-bot' && github.actor != 'github-actions[bot]'
+    concurrency:
+      group: pr-failure-resolver-${{ github.event.pull_request.number || github.event.inputs.pr_number || 'auto' }}
+      cancel-in-progress: false
+
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+      checks: read
+      actions: write
+
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      SEEDPY_BRANCH: ${{ vars.SEEDPY_BRANCH || 'main' }}
+      # Claude CLI configuration
+      DISABLE_TELEMETRY: "1"
+      DISABLE_ERROR_REPORTING: "1"
+      DISABLE_AUTOUPDATER: "1"
+
+    steps:
+      - name: Log Resolution Start
+        run: |
+          echo "🔧 PR Failure Resolver Starting"
+          echo "   Event: ${{ github.event_name }}"
+          echo "   PR: ${{ github.event.pull_request.number || github.event.inputs.pr_number || 'auto-detect' }}"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - uses: ./.github/actions/setup-seedgpt
+        with:
+          git-token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Check for failures
+        id: check_failures
+        env:
+          PR_NUMBER_INPUT: ${{ github.event.inputs.pr_number }}
+          PR_NUMBER_EVENT: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          PR_NUMBER="${PR_NUMBER_INPUT:-$PR_NUMBER_EVENT}"
+          
+          # Initialize pr_found to false by default
+          echo "pr_found=false" >> $GITHUB_OUTPUT
+
+          if [ -n "${PR_NUMBER}" ]; then
+            if seedgpt agent fix-pr --pr "${PR_NUMBER}" --dry-run; then
+               # If exit code 0, failure found
+               echo "Failure detected."
+            else
+               # If exit code 1, no failure found (or error, but we assume no failure for flow control)
+               echo "No failure detected."
+            fi
+          else
+             # Auto-detect mode
+             if seedgpt agent fix-pr --dry-run; then
+               echo "Failure detected."
+             else
+               echo "No failure detected."
+             fi
+          fi
+
+      - uses: ./.github/actions/ensure-claude-cli
+        if: steps.check_failures.outputs.pr_found == 'true'
+
+      - name: Run SeedPy PR Failure Resolver
+        if: steps.check_failures.outputs.pr_found == 'true'
+        env:
+          PR_NUMBER_INPUT: ${{ github.event.inputs.pr_number }}
+          PR_NUMBER_EVENT: ${{ github.event.pull_request.number }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${PR_NUMBER_INPUT:-$PR_NUMBER_EVENT}"
+
+          if [ -n "${PR_NUMBER}" ]; then
+            seedgpt agent fix-pr --pr "${PR_NUMBER}"
+          else
+            seedgpt agent fix-pr
+          fi
+
+      - uses: ./.github/actions/seedgpt-summary
+        if: always()
+        with:
+          title: "PR Failure Resolver"
+          emoji: "🔧"
+          status: ${{ job.status }}
+          extra_fields: "PR Found?=${{ steps.check_failures.outputs.pr_found }}"
+
+      - uses: ./.github/actions/seedgpt-create-patch
+        if: failure()
+        with:
+          prefix: "seedpy-pr-resolver"
+          run_id: ${{ github.run_id }}
+          run_attempt: ${{ github.run_attempt }}
