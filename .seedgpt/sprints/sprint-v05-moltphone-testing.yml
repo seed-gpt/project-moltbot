@@ -9,7 +9,9 @@ goal: |
     • Docs: OpenAPI spec + Swagger UI
     • Landing page: update to link to live product
     • Integration with email provider (Resend or Postmark)
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 20
 
 stories:
@@ -17,7 +19,8 @@ stories:
     title: "AgentMail Database Schema"
     description: |
       Migration files for email-specific tables.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-006]
     roadmap_refs: [v1-moltmail-api]
@@ -34,7 +37,8 @@ stories:
     description: |
       When an agent registers, provision a handle@agentmail.xyz address.
       Manage email addresses per agent.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-006]
     roadmap_refs: [v1-moltmail-api]
@@ -53,7 +57,8 @@ stories:
     description: |
       Send emails via provider (Resend/Postmark).
       Support text and HTML bodies. Track delivery status.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-006]
     roadmap_refs: [v1-moltmail-api]
@@ -73,7 +78,8 @@ stories:
     title: "AgentMail API — Inbox & Message Retrieval"
     description: |
       Receive and store incoming emails. Provide inbox browsing endpoints.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-006]
     roadmap_refs: [v1-moltmail-api]
@@ -93,7 +99,8 @@ stories:
     description: |
       Webhook endpoint for email provider to deliver incoming mail.
       Agent-configurable webhook forwarding for real-time notifications.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-006]
     roadmap_refs: [v1-moltmail-api]
@@ -114,7 +121,8 @@ stories:
     description: |
       Dockerize AgentMail. Deploy to Cloud Run.
       Configure email provider API keys and domain verification.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-006, PRD-008]
     roadmap_refs: [v1-moltmail-api, v0-deployment]
@@ -132,7 +140,8 @@ stories:
     title: "AgentMail OpenAPI Docs"
     description: |
       OpenAPI 3.0 spec for all AgentMail endpoints. Swagger UI at /docs.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-006, PRD-009]
     roadmap_refs: [v1-moltmail-api, v0-api-docs]

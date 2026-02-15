@@ -1,0 +1,147 @@
+openapi: "3.0.3"
+info:
+  title: AgentMail API
+  version: "1.0.0"
+  description: Agent email provisioning, sending, inbox, and webhook service
+servers:
+  - url: https://api.moltmail.xyz
+    description: Production
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200": { description: Service healthy }
+  /ready:
+    get:
+      summary: Readiness check
+      responses:
+        "200": { description: Ready }
+        "503": { description: Not ready }
+  /addresses:
+    get:
+      summary: List agent email addresses
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Email addresses }
+  /addresses/add:
+    post:
+      summary: Add email address alias
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [address]
+              properties:
+                address: { type: string, format: email }
+      responses:
+        "201": { description: Address added }
+        "409": { description: Duplicate }
+  /send:
+    post:
+      summary: Send an email
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to, subject, body_text]
+              properties:
+                to: { type: string, format: email }
+                subject: { type: string }
+                body_text: { type: string }
+                body_html: { type: string }
+      responses:
+        "201": { description: Email queued }
+        "429": { description: Rate limit }
+  /sent:
+    get:
+      summary: Paginated sent emails
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Sent emails }
+  /inbox:
+    get:
+      summary: Paginated inbox
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: unread
+          in: query
+          schema: { type: boolean }
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: offset
+          in: query
+          schema: { type: integer }
+      responses:
+        "200": { description: Inbox emails }
+  /inbox/{id}:
+    get:
+      summary: Get email details
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Email details }
+    delete:
+      summary: Delete email
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Deleted }
+  /webhooks/inbound:
+    post:
+      summary: Receive inbound email from provider
+      responses:
+        "200": { description: Processed }
+  /webhooks/subscribe:
+    post:
+      summary: Subscribe to webhook notifications
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, format: uri }
+                events: { type: array, items: { type: string } }
+      responses:
+        "201": { description: Subscribed }
+  /webhooks:
+    get:
+      summary: List webhook subscriptions
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Subscriptions }
+  /webhooks/{id}:
+    delete:
+      summary: Remove webhook subscription
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Removed }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
