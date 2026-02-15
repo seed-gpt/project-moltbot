@@ -4,7 +4,7 @@ goal: |
   Verify all 4 services are operational on Cloud Run with a live database.
   Run migrations, configure environment variables, smoke test health endpoints,
   and update roadmap.yml + PRD.yml statuses to reflect reality.
-status: in_progress
+status: complete
 estimated_hours: 4
 
 stories:

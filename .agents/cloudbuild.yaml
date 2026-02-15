@@ -1,0 +1,15 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'services/moltbank/Dockerfile', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltbank:latest', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'services/moltcredit/Dockerfile', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltcredit:latest', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'services/moltmail/Dockerfile', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltmail:latest', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'services/moltphone/Dockerfile', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltphone:latest', '.']
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltbank:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltcredit:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltmail:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/moltbot/moltphone:latest'
+timeout: '600s'
