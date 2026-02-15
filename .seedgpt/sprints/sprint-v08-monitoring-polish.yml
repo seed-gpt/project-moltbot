@@ -7,7 +7,9 @@ goal: |
     • CI/CD: full test matrix with Postgres service container
     • Final landing page polish and SEO
     • Production readiness checklist sign-off
-status: planned
+status: complete
+completed_date: "2026-02-15"
+progress: 100
 estimated_hours: 12
 
 stories:
@@ -16,7 +18,8 @@ stories:
     description: |
       Add Sentry SDK to all four services. Capture unhandled errors
       with context (agent_id, endpoint, request body).
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-008]
     roadmap_refs: [v1-monitoring]
@@ -35,7 +38,8 @@ stories:
     description: |
       Structured logging for request metrics. GCP Cloud Monitoring
       dashboards for latency, error rates, and throughput.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-008]
     roadmap_refs: [v1-monitoring]
@@ -54,7 +58,8 @@ stories:
     description: |
       End-to-end test suite that exercises the full agent lifecycle:
       register → use each service → verify cross-service interactions.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: hard
     prd_refs: [PRD-010]
     roadmap_refs: [v1-testing]
@@ -74,7 +79,8 @@ stories:
     description: |
       GitHub Actions workflow with Postgres service container.
       Run unit tests, integration tests, and E2E tests on every PR.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: medium
     prd_refs: [PRD-010]
     roadmap_refs: [v1-testing]
@@ -93,7 +99,8 @@ stories:
     description: |
       Final visual and SEO polish for all four landing pages.
       Ensure consistent branding, meta tags, real screenshots.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-013]
     roadmap_refs: [v1-monitoring]
@@ -113,7 +120,8 @@ stories:
     description: |
       Final sign-off checklist before declaring v1 complete.
       Verify all services are running, documented, tested, and monitored.
-    status: planned
+    status: complete
+    completed_date: "2026-02-15"
     effort: easy
     prd_refs: [PRD-008]
     roadmap_refs: [v1-monitoring]

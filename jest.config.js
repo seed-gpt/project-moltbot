@@ -6,5 +6,6 @@ export default {
     '<rootDir>/services/moltcredit',
     '<rootDir>/services/moltmail',
     '<rootDir>/services/moltphone',
+    '<rootDir>/tests/e2e',
   ],
 };
