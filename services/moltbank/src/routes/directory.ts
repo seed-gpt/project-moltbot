@@ -16,12 +16,11 @@ router.get('/directory', async (req: Request, res: Response, next: NextFunction)
          a.id,
          a.handle,
          a.name,
-         a.trust_score,
          ARRAY_REMOVE(ARRAY[
            CASE WHEN EXISTS(SELECT 1 FROM wallets w WHERE w.agent_id = a.id) THEN 'moltbank' END,
            CASE WHEN EXISTS(SELECT 1 FROM email_addresses e WHERE e.agent_id = a.id) THEN 'moltmail' END,
            CASE WHEN EXISTS(SELECT 1 FROM credit_lines c WHERE c.grantor_id = a.id OR c.grantee_id = a.id) THEN 'moltcredit' END,
-           CASE WHEN EXISTS(SELECT 1 FROM calls ca WHERE ca.from_agent_id = a.id OR ca.to_agent_id = a.id) THEN 'moltphone' END
+           CASE WHEN EXISTS(SELECT 1 FROM calls ca WHERE ca.agent_id = a.id) THEN 'moltphone' END
          ], NULL) as services
        FROM agents a
        ORDER BY a.created_at DESC
@@ -37,7 +36,6 @@ router.get('/directory', async (req: Request, res: Response, next: NextFunction)
       agents: agentsResult.rows.map((row: any) => ({
         handle: row.handle,
         services: row.services || [],
-        trust_score: row.trust_score || 0,
       })),
       pagination: {
         page,
@@ -62,14 +60,13 @@ router.get('/directory/:handle', async (req: Request, res: Response, next: NextF
          a.id,
          a.handle,
          a.name,
-         a.trust_score,
          a.created_at,
          w.balance,
          ARRAY_REMOVE(ARRAY[
            CASE WHEN EXISTS(SELECT 1 FROM wallets w2 WHERE w2.agent_id = a.id) THEN 'moltbank' END,
            CASE WHEN EXISTS(SELECT 1 FROM email_addresses e WHERE e.agent_id = a.id) THEN 'moltmail' END,
            CASE WHEN EXISTS(SELECT 1 FROM credit_lines c WHERE c.grantor_id = a.id OR c.grantee_id = a.id) THEN 'moltcredit' END,
-           CASE WHEN EXISTS(SELECT 1 FROM calls ca WHERE ca.from_agent_id = a.id OR ca.to_agent_id = a.id) THEN 'moltphone' END
+           CASE WHEN EXISTS(SELECT 1 FROM calls ca WHERE ca.agent_id = a.id) THEN 'moltphone' END
          ], NULL) as services
        FROM agents a
        LEFT JOIN wallets w ON w.agent_id = a.id
@@ -100,7 +97,6 @@ router.get('/directory/:handle', async (req: Request, res: Response, next: NextF
       handle: agent.handle,
       name: agent.name,
       services: agent.services || [],
-      trust_score: agent.trust_score || 0,
       wallet_balance_tier: walletBalanceTier,
       created_at: agent.created_at,
     });

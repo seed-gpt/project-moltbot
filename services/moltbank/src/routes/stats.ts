@@ -7,15 +7,13 @@ const router = express.Router();
 router.get('/leaderboard', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const sortParam = (req.query.sort as string) || 'volume';
-    const validSorts = ['volume', 'trust', 'combined'];
+    const validSorts = ['volume', 'transactions'];
     const sort = validSorts.includes(sortParam) ? sortParam : 'volume';
 
     // Determine ORDER BY clause
     let orderBy = 'total_volume DESC';
-    if (sort === 'trust') {
-      orderBy = 'trust_score DESC';
-    } else if (sort === 'combined') {
-      orderBy = '(total_volume / 1000.0 + trust_score) DESC';
+    if (sort === 'transactions') {
+      orderBy = 'transaction_count DESC';
     }
 
     const leaderboardResult = await query(
@@ -23,12 +21,7 @@ router.get('/leaderboard', async (req: Request, res: Response, next: NextFunctio
          a.id,
          a.handle,
          a.name,
-         a.trust_score,
-         COALESCE(SUM(CASE
-           WHEN t.from_agent_id = a.id THEN t.amount
-           WHEN t.to_agent_id = a.id THEN t.amount
-           ELSE 0
-         END), 0) as total_volume,
+         COALESCE(SUM(t.amount), 0) as total_volume,
          COUNT(t.id) as transaction_count,
          COALESCE(
            (SELECT COUNT(*) FROM credit_lines cl WHERE cl.grantor_id = a.id OR cl.grantee_id = a.id),
@@ -36,8 +29,7 @@ router.get('/leaderboard', async (req: Request, res: Response, next: NextFunctio
          ) as credit_lines_count
        FROM agents a
        LEFT JOIN transactions t ON (t.from_agent_id = a.id OR t.to_agent_id = a.id)
-       GROUP BY a.id, a.handle, a.name, a.trust_score
-       HAVING COUNT(t.id) > 0 OR a.trust_score > 0
+       GROUP BY a.id, a.handle, a.name
        ORDER BY ${orderBy}
        LIMIT 50`,
       []
@@ -51,7 +43,6 @@ router.get('/leaderboard', async (req: Request, res: Response, next: NextFunctio
         name: row.name,
         total_volume: parseInt(row.total_volume),
         transaction_count: parseInt(row.transaction_count),
-        trust_score: row.trust_score || 0,
         credit_lines_count: parseInt(row.credit_lines_count),
       })),
       sort,
