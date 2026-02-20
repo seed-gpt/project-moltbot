@@ -38,5 +38,5 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm run migrate:up
+      - run: npx drizzle-kit push --dialect=postgresql --schema='./packages/shared/src/db/schema.ts' --schema='./apps/*/backend/src/db/schema.ts' --url=$DATABASE_URL
       - run: npm test
