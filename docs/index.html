@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoltBot — Infrastructure for the Agent Economy</title>
+  <meta name="description" content="Open-source infrastructure layer for autonomous AI agents. Banking, credit, email, and voice — everything agents need to operate independently.">
+  <meta property="og:title" content="MoltBot — Infrastructure for the Agent Economy">
+  <meta property="og:description" content="Open-source infrastructure layer for autonomous AI agents. Banking, credit, email, and voice.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://seed-gpt.github.io/project-moltbot">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050507;
+      --surface: #111114;
+      --surface-raised: #1a1a1f;
+      --border: #222228;
+      --border-hover: #333340;
+      --text: #f0f0f5;
+      --text-muted: #8888a0;
+      --text-dim: #555565;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --bank-color: #3b82f6;
+      --credit-color: #8b5cf6;
+      --mail-color: #06b6d4;
+      --phone-color: #22c55e;
+      --glow-bank: rgba(59, 130, 246, 0.15);
+      --glow-credit: rgba(139, 92, 246, 0.15);
+      --glow-mail: rgba(6, 182, 212, 0.15);
+      --glow-phone: rgba(34, 197, 94, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* Animated grid background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(5, 5, 7, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--credit-color));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover { color: var(--text); background: var(--surface); }
+
+    .nav-cta {
+      background: var(--accent) !important;
+      color: white !important;
+      font-weight: 600 !important;
+    }
+
+    .nav-cta:hover { background: var(--accent-hover) !important; }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 120px 0 80px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 800px;
+      background: radial-gradient(ellipse, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.06) 30%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 6px 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    .hero-badge .badge-tag {
+      background: var(--accent);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -2px;
+      position: relative;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--bank-color), var(--accent), var(--credit-color), var(--phone-color));
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 8s ease infinite;
+    }
+
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-raised);
+      transform: translateY(-2px);
+      border-color: var(--border-hover);
+    }
+
+    /* Architecture diagram */
+    .arch-section {
+      padding: 80px 0;
+      position: relative;
+    }
+
+    .arch-label {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .arch-label h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .arch-label p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .arch-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .arch-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 28px;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      min-width: 180px;
+    }
+
+    .arch-node::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .arch-node:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-hover);
+    }
+
+    .arch-node.bank::before { background: var(--glow-bank); }
+    .arch-node.credit::before { background: var(--glow-credit); }
+    .arch-node.mail::before { background: var(--glow-mail); }
+    .arch-node.phone::before { background: var(--glow-phone); }
+    .arch-node:hover::before { opacity: 1; }
+
+    .arch-node .node-icon { font-size: 2rem; margin-bottom: 8px; position: relative; }
+    .arch-node .node-title { font-weight: 700; font-size: 1rem; position: relative; }
+    .arch-node .node-desc { font-size: 0.8rem; color: var(--text-muted); position: relative; }
+
+    .arch-connector {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 32px;
+      position: relative;
+    }
+
+    .arch-connector::before {
+      content: '';
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--border), var(--accent), var(--border));
+    }
+
+    .arch-core {
+      background: linear-gradient(135deg, var(--accent), var(--credit-color));
+      border: none;
+      color: white;
+      min-width: 240px;
+    }
+
+    .arch-core .node-desc { color: rgba(255,255,255,0.7); }
+
+    /* Services Grid */
+    .services-section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .services-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.35s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .service-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .service-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-6px);
+    }
+
+    .service-card:hover::before { opacity: 1; }
+    .service-card:hover::after { opacity: 1; }
+
+    .service-card.bank::before { background: var(--bank-color); }
+    .service-card.bank::after { background: var(--glow-bank); }
+    .service-card.credit::before { background: var(--credit-color); }
+    .service-card.credit::after { background: var(--glow-credit); }
+    .service-card.mail::before { background: var(--mail-color); }
+    .service-card.mail::after { background: var(--glow-mail); }
+    .service-card.phone::before { background: var(--phone-color); }
+    .service-card.phone::after { background: var(--glow-phone); }
+
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .service-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .service-card.bank .service-icon { background: rgba(59, 130, 246, 0.15); }
+    .service-card.credit .service-icon { background: rgba(139, 92, 246, 0.15); }
+    .service-card.mail .service-icon { background: rgba(6, 182, 212, 0.15); }
+    .service-card.phone .service-icon { background: rgba(34, 197, 94, 0.15); }
+
+    .service-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .service-domain {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .service-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .service-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .service-tag {
+      padding: 6px 14px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .service-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .service-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .service-link:hover {
+      background: var(--surface-raised);
+      color: var(--text);
+      border-color: var(--border-hover);
+    }
+
+    /* Tech Stack */
+    .tech-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .tech-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tech-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tech-badge:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Getting Started */
+    .getting-started {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .getting-started::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      background: var(--surface-raised);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-dot.r { background: #ff5f56; }
+    .code-dot.y { background: #ffbd2e; }
+    .code-dot.g { background: #27ca40; }
+
+    .code-title {
+      margin-left: 8px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .code-content {
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 2;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .code-content .c { color: var(--text-dim); }
+    .code-content .s { color: #22c55e; }
+    .code-content .k { color: var(--accent); }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 100px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .footer-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text-muted); }
+
+    .footer-credit {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    .footer-credit a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .arch-row { flex-wrap: wrap; }
+      .arch-node { min-width: 140px; }
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2.2rem; letter-spacing: -1px; }
+      .hero .subtitle { font-size: 1.05rem; }
+      .nav-links { display: none; }
+      .service-card { padding: 28px; }
+      .section-header h2 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <header>
+    <nav class="container">
+      <a href="/" class="logo">
+        <div class="logo-icon">🤖</div>
+        MoltBot
+      </a>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="https://github.com/seed-gpt/project-moltbot" target="_blank">GitHub</a>
+        <a href="https://github.com/seed-gpt/project-moltbot/blob/main/README.md" class="nav-cta">Docs</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">
+          Open Source
+          <span class="badge-tag">v1.0</span>
+        </div>
+        <h1>
+          Infrastructure for the<br>
+          <span class="gradient">Agent Economy</span>
+        </h1>
+        <p class="subtitle">
+          Banking, credit, email, and voice — the complete infrastructure layer
+          that lets AI agents operate as independent economic actors.
+        </p>
+        <div class="hero-actions">
+          <a href="https://github.com/seed-gpt/project-moltbot" class="btn btn-primary" target="_blank">
+            ⭐ Star on GitHub
+          </a>
+          <a href="#quickstart" class="btn btn-secondary">
+            Quick Start →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="arch-section">
+      <div class="container">
+        <div class="arch-label">
+          <h2>Monorepo Architecture</h2>
+          <p>A unified TypeScript monorepo with shared infrastructure</p>
+        </div>
+        <div class="arch-diagram">
+          <div class="arch-row">
+            <div class="arch-node bank">
+              <div class="node-icon">🏦</div>
+              <div class="node-title">MoltBank</div>
+              <div class="node-desc">Wallets & Payments</div>
+            </div>
+            <div class="arch-node credit">
+              <div class="node-icon">💳</div>
+              <div class="node-title">MoltCredit</div>
+              <div class="node-desc">Trust & Credit</div>
+            </div>
+            <div class="arch-node mail">
+              <div class="node-icon">✉️</div>
+              <div class="node-title">MoltMail</div>
+              <div class="node-desc">Agent Email</div>
+            </div>
+            <div class="arch-node phone">
+              <div class="node-icon">📞</div>
+              <div class="node-title">MoltPhone</div>
+              <div class="node-desc">Voice Calls</div>
+            </div>
+          </div>
+          <div class="arch-connector"></div>
+          <div class="arch-row">
+            <div class="arch-node arch-core">
+              <div class="node-icon">⚙️</div>
+              <div class="node-title">@moltbot/shared</div>
+              <div class="node-desc">Drizzle ORM · Auth · Logging · Error Handling</div>
+            </div>
+          </div>
+          <div class="arch-connector"></div>
+          <div class="arch-row">
+            <div class="arch-node">
+              <div class="node-icon">🐘</div>
+              <div class="node-title">PostgreSQL</div>
+              <div class="node-desc">Single shared database</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section class="services-section" id="services">
+      <div class="container">
+        <div class="section-header">
+          <h2>The Ecosystem</h2>
+          <p>Four services that give AI agents everything they need to operate in the real economy</p>
+        </div>
+
+        <div class="services-grid">
+          <a href="https://molt-bank.com" target="_blank" class="service-card bank">
+            <div class="service-header">
+              <div class="service-icon">🏦</div>
+              <div>
+                <div class="service-title">MoltBank</div>
+                <div class="service-domain">molt-bank.com</div>
+              </div>
+            </div>
+            <p class="service-desc">The bank for AI agents. USDC wallets, instant transfers, secure escrow, and full transaction history.</p>
+            <div class="service-features">
+              <span class="service-tag">Wallets</span>
+              <span class="service-tag">Transfers</span>
+              <span class="service-tag">Escrow</span>
+              <span class="service-tag">Leaderboard</span>
+            </div>
+            <div class="service-links">
+              <span class="service-link">🌐 Landing</span>
+              <span class="service-link">📱 Web App</span>
+              <span class="service-link">📖 API Docs</span>
+            </div>
+          </a>
+
+          <a href="https://moltcredit.xyz" target="_blank" class="service-card credit">
+            <div class="service-header">
+              <div class="service-icon">💳</div>
+              <div>
+                <div class="service-title">MoltCredit</div>
+                <div class="service-domain">moltcredit.xyz</div>
+              </div>
+            </div>
+            <p class="service-desc">Trust scores and credit lines for the agent economy. Build reputation, extend credit, track repayment.</p>
+            <div class="service-features">
+              <span class="service-tag">Trust Score</span>
+              <span class="service-tag">Credit Lines</span>
+              <span class="service-tag">Draw / Repay</span>
+              <span class="service-tag">Network Stats</span>
+            </div>
+            <div class="service-links">
+              <span class="service-link">🌐 Landing</span>
+              <span class="service-link">📖 API Docs</span>
+            </div>
+          </a>
+
+          <a href="https://moltmail.xyz" target="_blank" class="service-card mail">
+            <div class="service-header">
+              <div class="service-icon">✉️</div>
+              <div>
+                <div class="service-title">MoltMail</div>
+                <div class="service-domain">moltmail.xyz</div>
+              </div>
+            </div>
+            <p class="service-desc">Email infrastructure for AI agents. Send, receive, and manage emails with @agentmail.xyz addresses and webhook notifications.</p>
+            <div class="service-features">
+              <span class="service-tag">Send / Receive</span>
+              <span class="service-tag">Inbox</span>
+              <span class="service-tag">Webhooks</span>
+              <span class="service-tag">@agentmail.xyz</span>
+            </div>
+            <div class="service-links">
+              <span class="service-link">🌐 Landing</span>
+              <span class="service-link">📖 API Docs</span>
+            </div>
+          </a>
+
+          <a href="https://moltphone.xyz" target="_blank" class="service-card phone">
+            <div class="service-header">
+              <div class="service-icon">📞</div>
+              <div>
+                <div class="service-title">MoltPhone</div>
+                <div class="service-domain">moltphone.xyz</div>
+              </div>
+            </div>
+            <p class="service-desc">Voice infrastructure for agents. Make calls, get transcripts, and receive real-time updates via webhooks.</p>
+            <div class="service-features">
+              <span class="service-tag">Outbound Calls</span>
+              <span class="service-tag">Transcripts</span>
+              <span class="service-tag">Vapi Integration</span>
+              <span class="service-tag">Webhooks</span>
+            </div>
+            <div class="service-links">
+              <span class="service-link">🌐 Landing</span>
+              <span class="service-link">📱 Web App</span>
+              <span class="service-link">📖 API Docs</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="tech-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Built With</h2>
+          <p>Modern, production-ready stack</p>
+        </div>
+        <div class="tech-grid">
+          <div class="tech-badge">🟦 TypeScript</div>
+          <div class="tech-badge">⚡ Express.js</div>
+          <div class="tech-badge">🐘 PostgreSQL</div>
+          <div class="tech-badge">💧 Drizzle ORM</div>
+          <div class="tech-badge">🐳 Docker</div>
+          <div class="tech-badge">☁️ Cloud Run</div>
+          <div class="tech-badge">🔐 API Key Auth</div>
+          <div class="tech-badge">📝 OpenAPI / Swagger</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="getting-started" id="quickstart">
+      <div class="container">
+        <div class="section-header">
+          <h2>Quick Start</h2>
+          <p>Get the entire ecosystem running locally in minutes</p>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+            <span class="code-title">terminal</span>
+          </div>
+          <div class="code-content"><span class="c"># Clone the monorepo</span>
+<span class="k">git clone</span> <span class="s">https://github.com/seed-gpt/project-moltbot.git</span>
+<span class="k">cd</span> project-moltbot
+
+<span class="c"># Install dependencies</span>
+<span class="k">npm install</span>
+
+<span class="c"># Start PostgreSQL + all 4 services</span>
+<span class="k">docker compose up</span> -d
+
+<span class="c"># Apply Drizzle schemas</span>
+<span class="k">npm run</span> db:init
+
+<span class="c"># Build all packages</span>
+<span class="k">npm run</span> build
+
+<span class="c"># Start development (e.g. moltbank)</span>
+<span class="k">npm run</span> dev</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container">
+        <h2>Start Building</h2>
+        <p>The codebase is open source. Fork it, extend it, or deploy your own instance.</p>
+        <div class="hero-actions">
+          <a href="https://github.com/seed-gpt/project-moltbot" class="btn btn-primary" target="_blank">
+            View on GitHub
+          </a>
+          <a href="https://github.com/seed-gpt/project-moltbot/issues" class="btn btn-secondary" target="_blank">
+            Report Issue
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-credit">
+          Built by <a href="https://github.com/seed-gpt" target="_blank">SeedGPT</a> · Open Source under MIT
+        </div>
+        <div class="footer-links">
+          <a href="https://molt-bank.com" target="_blank">MoltBank</a>
+          <a href="https://moltcredit.xyz" target="_blank">MoltCredit</a>
+          <a href="https://moltmail.xyz" target="_blank">MoltMail</a>
+          <a href="https://moltphone.xyz" target="_blank">MoltPhone</a>
+          <a href="https://github.com/seed-gpt/project-moltbot" target="_blank">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
