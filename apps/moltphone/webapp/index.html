@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoltPhone — AI Phone Calls</title>
+  <meta name="description" content="Make AI phone calls instantly. Enter a number, describe the task, and let AI handle the conversation.">
+  <meta property="og:title" content="MoltPhone — AI Phone Calls">
+  <meta property="og:description" content="Make AI phone calls instantly. Enter a number, describe the task, and let AI handle the conversation.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://app.moltphone.xyz">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090b;
+      --surface: #131316;
+      --surface-2: #18181b;
+      --border: #27272a;
+      --border-light: #3f3f46;
+      --text: #fafafa;
+      --text-secondary: #d4d4d8;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --accent: #22c55e;
+      --accent-hover: #16a34a;
+      --accent-dim: rgba(34,197,94,0.1);
+      --accent-glow: rgba(34,197,94,0.15);
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --blue: #3b82f6;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 16px;
+      --transition: 0.2s ease;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    .container-sm { max-width: 640px; margin: 0 auto; padding: 0 24px; }
+
+    /* ─── Header ─── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    header .container {
+      display: flex; justify-content: space-between; align-items: center;
+      height: 64px;
+    }
+    .logo {
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+      transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent) !important; color: #fff !important;
+      padding: 8px 18px; border-radius: var(--radius-sm); font-weight: 600;
+    }
+    .nav-cta:hover { background: var(--accent-hover) !important; }
+    .mobile-menu-btn {
+      display: none; background: none; border: none; color: var(--text);
+      font-size: 1.5rem; cursor: pointer; padding: 4px;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      padding: 100px 0 80px; text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-dim); border: 1px solid rgba(34,197,94,0.2);
+      color: var(--accent); padding: 6px 16px; border-radius: 100px;
+      font-size: 0.85rem; font-weight: 500; margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.03em; margin-bottom: 16px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), #4ade80);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--text-muted); font-size: 1.15rem;
+      max-width: 520px; margin: 0 auto 36px;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--accent); color: #fff;
+      padding: 16px 32px; border-radius: var(--radius);
+      font-size: 1.1rem; font-weight: 600;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    .hero-cta:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(34,197,94,0.3);
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 48px;
+      margin-top: 60px; padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .hero-stat .label { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ─── Sections ─── */
+    section { padding: 80px 0; }
+    .section-label {
+      font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--accent); margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .section-desc {
+      color: var(--text-muted); font-size: 1.05rem;
+      max-width: 560px; margin-bottom: 48px;
+    }
+    .section-center { text-align: center; }
+    .section-center .section-desc { margin-left: auto; margin-right: auto; }
+
+    /* ─── Make a Call ─── */
+    #call { padding-top: 40px; }
+    .call-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .call-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+    }
+    .call-card h2 {
+      font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .call-card .subtitle {
+      color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem;
+    }
+    .rate-limit-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 16px;
+      margin-bottom: 28px; font-size: 0.85rem;
+    }
+    .rate-dots { display: flex; gap: 6px; }
+    .rate-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent); transition: all var(--transition);
+    }
+    .rate-dot.used { background: var(--border); }
+    .rate-text { color: var(--text-muted); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block; font-size: 0.875rem; font-weight: 600;
+      color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .form-label .req { color: var(--accent); }
+    .form-hint {
+      font-size: 0.8rem; color: var(--text-dim); margin-top: 6px;
+    }
+
+    input[type="text"], input[type="tel"], textarea, select {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-size: 0.95rem; font-family: inherit;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-dim); }
+    textarea { resize: vertical; min-height: 100px; }
+    select { cursor: pointer; }
+    option { background: var(--bg); }
+
+    /* Phone input */
+    .phone-row { display: flex; gap: 10px; }
+    .country-select {
+      width: 140px; flex-shrink: 0;
+      padding: 12px 10px; font-size: 0.9rem;
+    }
+    .phone-input { flex: 1; font-size: 1.1rem; letter-spacing: 0.5px; }
+
+    /* Call button */
+    .call-btn {
+      width: 100%; padding: 16px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: 1.05rem; font-weight: 700;
+      cursor: pointer; transition: all var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-top: 8px;
+    }
+    .call-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(34,197,94,0.25);
+    }
+    .call-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .call-btn .spinner {
+      width: 20px; height: 20px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Call status overlay */
+    .call-status-card {
+      display: none; text-align: center; padding: 48px 24px;
+    }
+    .call-status-card.active { display: block; }
+    .call-status-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    .call-status-icon.ringing { animation: ring 1.5s ease-in-out infinite; }
+    @keyframes ring {
+      0%,100% { transform: rotate(0); }
+      10%,30% { transform: rotate(-12deg); }
+      20%,40% { transform: rotate(12deg); }
+      50% { transform: rotate(0); }
+    }
+    .call-status-text {
+      font-size: 1.25rem; font-weight: 600; margin-bottom: 4px;
+    }
+    .call-status-sub { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+    .call-timer-display {
+      font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
+      font-size: 2rem; color: var(--accent); font-weight: 600; margin-bottom: 28px;
+    }
+    .wave-container {
+      display: flex; justify-content: center; align-items: flex-end;
+      gap: 4px; height: 32px; margin-bottom: 28px;
+    }
+    .wave-bar {
+      width: 4px; border-radius: 2px; background: var(--accent);
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+    .wave-bar:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+    .wave-bar:nth-child(4) { height: 12px; animation-delay: 0.3s; }
+    .wave-bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+    @keyframes wave {
+      0%,100% { transform: scaleY(0.4); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+    .end-call-btn {
+      background: var(--danger); color: #fff; border: none;
+      padding: 14px 40px; border-radius: 100px; font-size: 1rem;
+      font-weight: 600; cursor: pointer; transition: all var(--transition);
+    }
+    .end-call-btn:hover { background: #dc2626; transform: translateY(-1px); }
+
+    /* Call result */
+    .call-result { display: none; }
+    .call-result.active { display: block; }
+    .result-header { text-align: center; margin-bottom: 32px; }
+    .result-icon { font-size: 3rem; margin-bottom: 12px; }
+    .result-title { font-size: 1.5rem; font-weight: 700; }
+    .result-sub { color: var(--text-muted); }
+    .result-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+    }
+    .result-box h4 {
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-muted); margin-bottom: 12px;
+    }
+    .result-actions {
+      display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
+    }
+    .result-btn {
+      flex: 1; min-width: 140px; padding: 12px 20px;
+      border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition); border: none;
+    }
+    .result-btn-primary { background: var(--accent); color: #fff; }
+    .result-btn-primary:hover { background: var(--accent-hover); }
+    .result-btn-secondary {
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+    }
+    .result-btn-secondary:hover { background: var(--border); }
+
+    /* Error/success messages */
+    .msg-error {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5; padding: 12px 16px; border-radius: var(--radius-sm);
+      margin-bottom: 20px; font-size: 0.9rem;
+    }
+
+    /* ─── How it Works ─── */
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .step-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 32px 24px;
+      text-align: center; position: relative;
+      transition: border-color var(--transition);
+    }
+    .step-card:hover { border-color: var(--accent); }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--accent-dim); color: var(--accent);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; margin-bottom: 16px;
+    }
+    .step-icon { font-size: 2rem; margin-bottom: 12px; }
+    .step-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+    .step-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ─── Pricing ─── */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .pricing-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 32px;
+      position: relative;
+    }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    .pricing-card.featured::before {
+      content: 'POPULAR';
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff;
+      padding: 4px 16px; border-radius: 100px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+    }
+    .pricing-tier { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .pricing-price { font-size: 2.25rem; font-weight: 800; margin-bottom: 4px; }
+    .pricing-price span { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
+    .pricing-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .pricing-features { list-style: none; margin-bottom: 28px; }
+    .pricing-features li {
+      padding: 8px 0; font-size: 0.9rem; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .pricing-features li::before {
+      content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0;
+    }
+    .pricing-btn {
+      display: block; width: 100%; padding: 12px;
+      border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600;
+      text-align: center; text-decoration: none; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface-2);
+      color: var(--text); transition: all var(--transition);
+    }
+    .pricing-btn:hover { background: var(--border); }
+    .pricing-btn.primary {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .pricing-btn.primary:hover { background: var(--accent-hover); }
+
+    /* ─── Recent Calls ─── */
+    .calls-list { display: flex; flex-direction: column; gap: 12px; }
+    .call-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: border-color var(--transition);
+    }
+    .call-item:hover { border-color: var(--border-light); }
+    .call-item-left { display: flex; align-items: center; gap: 14px; }
+    .call-item-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--accent-dim); color: var(--accent);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+    .call-item-number { font-weight: 600; font-size: 0.95rem; }
+    .call-item-task { color: var(--text-muted); font-size: 0.85rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .call-item-right { text-align: right; }
+    .call-item-time { font-size: 0.8rem; color: var(--text-dim); }
+    .call-item-status {
+      font-size: 0.75rem; font-weight: 600; padding: 2px 10px;
+      border-radius: 100px; display: inline-block; margin-top: 4px;
+    }
+    .status-completed { background: var(--accent-dim); color: var(--accent); }
+    .status-failed { background: rgba(239,68,68,0.1); color: #f87171; }
+    .status-calling { background: rgba(59,130,246,0.1); color: var(--blue); }
+    .empty-calls {
+      text-align: center; padding: 48px; color: var(--text-dim);
+    }
+    .empty-calls-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .clear-history-btn {
+      background: none; border: 1px solid var(--border); color: var(--text-muted);
+      padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.85rem;
+      cursor: pointer; transition: all var(--transition); margin-top: 16px;
+    }
+    .clear-history-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ─── API Section ─── */
+    .api-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .code-block {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      overflow-x: auto; position: relative;
+    }
+    .code-block pre {
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+      font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary);
+    }
+    .code-copy {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 6px 12px; border-radius: 6px;
+      font-size: 0.75rem; cursor: pointer; transition: all var(--transition);
+    }
+    .code-copy:hover { color: var(--text); border-color: var(--border-light); }
+    .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+    .api-info h3 { font-size: 1.1rem; margin-bottom: 12px; }
+    .api-info p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px; }
+    .api-endpoint {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      font-family: monospace; font-size: 0.85rem; color: var(--accent);
+    }
+    .api-method {
+      background: var(--accent); color: #fff; padding: 2px 8px;
+      border-radius: 4px; font-size: 0.75rem; font-weight: 700;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      border-top: 1px solid var(--border); padding: 40px 0;
+      text-align: center; color: var(--text-dim); font-size: 0.85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex; flex-direction: column;
+        position: absolute; top: 64px; left: 0; right: 0;
+        background: var(--bg); border-bottom: 1px solid var(--border);
+        padding: 16px 24px; gap: 16px;
+      }
+      .mobile-menu-btn { display: block; }
+      .hero { padding: 60px 0 50px; }
+      .hero-stats { gap: 24px; flex-wrap: wrap; }
+      .call-card { padding: 24px; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .api-grid { grid-template-columns: 1fr; }
+      .phone-row { flex-direction: column; }
+      .country-select { width: 100%; }
+      .call-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .call-item-right { text-align: left; }
+      .result-actions { flex-direction: column; }
+    }
+
+    /* ─── Auth ─── */
+    .auth-area { display: flex; align-items: center; gap: 12px; }
+    .auth-btn {
+      background: var(--accent); color: #fff; border: none;
+      padding: 8px 18px; border-radius: var(--radius-sm); font-weight: 600;
+      font-size: 0.9rem; cursor: pointer; transition: all var(--transition);
+    }
+    .auth-btn:hover { background: var(--accent-hover); }
+    .auth-btn.secondary {
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+    }
+    .auth-btn.secondary:hover { background: var(--border); }
+    .auth-user {
+      display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+    }
+    .auth-user-email { color: var(--text-secondary); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .auth-user-badge {
+      background: var(--accent-dim); color: var(--accent); padding: 2px 8px;
+      border-radius: 100px; font-size: 0.7rem; font-weight: 600;
+    }
+    .logout-btn {
+      background: none; border: none; color: var(--text-dim); cursor: pointer;
+      font-size: 0.85rem; padding: 4px 8px;
+    }
+    .logout-btn:hover { color: var(--danger); }
+
+    /* ─── Modal ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 32px; width: 90%; max-width: 420px;
+    }
+    .modal h2 { font-size: 1.3rem; margin-bottom: 8px; }
+    .modal .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .modal .form-group { margin-bottom: 16px; }
+    .modal-btn {
+      width: 100%; padding: 14px; background: var(--accent); color: #fff;
+      border: none; border-radius: var(--radius-sm); font-size: 1rem;
+      font-weight: 600; cursor: pointer; transition: all var(--transition);
+    }
+    .modal-btn:hover { background: var(--accent-hover); }
+    .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .modal-close {
+      float: right; background: none; border: none; color: var(--text-dim);
+      font-size: 1.5rem; cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-switch {
+      text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);
+    }
+    .modal-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
+    .modal-switch a:hover { text-decoration: underline; }
+    .modal-error {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5; padding: 10px 14px; border-radius: var(--radius-sm);
+      margin-bottom: 16px; font-size: 0.85rem; display: none;
+    }
+    .modal-success {
+      background: var(--accent-dim); border: 1px solid rgba(34,197,94,0.3);
+      color: var(--accent); padding: 10px 14px; border-radius: var(--radius-sm);
+      margin-bottom: 16px; font-size: 0.85rem; display: none;
+    }
+
+    /* ─── Upgrade Banner ─── */
+    .upgrade-banner {
+      display: none; background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.1));
+      border: 1px solid rgba(34,197,94,0.2); border-radius: var(--radius);
+      padding: 16px 20px; margin-bottom: 24px; text-align: center;
+    }
+    .upgrade-banner.active { display: block; }
+    .upgrade-banner p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; }
+    .upgrade-banner .upgrade-link {
+      color: var(--accent); font-weight: 600; text-decoration: none; cursor: pointer;
+    }
+
+    /* ─── Smooth scroll ─── */
+    html { scroll-behavior: smooth; }
+
+    /* ─── Animations ─── */
+    .fade-in {
+      opacity: 0; transform: translateY(20px);
+      animation: fadeIn 0.6s ease forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in:nth-child(3) { animation-delay: 0.2s; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <a href="#" class="logo">📞 Molt<span>Phone</span></a>
+      <nav class="nav-links" id="nav-links">
+        <a href="#call">Make a Call</a>
+        <a href="#how">How It Works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#history">History</a>
+        <a href="#api">API</a>
+      </nav>
+      <div class="auth-area" id="auth-area">
+        <button class="auth-btn" id="auth-btn" onclick="showAuthModal()">Sign Up</button>
+      </div>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">🟢 Live — Make calls now</div>
+      <h1>AI <em>Phone Calls</em>,<br>Made Simple</h1>
+      <p>Enter a number, tell the AI what to say, and it handles the conversation. Appointments, inquiries, reservations — done in seconds.</p>
+      <a href="#call" class="hero-cta">📞 Make a Call</a>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="num">3</div>
+          <div class="label">Free calls / hour</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">30s</div>
+          <div class="label">Average setup time</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">50+</div>
+          <div class="label">Countries supported</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Make a Call -->
+  <section id="call">
+    <div class="container-sm">
+      <!-- Call Form -->
+      <div class="call-card" id="call-form-card">
+        <h2>📞 Make a Call</h2>
+        <p class="subtitle">Your AI assistant will call and handle the conversation.</p>
+
+        <div class="upgrade-banner" id="upgrade-banner">
+          <p>⚡ You've used your free calls. Sign up for more!</p>
+          <a class="upgrade-link" onclick="showAuthModal()">Create Free Account →</a>
+        </div>
+
+        <div class="rate-limit-bar" id="rate-limit-bar">
+          <div class="rate-dots" id="rate-dots">
+            <div class="rate-dot"></div>
+            <div class="rate-dot"></div>
+            <div class="rate-dot"></div>
+          </div>
+          <span class="rate-text"><span id="calls-remaining">3</span> calls remaining this hour</span>
+        </div>
+
+        <div id="form-error"></div>
+
+        <form id="call-form" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label">Phone Number <span class="req">*</span></label>
+            <div class="phone-row">
+              <select class="country-select" id="country-code">
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+33">🇫🇷 +33</option>
+                <option value="+49">🇩🇪 +49</option>
+                <option value="+34">🇪🇸 +34</option>
+                <option value="+39">🇮🇹 +39</option>
+                <option value="+31">🇳🇱 +31</option>
+                <option value="+46">🇸🇪 +46</option>
+                <option value="+47">🇳🇴 +47</option>
+                <option value="+61">🇦🇺 +61</option>
+                <option value="+81">🇯🇵 +81</option>
+                <option value="+82">🇰🇷 +82</option>
+                <option value="+86">🇨🇳 +86</option>
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+351">🇵🇹 +351</option>
+                <option value="+353">🇮🇪 +353</option>
+                <option value="+356">🇲🇹 +356</option>
+                <option value="+350">🇬🇮 +350</option>
+                <option value="+971">🇦🇪 +971</option>
+                <option value="+972">🇮🇱 +972</option>
+                <option value="+55">🇧🇷 +55</option>
+                <option value="+52">🇲🇽 +52</option>
+              </select>
+              <input type="tel" class="phone-input" id="phone-number" placeholder="555 123 4567" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="task">What should the AI say? <span class="req">*</span></label>
+            <textarea id="task" placeholder="e.g. Call this restaurant and make a reservation for 2 people this Saturday at 8pm. My name is Alex." required></textarea>
+            <div class="form-hint">Be specific about what the AI should accomplish and any details to mention.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="agent-name">Caller Name <span style="color:var(--text-dim)">(optional)</span></label>
+            <input type="text" id="agent-name" placeholder="e.g. Alex's Assistant">
+            <div class="form-hint">The AI will introduce itself with this name.</div>
+          </div>
+
+          <button type="submit" class="call-btn" id="call-btn">
+            <span id="call-btn-text">📞 Call Now — Free</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Call In Progress -->
+      <div class="call-card call-status-card" id="call-progress">
+        <div class="call-status-icon ringing" id="call-icon">📞</div>
+        <div class="call-status-text" id="status-text">Initiating call...</div>
+        <div class="call-status-sub" id="status-number"></div>
+        <div class="call-timer-display" id="call-timer">00:00</div>
+        <div class="wave-container" id="wave-container" style="display:none">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+        </div>
+        <button class="end-call-btn" id="end-call-btn">✕ End Call</button>
+      </div>
+
+      <!-- Call Result -->
+      <div class="call-card call-result" id="call-result">
+        <div class="result-header">
+          <div class="result-icon" id="result-icon">✅</div>
+          <div class="result-title" id="result-title">Call Complete</div>
+          <div class="result-sub" id="result-sub"></div>
+        </div>
+        <div class="result-box" id="result-details-box">
+          <h4>Call Details</h4>
+          <div id="result-details"></div>
+        </div>
+        <div class="result-actions">
+          <button class="result-btn result-btn-primary" id="new-call-btn">📞 New Call</button>
+          <button class="result-btn result-btn-secondary" id="copy-result-btn">📋 Copy Details</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how">
+    <div class="container section-center">
+      <div class="section-label">How It Works</div>
+      <div class="section-title">Three simple steps</div>
+      <div class="section-desc">No signup needed. Just describe your call and we handle the rest.</div>
+      <div class="steps-grid">
+        <div class="step-card fade-in">
+          <div class="step-num">1</div>
+          <div class="step-icon">📱</div>
+          <h3>Enter a Number</h3>
+          <p>Type the phone number you want to call with international format support.</p>
+        </div>
+        <div class="step-card fade-in">
+          <div class="step-num">2</div>
+          <div class="step-icon">💬</div>
+          <h3>Describe the Task</h3>
+          <p>Tell the AI what to say — make a reservation, ask a question, schedule a meeting.</p>
+        </div>
+        <div class="step-card fade-in">
+          <div class="step-num">3</div>
+          <div class="step-icon">🤖</div>
+          <h3>AI Makes the Call</h3>
+          <p>Our AI calls the number, handles the conversation naturally, and reports back.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container section-center">
+      <div class="section-label">Pricing</div>
+      <div class="section-title">Simple, transparent pricing</div>
+      <div class="section-desc">Start free. Scale when you need to.</div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-tier">Free</div>
+          <div class="pricing-price">$0 <span>/ call</span></div>
+          <div class="pricing-desc">Try it out, no signup required</div>
+          <ul class="pricing-features">
+            <li>3 calls per hour</li>
+            <li>Standard AI voice</li>
+            <li>Call status tracking</li>
+            <li>50+ countries</li>
+          </ul>
+          <a href="#call" class="pricing-btn primary">Start Calling</a>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-tier">Webapp</div>
+          <div class="pricing-price">$0.50 <span>/ call</span></div>
+          <div class="pricing-desc">Unlimited calls via the webapp</div>
+          <ul class="pricing-features">
+            <li>Unlimited calls</li>
+            <li>Priority voice quality</li>
+            <li>Call history & details</li>
+            <li>Longer call duration</li>
+          </ul>
+          <a href="https://t.me/KantaClaw_bot" target="_blank" class="pricing-btn primary">Contact for Access</a>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-tier">API</div>
+          <div class="pricing-price">$0.15 <span>/ call</span></div>
+          <div class="pricing-desc">For developers & AI agents</div>
+          <ul class="pricing-features">
+            <li>REST API access</li>
+            <li>Webhook callbacks</li>
+            <li>Custom AI personas</li>
+            <li>Bulk calling</li>
+          </ul>
+          <a href="https://t.me/KantaClaw_bot" target="_blank" class="pricing-btn">Get API Access</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Calls -->
+  <section id="history">
+    <div class="container-sm">
+      <div class="section-label">History</div>
+      <div class="section-title">Recent Calls</div>
+      <div class="section-desc">Your calls are stored locally in your browser.</div>
+      <div class="calls-list" id="calls-list">
+        <div class="empty-calls" id="empty-calls">
+          <div class="empty-calls-icon">📞</div>
+          <div>No calls yet. Make your first call above!</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <button class="clear-history-btn" id="clear-history" style="display:none">Clear History</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- API Section -->
+  <section id="api" class="api-section">
+    <div class="container">
+      <div class="api-grid">
+        <div class="api-info">
+          <div class="section-label">For Developers</div>
+          <div class="section-title" style="margin-bottom:16px">API Access</div>
+          <p>Integrate AI phone calls into your app with a single API call. Perfect for AI agents, automation workflows, and custom integrations.</p>
+          <div class="api-endpoint">
+            <span class="api-method">POST</span>
+            api.moltphone.xyz/call/webapp
+          </div>
+        </div>
+        <div class="code-block">
+          <button class="code-copy" id="code-copy">Copy</button>
+          <pre><code><span style="color:#22c55e">// Make an AI phone call</span>
+<span style="color:#c084fc">const</span> response = <span style="color:#c084fc">await</span> <span style="color:#60a5fa">fetch</span>(<span style="color:#fbbf24">'https://api.moltphone.xyz/call/webapp'</span>, {
+  method: <span style="color:#fbbf24">'POST'</span>,
+  headers: { <span style="color:#fbbf24">'Content-Type'</span>: <span style="color:#fbbf24">'application/json'</span> },
+  body: JSON.<span style="color:#60a5fa">stringify</span>({
+    phoneNumber: <span style="color:#fbbf24">'+15551234567'</span>,
+    task: <span style="color:#fbbf24">'Call and ask about office hours'</span>,
+    agentName: <span style="color:#fbbf24">'My Assistant'</span>
+  })
+});
+
+<span style="color:#c084fc">const</span> data = <span style="color:#c084fc">await</span> response.<span style="color:#60a5fa">json</span>();
+console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e">// { callId, status, ... }</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Auth Modal -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+      <h2 id="auth-modal-title">Sign Up</h2>
+      <p class="subtitle" id="auth-modal-subtitle">Create an account to get more calls and track your history.</p>
+      <div class="modal-error" id="auth-error"></div>
+      <div class="modal-success" id="auth-success"></div>
+      <form id="auth-form" onsubmit="handleAuth(event)">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group" id="auth-handle-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="auth-handle" placeholder="my-agent" required>
+          <div class="form-hint">This will be your agent handle.</div>
+        </div>
+        <div class="form-group" id="auth-name-group">
+          <label class="form-label">Name <span style="color:var(--text-dim)">(optional)</span></label>
+          <input type="text" id="auth-name" placeholder="Your Name">
+        </div>
+        <button type="submit" class="modal-btn" id="auth-submit-btn">Create Account</button>
+      </form>
+      <div class="modal-switch" id="auth-switch">
+        Already have an API key? <a onclick="switchToLogin()">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal (API Key) -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+      <h2>Sign In</h2>
+      <p class="subtitle">Enter your MoltPhone API key to sign in.</p>
+      <div class="modal-error" id="login-error"></div>
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">API Key</label>
+          <input type="text" id="login-apikey" placeholder="mp_..." required>
+        </div>
+        <button type="submit" class="modal-btn">Sign In</button>
+      </form>
+      <div class="modal-switch">
+        Don't have an account? <a onclick="closeLoginModal(); showAuthModal()">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>📞 MoltPhone — AI Phone Calls &nbsp;·&nbsp; Powered by <a href="https://spring.gib" target="_blank">Spring Software Gibraltar</a> 🦞</p>
+    </div>
+  </footer>
+
+  <script>
+    // ─── Config ───
+    const API_URL = 'https://api.moltphone.xyz/call/webapp';
+    const API_FALLBACK = 'https://moltphone-737941094496.europe-west1.run.app/call/webapp';
+    const STORAGE_KEY = 'moltphone_calls';
+    const RATE_KEY = 'moltphone_rate';
+
+    // ─── State ───
+    let callTimerInterval = null;
+    let callSeconds = 0;
+
+    // ─── DOM ───
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    // ─── Mobile Menu ───
+    $('#mobile-menu-btn').addEventListener('click', () => {
+      $('#nav-links').classList.toggle('open');
+    });
+    // Close on nav click
+    $$('#nav-links a').forEach(a => a.addEventListener('click', () => {
+      $('#nav-links').classList.remove('open');
+    }));
+
+    // ─── Rate Limiting (client-side tracking) ───
+    function getRateInfo() {
+      try {
+        const data = JSON.parse(localStorage.getItem(RATE_KEY) || '{}');
+        const now = Date.now();
+        const hourAgo = now - 3600000;
+        const calls = (data.calls || []).filter(t => t > hourAgo);
+        return { calls, remaining: Math.max(0, 3 - calls.length) };
+      } catch { return { calls: [], remaining: 3 }; }
+    }
+
+    function recordCall() {
+      const info = getRateInfo();
+      info.calls.push(Date.now());
+      localStorage.setItem(RATE_KEY, JSON.stringify({ calls: info.calls }));
+    }
+
+    function updateRateUI() {
+      const { remaining } = getRateInfo();
+      $('#calls-remaining').textContent = remaining;
+      const dots = $$('#rate-dots .rate-dot');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('used', i >= remaining);
+      });
+      $('#call-btn').disabled = remaining <= 0;
+      if (remaining <= 0) {
+        $('#call-btn-text').textContent = 'Rate limit reached — try again later';
+      } else {
+        $('#call-btn-text').textContent = '📞 Call Now — Free';
+      }
+    }
+
+    // ─── Call History ───
+    function getHistory() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+      catch { return []; }
+    }
+
+    function saveToHistory(entry) {
+      const history = getHistory();
+      history.unshift(entry);
+      if (history.length > 50) history.length = 50;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    }
+
+    function renderHistory() {
+      const history = getHistory();
+      const list = $('#calls-list');
+      const empty = $('#empty-calls');
+      const clearBtn = $('#clear-history');
+
+      if (history.length === 0) {
+        empty.style.display = 'block';
+        clearBtn.style.display = 'none';
+        // Remove non-empty items
+        list.querySelectorAll('.call-item').forEach(el => el.remove());
+        return;
+      }
+
+      empty.style.display = 'none';
+      clearBtn.style.display = 'inline-block';
+      list.querySelectorAll('.call-item').forEach(el => el.remove());
+
+      history.slice(0, 20).forEach(call => {
+        const item = document.createElement('div');
+        item.className = 'call-item';
+        const statusClass = call.status === 'completed' ? 'status-completed'
+          : call.status === 'failed' ? 'status-failed' : 'status-calling';
+        const timeStr = new Date(call.timestamp).toLocaleString(undefined, {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        item.innerHTML = `
+          <div class="call-item-left">
+            <div class="call-item-icon">📞</div>
+            <div>
+              <div class="call-item-number">${escapeHtml(call.phoneNumber)}</div>
+              <div class="call-item-task">${escapeHtml(call.task)}</div>
+            </div>
+          </div>
+          <div class="call-item-right">
+            <div class="call-item-time">${timeStr}</div>
+            <div class="call-item-status ${statusClass}">${call.status}</div>
+          </div>
+        `;
+        list.insertBefore(item, clearBtn.parentElement);
+      });
+    }
+
+    $('#clear-history').addEventListener('click', () => {
+      if (confirm('Clear all call history?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderHistory();
+      }
+    });
+
+    // ─── Form Submit ───
+    $('#call-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const { remaining } = getRateInfo();
+      if (remaining <= 0) {
+        showFormError('Rate limit reached. Please wait before making another call.');
+        return;
+      }
+
+      const phoneRaw = $('#phone-number').value.replace(/[\s\-\(\)]/g, '');
+      const countryCode = $('#country-code').value;
+      const phoneNumber = countryCode + phoneRaw;
+      const task = $('#task').value.trim();
+      const agentName = $('#agent-name').value.trim();
+
+      if (!phoneRaw || phoneRaw.length < 4) {
+        showFormError('Please enter a valid phone number.');
+        return;
+      }
+      if (!task) {
+        showFormError('Please describe what the AI should say.');
+        return;
+      }
+
+      // Show progress
+      showView('progress');
+      $('#status-number').textContent = phoneNumber;
+      $('#status-text').textContent = 'Initiating call...';
+      $('#call-icon').textContent = '📞';
+      $('#call-icon').classList.add('ringing');
+      $('#wave-container').style.display = 'none';
+      startTimer();
+
+      const body = { phoneNumber, task };
+      if (agentName) body.agentName = agentName;
+
+      const historyEntry = {
+        phoneNumber, task, agentName,
+        timestamp: Date.now(), status: 'calling'
+      };
+
+      try {
+        const auth = getAuth();
+        const headers = { 'Content-Type': 'application/json' };
+        if (auth && auth.apiKey) headers['Authorization'] = `Bearer ${auth.apiKey}`;
+
+        let response;
+        try {
+          response = await fetch(API_URL, {
+            method: 'POST', headers, body: JSON.stringify(body)
+          });
+        } catch {
+          // Fallback
+          response = await fetch(API_FALLBACK, {
+            method: 'POST', headers, body: JSON.stringify(body)
+          });
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || data.message || `Request failed (${response.status})`);
+        }
+
+        // Success
+        recordCall();
+        updateRateUI();
+
+        $('#status-text').textContent = 'Call initiated!';
+        $('#call-icon').textContent = '🟢';
+        $('#call-icon').classList.remove('ringing');
+        $('#wave-container').style.display = 'flex';
+
+        // Wait a moment then show result
+        setTimeout(() => {
+          stopTimer();
+          historyEntry.status = 'completed';
+          historyEntry.callId = data.callId || data.id;
+          historyEntry.response = data;
+          saveToHistory(historyEntry);
+          renderHistory();
+          showResult('success', phoneNumber, data);
+        }, 3000);
+
+      } catch (err) {
+        stopTimer();
+        historyEntry.status = 'failed';
+        historyEntry.error = err.message;
+        saveToHistory(historyEntry);
+        renderHistory();
+
+        // Check for rate limit
+        if (err.message.toLowerCase().includes('rate') || err.message.toLowerCase().includes('limit')) {
+          showResult('ratelimit', phoneNumber, null, err.message);
+        } else {
+          showResult('error', phoneNumber, null, err.message);
+        }
+      }
+    });
+
+    // ─── End Call ───
+    $('#end-call-btn').addEventListener('click', () => {
+      stopTimer();
+      showView('form');
+    });
+
+    // ─── New Call ───
+    $('#new-call-btn').addEventListener('click', () => {
+      $('#call-form').reset();
+      showView('form');
+      updateRateUI();
+    });
+
+    // ─── Copy Result ───
+    $('#copy-result-btn').addEventListener('click', () => {
+      const text = $('#result-details').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        $('#copy-result-btn').textContent = '✅ Copied!';
+        setTimeout(() => { $('#copy-result-btn').textContent = '📋 Copy Details'; }, 2000);
+      });
+    });
+
+    // ─── Copy Code ───
+    $('#code-copy').addEventListener('click', () => {
+      const code = $('pre code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        $('#code-copy').textContent = 'Copied!';
+        setTimeout(() => { $('#code-copy').textContent = 'Copy'; }, 2000);
+      });
+    });
+
+    // ─── View Management ───
+    function showView(view) {
+      $('#call-form-card').style.display = view === 'form' ? 'block' : 'none';
+      $('#call-progress').style.display = 'none';
+      $('#call-progress').classList.remove('active');
+      $('#call-result').style.display = 'none';
+      $('#call-result').classList.remove('active');
+
+      if (view === 'progress') {
+        $('#call-progress').style.display = 'block';
+        $('#call-progress').classList.add('active');
+      } else if (view === 'result') {
+        $('#call-result').style.display = 'block';
+        $('#call-result').classList.add('active');
+      }
+    }
+
+    function showResult(type, phone, data, errorMsg) {
+      showView('result');
+      if (type === 'success') {
+        $('#result-icon').textContent = '✅';
+        $('#result-title').textContent = 'Call Initiated!';
+        $('#result-sub').textContent = `Calling ${phone}`;
+        let details = `Phone: ${phone}\n`;
+        if (data) {
+          if (data.callId || data.id) details += `Call ID: ${data.callId || data.id}\n`;
+          if (data.status) details += `Status: ${data.status}\n`;
+          if (data.message) details += `${data.message}\n`;
+        }
+        $('#result-details').textContent = details;
+      } else if (type === 'ratelimit') {
+        $('#result-icon').textContent = '⏳';
+        $('#result-title').textContent = 'Rate Limit Reached';
+        $('#result-sub').textContent = 'You can make 3 free calls per hour';
+        $('#result-details').textContent = errorMsg || 'Please wait before making another call.';
+        updateRateUI();
+      } else {
+        $('#result-icon').textContent = '❌';
+        $('#result-title').textContent = 'Call Failed';
+        $('#result-sub').textContent = phone;
+        $('#result-details').textContent = errorMsg || 'An unexpected error occurred. Please try again.';
+      }
+    }
+
+    // ─── Timer ───
+    function startTimer() {
+      callSeconds = 0;
+      $('#call-timer').textContent = '00:00';
+      callTimerInterval = setInterval(() => {
+        callSeconds++;
+        const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+        const s = String(callSeconds % 60).padStart(2, '0');
+        $('#call-timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+    function stopTimer() {
+      if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+    }
+
+    // ─── Helpers ───
+    function showFormError(msg) {
+      const el = $('#form-error');
+      el.innerHTML = `<div class="msg-error">${escapeHtml(msg)}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 5000);
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // ─── Phone formatting ───
+    $('#phone-number').addEventListener('input', (e) => {
+      let v = e.target.value.replace(/[^\d]/g, '');
+      // Simple grouping: XXX XXX XXXX
+      if (v.length > 6) v = v.slice(0,3) + ' ' + v.slice(3,6) + ' ' + v.slice(6,10);
+      else if (v.length > 3) v = v.slice(0,3) + ' ' + v.slice(3,6);
+      e.target.value = v;
+    });
+
+    // ─── Auth ───
+    const AUTH_KEY = 'moltphone_auth';
+    const API_BASE = 'https://api.moltphone.xyz';
+    const API_BASE_FALLBACK = 'https://moltphone-737941094496.europe-west1.run.app';
+
+    function getAuth() {
+      try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch { return null; }
+    }
+
+    function setAuth(data) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify(data));
+      updateAuthUI();
+    }
+
+    function clearAuth() {
+      localStorage.removeItem(AUTH_KEY);
+      updateAuthUI();
+    }
+
+    function updateAuthUI() {
+      const auth = getAuth();
+      const area = $('#auth-area');
+      if (auth && auth.apiKey) {
+        area.innerHTML = `
+          <div class="auth-user">
+            <span class="auth-user-badge">PRO</span>
+            <span class="auth-user-email">${escapeHtml(auth.email || auth.handle)}</span>
+            <button class="logout-btn" onclick="logout()" title="Sign out">✕</button>
+          </div>
+        `;
+      } else {
+        area.innerHTML = '<button class="auth-btn" onclick="showAuthModal()">Sign Up</button>';
+      }
+    }
+
+    function showAuthModal() {
+      $('#auth-modal').classList.add('active');
+      $('#auth-error').style.display = 'none';
+      $('#auth-success').style.display = 'none';
+    }
+
+    function closeAuthModal() {
+      $('#auth-modal').classList.remove('active');
+    }
+
+    function switchToLogin() {
+      closeAuthModal();
+      $('#login-modal').classList.add('active');
+      $('#login-error').style.display = 'none';
+    }
+
+    function closeLoginModal() {
+      $('#login-modal').classList.remove('active');
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const email = $('#auth-email').value.trim();
+      const handle = $('#auth-handle').value.trim();
+      const name = $('#auth-name').value.trim();
+      const btn = $('#auth-submit-btn');
+      const errEl = $('#auth-error');
+      const successEl = $('#auth-success');
+
+      errEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      try {
+        let response;
+        try {
+          response = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ handle, name: name || handle, email })
+          });
+        } catch {
+          response = await fetch(`${API_BASE_FALLBACK}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ handle, name: name || handle, email })
+          });
+        }
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || data.message || 'Registration failed');
+
+        setAuth({ apiKey: data.apiKey || data.api_key, handle, email, name });
+        successEl.textContent = '✅ Account created! Your API key has been saved.';
+        successEl.style.display = 'block';
+        setTimeout(closeAuthModal, 2000);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const apiKey = $('#login-apikey').value.trim();
+      const errEl = $('#login-error');
+      errEl.style.display = 'none';
+
+      if (!apiKey) { errEl.textContent = 'Please enter your API key.'; errEl.style.display = 'block'; return; }
+
+      // Validate key by calling /calls
+      try {
+        let response;
+        try {
+          response = await fetch(`${API_BASE}/calls`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
+        } catch {
+          response = await fetch(`${API_BASE_FALLBACK}/calls`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
+        }
+
+        if (!response.ok) throw new Error('Invalid API key');
+        setAuth({ apiKey, handle: 'user', email: '' });
+        closeLoginModal();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    function logout() {
+      if (confirm('Sign out?')) clearAuth();
+    }
+
+    // Show upgrade banner when rate limited
+    function checkUpgradeBanner() {
+      const auth = getAuth();
+      const { remaining } = getRateInfo();
+      const banner = $('#upgrade-banner');
+      if (!auth && remaining <= 0) {
+        banner.classList.add('active');
+      } else {
+        banner.classList.remove('active');
+      }
+    }
+
+    // Patch updateRateUI to also check upgrade banner
+    const _origUpdateRateUI = updateRateUI;
+    updateRateUI = function() {
+      _origUpdateRateUI();
+      checkUpgradeBanner();
+    };
+
+    // ─── Init ───
+    updateAuthUI();
+    updateRateUI();
+    renderHistory();
+
+    // Refresh rate limit display every 30s
+    setInterval(updateRateUI, 30000);
+  </script>
+</body>
+</html>

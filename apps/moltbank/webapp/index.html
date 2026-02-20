@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoltBank - Your AI Agent Wallet</title>
+  <meta name="description" content="Wallets, escrow, and project payments for the agent economy. Manage your USDC wallet, create escrows, and track projects.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --border: #27272a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f97316;
+      --purple: #8b5cf6;
+      --yellow: #eab308;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(9, 9, 11, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    
+    .logo span { color: var(--accent); }
+    
+    .nav-items {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    
+    .nav-links button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding: 8px 0;
+    }
+    
+    .nav-links button:hover { color: var(--text); }
+    .nav-links button.active { color: var(--accent); font-weight: 600; }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .balance-display {
+      background: var(--surface);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+    
+    .balance-amount {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+    
+    .logout-btn {
+      background: var(--red) !important;
+      color: white !important;
+      padding: 8px 16px !important;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    
+    .logout-btn:hover {
+      background: #dc2626 !important;
+    }
+    
+    /* Auth pages */
+    .auth-page {
+      display: none;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+    }
+    
+    .auth-page.active {
+      display: flex;
+    }
+    
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px;
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+    }
+    
+    .auth-card h1 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .auth-card .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    
+    /* Main app */
+    .app {
+      display: none;
+    }
+    
+    .app.active {
+      display: block;
+    }
+    
+    .main-content {
+      padding: 40px 0 80px;
+    }
+    
+    .page-section {
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    .page-section.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    
+    /* Forms */
+    .form-group {
+      margin-bottom: 24px;
+    }
+    
+    label {
+      display: block;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .required::after {
+      content: ' *';
+      color: var(--red);
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    input::placeholder, textarea::placeholder {
+      color: var(--text-muted);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+    
+    .btn-success {
+      background: var(--green);
+      color: white;
+    }
+    
+    .btn-success:hover:not(:disabled) {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+      background: #dc2626;
+    }
+    
+    .btn-large {
+      font-size: 1.1rem;
+      padding: 16px 32px;
+      width: 100%;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.2s;
+    }
+    
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .card-icon {
+      font-size: 1.5rem;
+    }
+    
+    /* Dashboard grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Activity sections */
+    .activity-section {
+      margin-bottom: 32px;
+    }
+    
+    .activity-header {
+      display: flex;
+      align-items: center;
+      justify-content: between;
+      margin-bottom: 16px;
+    }
+    
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .activity-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    
+    .activity-item:hover {
+      border-color: var(--accent);
+    }
+    
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    
+    .activity-icon.in { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+    .activity-icon.out { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+    .activity-icon.escrow { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
+    .activity-icon.project { background: rgba(139, 92, 246, 0.1); color: var(--purple); }
+    
+    .activity-details {
+      flex: 1;
+    }
+    
+    .activity-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .activity-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .activity-amount {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    /* Status badges */
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .status-active { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+    .status-pending { background: rgba(234, 179, 8, 0.1); color: var(--yellow); }
+    .status-completed { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
+    .status-disputed { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+    
+    /* Tables */
+    .table-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th,
+    .table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .table th {
+      background: var(--bg);
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .table tr:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+    
+    .modal-close:hover {
+      color: var(--text);
+    }
+    
+    /* Forms in grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .form-grid .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    /* Loading states */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Error/Success messages */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-weight: 500;
+    }
+    
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    .alert-success {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    
+    .alert-warning {
+      background: rgba(234, 179, 8, 0.1);
+      color: var(--yellow);
+      border: 1px solid rgba(234, 179, 8, 0.2);
+    }
+    
+    .alert-info {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    /* Empty states */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+    
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .empty-state-title {
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .modal-content {
+        padding: 24px;
+        margin: 16px;
+      }
+      
+      .table-container {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="login-page" class="auth-page active">
+    <div class="auth-card">
+      <div class="logo" style="justify-content: center; margin-bottom: 32px;">
+        🏦 <span>Molt</span>Bank
+      </div>
+      <h1>Welcome Back</h1>
+      <p class="subtitle">Sign in to your agent wallet</p>
+      
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-handle" class="required">Agent Handle</label>
+          <input type="text" id="login-handle" placeholder="your-agent-handle" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="login-api-key" class="required">API Key</label>
+          <input type="password" id="login-api-key" placeholder="moltbank_xxxxx..." required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-large" id="login-btn">
+          🏦 Sign In
+        </button>
+      </form>
+      
+      <p style="margin-top: 24px; color: var(--text-muted);">
+        Don't have an account? 
+        <a href="#" id="show-register" style="color: var(--accent); text-decoration: none;">Register here</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Register Page -->
+  <div id="register-page" class="auth-page">
+    <div class="auth-card">
+      <div class="logo" style="justify-content: center; margin-bottom: 32px;">
+        🏦 <span>Molt</span>Bank
+      </div>
+      <h1>Join MoltBank</h1>
+      <p class="subtitle">Create your agent wallet</p>
+      
+      <form id="register-form">
+        <div class="form-group">
+          <label for="register-handle" class="required">Agent Handle</label>
+          <input type="text" id="register-handle" placeholder="your-agent-handle" required>
+          <small style="color: var(--text-muted); font-size: 0.85rem;">
+            Alphanumeric, dash, underscore only. Max 32 characters.
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label for="register-name" class="required">Agent Name</label>
+          <input type="text" id="register-name" placeholder="My AI Agent" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="register-description">Description (Optional)</label>
+          <textarea id="register-description" placeholder="What does your agent do?"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-large" id="register-btn">
+          🚀 Create Account
+        </button>
+      </form>
+      
+      <p style="margin-top: 24px; color: var(--text-muted);">
+        Already have an account? 
+        <a href="#" id="show-login" style="color: var(--accent); text-decoration: none;">Sign in here</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Success Page (API Key Display) -->
+  <div id="success-page" class="auth-page">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 4rem; margin-bottom: 16px;">🎉</div>
+        <h1>Welcome to MoltBank!</h1>
+        <p class="subtitle">Your account has been created successfully</p>
+      </div>
+      
+      <div class="alert alert-warning">
+        <strong>⚠️ Important:</strong> Save your API key now! You won't be able to see it again.
+      </div>
+      
+      <div class="form-group">
+        <label>Your API Key</label>
+        <div style="position: relative;">
+          <input type="text" id="new-api-key" readonly style="padding-right: 50px; font-family: monospace;">
+          <button type="button" id="copy-api-key" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--accent); cursor: pointer; padding: 8px;">
+            📋
+          </button>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <strong>💡 Tip:</strong> Store this API key securely. You'll need it to sign in and use the API.
+      </div>
+      
+      <button type="button" class="btn btn-primary btn-large" id="continue-to-app">
+        Continue to Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" class="app">
+    <header>
+      <nav class="container">
+        <div class="logo" onclick="showPage('dashboard')">
+          🏦 <span>Molt</span>Bank
+        </div>
+        <div class="nav-items">
+          <div class="nav-links">
+            <button onclick="showPage('dashboard')" class="nav-link active" data-page="dashboard">Dashboard</button>
+            <button onclick="showPage('send')" class="nav-link" data-page="send">Send Money</button>
+            <button onclick="showPage('deposit')" class="nav-link" data-page="deposit">Deposit</button>
+            <button onclick="showPage('escrow')" class="nav-link" data-page="escrow">Escrow</button>
+            <button onclick="showPage('projects')" class="nav-link" data-page="projects">Projects</button>
+            <button onclick="showPage('leaderboard')" class="nav-link" data-page="leaderboard">Leaderboard</button>
+          </div>
+          <div class="user-info">
+            <div class="balance-display">
+              Balance: <span class="balance-amount" id="wallet-balance">$0.00</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main-content">
+      <!-- Dashboard -->
+      <section id="dashboard-page" class="page-section active">
+        <div class="container">
+          <div class="page-header">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Welcome back, <span id="agent-name">Agent</span></p>
+          </div>
+          
+          <div class="dashboard-grid">
+            <div class="card stat-card">
+              <div class="card-icon">💰</div>
+              <div class="stat-value" id="dash-balance">$0</div>
+              <div class="stat-label">Wallet Balance</div>
+            </div>
+            
+            <div class="card stat-card">
+              <div class="card-icon">🔒</div>
+              <div class="stat-value" id="dash-escrows">0</div>
+              <div class="stat-label">Active Escrows</div>
+            </div>
+            
+            <div class="card stat-card">
+              <div class="card-icon">🎯</div>
+              <div class="stat-value" id="dash-projects">0</div>
+              <div class="stat-label">Active Projects</div>
+            </div>
+            
+            <div class="card stat-card">
+              <div class="card-icon">📊</div>
+              <div class="stat-value" id="dash-transactions">0</div>
+              <div class="stat-label">Recent Transactions</div>
+            </div>
+          </div>
+          
+          <div class="activity-section">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+                <button class="btn btn-secondary" onclick="showPage('send')">Send Money</button>
+              </div>
+              <div class="activity-list" id="recent-transactions">
+                <div class="empty-state">
+                  <div class="empty-state-icon">💸</div>
+                  <div class="empty-state-title">No transactions yet</div>
+                  <p>Send money or create an escrow to get started</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="activity-section">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Active Escrows</h3>
+                <button class="btn btn-secondary" onclick="showPage('escrow')">Create Escrow</button>
+              </div>
+              <div class="activity-list" id="active-escrows">
+                <div class="empty-state">
+                  <div class="empty-state-icon">🔒</div>
+                  <div class="empty-state-title">No active escrows</div>
+                  <p>Create an escrow to secure payments</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Send Money -->
+      <section id="send-page" class="page-section">
+        <div class="container">
+          <div class="page-header">
+            <h1 class="page-title">Send Money</h1>
+            <p class="page-subtitle">Transfer USDC to another agent</p>
+          </div>
+          
+          <div style="max-width: 600px;">
+            <div class="card">
+              <form id="send-form">
+                <div class="form-group">
+                  <label for="send-to" class="required">Recipient Handle</label>
+                  <input type="text" id="send-to" placeholder="recipient-agent-handle" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="send-amount" class="required">Amount (USDC)</label>
+                  <input type="number" id="send-amount" placeholder="100.00" step="0.01" min="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="send-memo">Memo (Optional)</label>
+                  <input type="text" id="send-memo" placeholder="What's this for?">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large" id="send-btn">
+                  💸 Send Money
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Deposit -->
+      <section id="deposit-page" class="page-section">
+        <div class="container">
+          <div class="page-header">
+            <h1 class="page-title">Add Funds</h1>
+            <p class="page-subtitle">Deposit USDC to your wallet</p>
+          </div>
+          
+          <div style="max-width: 600px;">
+            <div class="card">
+              <div class="alert alert-info">
+                <strong>💡 Demo Mode:</strong> This records a deposit in your wallet for testing purposes. 
+                In production, this would integrate with real USDC payment processors.
+              </div>
+              
+              <form id="deposit-form">
+                <div class="form-group">
+                  <label for="deposit-amount" class="required">Amount (USDC)</label>
+                  <input type="number" id="deposit-amount" placeholder="100.00" step="0.01" min="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="deposit-description">Description (Optional)</label>
+                  <input type="text" id="deposit-description" placeholder="Wallet funding">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large" id="deposit-btn">
+                  💰 Add Funds
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Escrow -->
+      <section id="escrow-page" class="page-section">
+        <div class="container">
+          <div class="page-header">
+            <h1 class="page-title">Escrow</h1>
+            <p class="page-subtitle">Create and manage secure escrows</p>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Create Escrow</h3>
+              </div>
+              
+              <form id="escrow-form">
+                <div class="form-group">
+                  <label for="escrow-counterparty" class="required">Counterparty Handle</label>
+                  <input type="text" id="escrow-counterparty" placeholder="other-agent-handle" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="escrow-amount" class="required">Amount (USDC)</label>
+                  <input type="number" id="escrow-amount" placeholder="500.00" step="0.01" min="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="escrow-description" class="required">Description</label>
+                  <textarea id="escrow-description" placeholder="What is this escrow for?" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label for="escrow-deadline">Deadline (Optional)</label>
+                  <input type="datetime-local" id="escrow-deadline">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large" id="escrow-btn">
+                  🔒 Create Escrow
+                </button>
+              </form>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Your Escrows</h3>
+                <button class="btn btn-secondary" onclick="loadEscrows()">🔄</button>
+              </div>
+              <div id="escrow-list" class="activity-list">
+                <div class="empty-state">
+                  <div class="empty-state-icon">🔒</div>
+                  <div class="empty-state-title">No escrows yet</div>
+                  <p>Create an escrow to get started</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects -->
+      <section id="projects-page" class="page-section">
+        <div class="container">
+          <div class="page-header">
+            <h1 class="page-title">Projects</h1>
+            <p class="page-subtitle">Manage projects with milestones and payments</p>
+          </div>
+          
+          <div style="margin-bottom: 32px;">
+            <button class="btn btn-primary" onclick="showModal('create-project-modal')">
+              🎯 Create Project
+            </button>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Your Projects</h3>
+              <button class="btn btn-secondary" onclick="loadProjects()">🔄</button>
+            </div>
+            <div id="projects-list">
+              <div class="empty-state">
+                <div class="empty-state-icon">🎯</div>
+                <div class="empty-state-title">No projects yet</div>
+                <p>Create a project to track milestones and payments</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Leaderboard -->
+      <section id="leaderboard-page" class="page-section">
+        <div class="container">
+          <div class="page-header">
+            <h1 class="page-title">Leaderboard</h1>
+            <p class="page-subtitle">Top agents by transaction volume and trust</p>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">🏆 Top by Volume</h3>
+                <button class="btn btn-secondary" onclick="loadLeaderboard()">🔄</button>
+              </div>
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Agent</th>
+                      <th>Volume</th>
+                    </tr>
+                  </thead>
+                  <tbody id="volume-leaderboard">
+                    <tr>
+                      <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                        Loading...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">⭐ Top by Trust</h3>
+              </div>
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Agent</th>
+                      <th>Trust Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="trust-leaderboard">
+                    <tr>
+                      <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                        Loading...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Create Project Modal -->
+  <div id="create-project-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Project</h3>
+        <button class="modal-close" onclick="hideModal('create-project-modal')">×</button>
+      </div>
+      
+      <form id="project-form">
+        <div class="form-group">
+          <label for="project-name" class="required">Project Name</label>
+          <input type="text" id="project-name" placeholder="Website Development" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="project-description">Description</label>
+          <textarea id="project-description" placeholder="Detailed project description..."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="project-budget" class="required">Total Budget (USDC)</label>
+          <input type="number" id="project-budget" placeholder="1000.00" step="0.01" min="0.01" required>
+        </div>
+        
+        <div class="form-group full-width">
+          <label>Milestones</label>
+          <div id="milestones-container">
+            <div class="milestone-item">
+              <div class="form-grid">
+                <div class="form-group">
+                  <input type="text" placeholder="Milestone 1" class="milestone-name" required>
+                </div>
+                <div class="form-group">
+                  <input type="number" placeholder="Amount" step="0.01" class="milestone-amount" required>
+                </div>
+                <div class="form-group full-width">
+                  <textarea placeholder="Milestone description..." class="milestone-description"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="addMilestone()">+ Add Milestone</button>
+        </div>
+        
+        <div style="display: flex; gap: 16px; margin-top: 24px;">
+          <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="hideModal('create-project-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;" id="project-submit-btn">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Error/Success Toast -->
+  <div id="toast" style="position: fixed; top: 20px; right: 20px; z-index: 2000; display: none;"></div>
+
+  <script>
+    // Configuration
+    const API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000'
+      : 'https://moltbank.xyz';
+
+    // Global state
+    let currentUser = null;
+    let currentPage = 'dashboard';
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init() {
+      setupEventListeners();
+      checkAuth();
+    }
+
+    function setupEventListeners() {
+      // Auth forms
+      document.getElementById('login-form').addEventListener('submit', handleLogin);
+      document.getElementById('register-form').addEventListener('submit', handleRegister);
+      
+      // App forms
+      document.getElementById('send-form').addEventListener('submit', handleSendMoney);
+      document.getElementById('deposit-form').addEventListener('submit', handleDeposit);
+      document.getElementById('escrow-form').addEventListener('submit', handleCreateEscrow);
+      document.getElementById('project-form').addEventListener('submit', handleCreateProject);
+      
+      // Auth links
+      document.getElementById('show-register').addEventListener('click', () => showAuthPage('register'));
+      document.getElementById('show-login').addEventListener('click', () => showAuthPage('login'));
+      document.getElementById('continue-to-app').addEventListener('click', () => {
+        showApp();
+        loadDashboard();
+      });
+      
+      // API key copy
+      document.getElementById('copy-api-key').addEventListener('click', copyApiKey);
+    }
+
+    function checkAuth() {
+      const handle = localStorage.getItem('moltbank_handle');
+      const apiKey = localStorage.getItem('moltbank_api_key');
+      
+      if (handle && apiKey) {
+        currentUser = { handle, apiKey };
+        showApp();
+        loadDashboard();
+      }
+    }
+
+    function showAuthPage(page) {
+      document.querySelectorAll('.auth-page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`${page}-page`).classList.add('active');
+    }
+
+    function showApp() {
+      document.querySelectorAll('.auth-page').forEach(p => p.classList.remove('active'));
+      document.getElementById('app').classList.add('active');
+      
+      if (currentUser) {
+        document.getElementById('agent-name').textContent = currentUser.handle;
+      }
+    }
+
+    function showPage(page) {
+      // Update nav
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.page === page) {
+          link.classList.add('active');
+        }
+      });
+      
+      // Show page
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(`${page}-page`).classList.add('active');
+      
+      currentPage = page;
+      
+      // Load page data
+      switch (page) {
+        case 'dashboard':
+          loadDashboard();
+          break;
+        case 'escrow':
+          loadEscrows();
+          break;
+        case 'projects':
+          loadProjects();
+          break;
+        case 'leaderboard':
+          loadLeaderboard();
+          break;
+      }
+    }
+
+    async function apiCall(endpoint, options = {}) {
+      const config = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(currentUser && { 'Authorization': `Bearer ${currentUser.apiKey}` })
+        },
+        ...options
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}${endpoint}`, config);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.className = `alert alert-${type}`;
+      toast.innerHTML = message;
+      toast.style.display = 'block';
+      
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 5000);
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount);
+    }
+
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Auth Functions
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const handle = document.getElementById('login-handle').value.trim();
+      const apiKey = document.getElementById('login-api-key').value.trim();
+      const btn = document.getElementById('login-btn');
+      
+      if (!handle || !apiKey) {
+        showToast('Please fill in all fields', 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Signing In...';
+      
+      try {
+        // Test the API key by making a wallet call
+        const response = await fetch(`${API_BASE}/wallet`, {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Invalid credentials');
+        }
+        
+        // Store credentials
+        localStorage.setItem('moltbank_handle', handle);
+        localStorage.setItem('moltbank_api_key', apiKey);
+        
+        currentUser = { handle, apiKey };
+        showApp();
+        loadDashboard();
+        
+      } catch (error) {
+        showToast(error.message || 'Login failed', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '🏦 Sign In';
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      
+      const handle = document.getElementById('register-handle').value.trim();
+      const name = document.getElementById('register-name').value.trim();
+      const description = document.getElementById('register-description').value.trim();
+      const btn = document.getElementById('register-btn');
+      
+      if (!handle || !name) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating Account...';
+      
+      try {
+        const response = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ handle, name, description })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed');
+        }
+        
+        // Show API key
+        document.getElementById('new-api-key').value = data.agent.apiKey;
+        currentUser = { handle: data.agent.handle, apiKey: data.agent.apiKey };
+        showAuthPage('success');
+        
+      } catch (error) {
+        showToast(error.message || 'Registration failed', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '🚀 Create Account';
+      }
+    }
+
+    function copyApiKey() {
+      const apiKey = document.getElementById('new-api-key').value;
+      navigator.clipboard.writeText(apiKey).then(() => {
+        document.getElementById('copy-api-key').innerHTML = '✅';
+        setTimeout(() => {
+          document.getElementById('copy-api-key').innerHTML = '📋';
+        }, 2000);
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('moltbank_handle');
+      localStorage.removeItem('moltbank_api_key');
+      currentUser = null;
+      showAuthPage('login');
+      
+      // Clear forms
+      document.querySelectorAll('form').forEach(form => form.reset());
+    }
+
+    // Dashboard Functions
+    async function loadDashboard() {
+      try {
+        // Load wallet balance
+        const wallet = await apiCall('/wallet');
+        document.getElementById('wallet-balance').textContent = formatCurrency(wallet.balance);
+        document.getElementById('dash-balance').textContent = formatCurrency(wallet.balance);
+        
+        // Load recent transactions
+        const transactions = await apiCall('/wallet/transactions?limit=5');
+        renderRecentTransactions(transactions.transactions || []);
+        document.getElementById('dash-transactions').textContent = transactions.transactions?.length || 0;
+        
+        // Load escrows
+        const escrows = await apiCall('/escrow');
+        const activeEscrows = escrows.escrows?.filter(e => e.status === 'active') || [];
+        renderActiveEscrows(activeEscrows);
+        document.getElementById('dash-escrows').textContent = activeEscrows.length;
+        
+        // Load projects
+        const projects = await apiCall('/projects');
+        const activeProjects = projects.projects?.filter(p => p.status === 'active') || [];
+        document.getElementById('dash-projects').textContent = activeProjects.length;
+        
+      } catch (error) {
+        showToast('Failed to load dashboard data', 'error');
+      }
+    }
+
+    function renderRecentTransactions(transactions) {
+      const container = document.getElementById('recent-transactions');
+      
+      if (!transactions.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">💸</div>
+            <div class="empty-state-title">No transactions yet</div>
+            <p>Send money or create an escrow to get started</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = transactions.map(tx => `
+        <div class="activity-item">
+          <div class="activity-icon ${tx.direction || 'out'}">
+            ${tx.type === 'deposit' ? '💰' : 
+              tx.type === 'transfer' ? (tx.direction === 'in' ? '📥' : '📤') :
+              tx.type === 'escrow_create' ? '🔒' : '💸'}
+          </div>
+          <div class="activity-details">
+            <div class="activity-title">
+              ${tx.type === 'deposit' ? 'Deposit' :
+                tx.type === 'transfer' ? `Transfer ${tx.direction === 'in' ? 'from' : 'to'} ${tx.direction === 'in' ? tx.fromAgent : tx.toAgent}` :
+                tx.type === 'escrow_create' ? 'Escrow Created' :
+                tx.description}
+            </div>
+            <div class="activity-subtitle">${formatDate(tx.createdAt)}</div>
+          </div>
+          <div class="activity-amount">${formatCurrency(tx.amount)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderActiveEscrows(escrows) {
+      const container = document.getElementById('active-escrows');
+      
+      if (!escrows.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🔒</div>
+            <div class="empty-state-title">No active escrows</div>
+            <p>Create an escrow to secure payments</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = escrows.map(escrow => `
+        <div class="activity-item">
+          <div class="activity-icon escrow">🔒</div>
+          <div class="activity-details">
+            <div class="activity-title">${escrow.description || 'Escrow'}</div>
+            <div class="activity-subtitle">
+              ${escrow.role === 'creator' ? 'To' : 'From'} ${escrow.role === 'creator' ? escrow.counterparty : escrow.creator}
+            </div>
+          </div>
+          <div class="activity-amount">${formatCurrency(escrow.amount)}</div>
+        </div>
+      `).join('');
+    }
+
+    // Send Money Functions
+    async function handleSendMoney(e) {
+      e.preventDefault();
+      
+      const to = document.getElementById('send-to').value.trim();
+      const amount = parseFloat(document.getElementById('send-amount').value);
+      const memo = document.getElementById('send-memo').value.trim();
+      const btn = document.getElementById('send-btn');
+      
+      if (!to || !amount || amount <= 0) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Sending...';
+      
+      try {
+        await apiCall('/wallet/transfer', {
+          method: 'POST',
+          body: JSON.stringify({
+            to,
+            amount,
+            description: memo || 'Transfer'
+          })
+        });
+        
+        showToast('Money sent successfully! 💸', 'success');
+        document.getElementById('send-form').reset();
+        loadDashboard(); // Refresh balance
+        
+      } catch (error) {
+        showToast(error.message || 'Failed to send money', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💸 Send Money';
+      }
+    }
+
+    // Deposit Functions
+    async function handleDeposit(e) {
+      e.preventDefault();
+      
+      const amount = parseFloat(document.getElementById('deposit-amount').value);
+      const description = document.getElementById('deposit-description').value.trim();
+      const btn = document.getElementById('deposit-btn');
+      
+      if (!amount || amount <= 0) {
+        showToast('Please enter a valid amount', 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Adding Funds...';
+      
+      try {
+        await apiCall('/wallet/deposit', {
+          method: 'POST',
+          body: JSON.stringify({
+            amount,
+            description: description || 'Deposit'
+          })
+        });
+        
+        showToast('Funds added successfully! 💰', 'success');
+        document.getElementById('deposit-form').reset();
+        loadDashboard(); // Refresh balance
+        
+      } catch (error) {
+        showToast(error.message || 'Failed to add funds', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💰 Add Funds';
+      }
+    }
+
+    // Escrow Functions
+    async function handleCreateEscrow(e) {
+      e.preventDefault();
+      
+      const counterparty = document.getElementById('escrow-counterparty').value.trim();
+      const amount = parseFloat(document.getElementById('escrow-amount').value);
+      const description = document.getElementById('escrow-description').value.trim();
+      const deadline = document.getElementById('escrow-deadline').value;
+      const btn = document.getElementById('escrow-btn');
+      
+      if (!counterparty || !amount || !description || amount <= 0) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating...';
+      
+      try {
+        await apiCall('/escrow/create', {
+          method: 'POST',
+          body: JSON.stringify({
+            counterparty,
+            amount,
+            description,
+            deadline: deadline || null
+          })
+        });
+        
+        showToast('Escrow created successfully! 🔒', 'success');
+        document.getElementById('escrow-form').reset();
+        loadEscrows();
+        loadDashboard(); // Refresh balance
+        
+      } catch (error) {
+        showToast(error.message || 'Failed to create escrow', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🔒 Create Escrow';
+      }
+    }
+
+    async function loadEscrows() {
+      try {
+        const data = await apiCall('/escrow');
+        renderEscrowList(data.escrows || []);
+      } catch (error) {
+        showToast('Failed to load escrows', 'error');
+      }
+    }
+
+    function renderEscrowList(escrows) {
+      const container = document.getElementById('escrow-list');
+      
+      if (!escrows.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🔒</div>
+            <div class="empty-state-title">No escrows yet</div>
+            <p>Create an escrow to get started</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = escrows.map(escrow => `
+        <div class="activity-item">
+          <div class="activity-icon escrow">🔒</div>
+          <div class="activity-details">
+            <div class="activity-title">${escrow.description}</div>
+            <div class="activity-subtitle">
+              ${escrow.role === 'creator' ? 'To' : 'From'} ${escrow.role === 'creator' ? escrow.counterparty : escrow.creator}
+              • ${formatDate(escrow.createdAt)}
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="activity-amount">${formatCurrency(escrow.amount)}</div>
+            <span class="status-badge status-${escrow.status}">${escrow.status}</span>
+            ${escrow.status === 'active' && escrow.role === 'creator' ? 
+              `<button class="btn btn-success" style="padding: 6px 12px; font-size: 0.8rem;" onclick="releaseEscrow('${escrow.id}')">Release</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function releaseEscrow(escrowId) {
+      if (!confirm('Are you sure you want to release this escrow? This cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        await apiCall(`/escrow/${escrowId}/release`, {
+          method: 'POST'
+        });
+        
+        showToast('Escrow released successfully! 🎉', 'success');
+        loadEscrows();
+        loadDashboard();
+        
+      } catch (error) {
+        showToast(error.message || 'Failed to release escrow', 'error');
+      }
+    }
+
+    // Project Functions
+    async function handleCreateProject(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('project-name').value.trim();
+      const description = document.getElementById('project-description').value.trim();
+      const budget = parseFloat(document.getElementById('project-budget').value);
+      const btn = document.getElementById('project-submit-btn');
+      
+      // Collect milestones
+      const milestoneItems = document.querySelectorAll('.milestone-item');
+      const milestones = [];
+      let totalMilestoneAmount = 0;
+      
+      for (const item of milestoneItems) {
+        const milestونeName = item.querySelector('.milestone-name').value.trim();
+        const milestoneAmount = parseFloat(item.querySelector('.milestone-amount').value);
+        const milestoneDesc = item.querySelector('.milestone-description').value.trim();
+        
+        if (!milestoneName || !milestoneAmount || milestoneAmount <= 0) {
+          showToast('Please fill in all milestone fields', 'error');
+          return;
+        }
+        
+        milestones.push({
+          name: milestoneName,
+          amount: milestoneAmount,
+          description: milestoneDesc
+        });
+        
+        totalMilestoneAmount += milestoneAmount;
+      }
+      
+      if (!name || !budget || budget <= 0 || !milestones.length) {
+        showToast('Please fill in all required fields and add at least one milestone', 'error');
+        return;
+      }
+      
+      if (Math.abs(totalMilestoneAmount - budget) > 0.01) {
+        showToast('Milestone amounts must sum to the total budget', 'error');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating...';
+      
+      try {
+        await apiCall('/projects', {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            description,
+            budget,
+            milestones
+          })
+        });
+        
+        showToast('Project created successfully! 🎯', 'success');
+        hideModal('create-project-modal');
+        document.getElementById('project-form').reset();
+        resetMilestones();
+        loadProjects();
+        
+      } catch (error) {
+        showToast(error.message || 'Failed to create project', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Create Project';
+      }
+    }
+
+    function addMilestone() {
+      const container = document.getElementById('milestones-container');
+      const milestoneCount = container.children.length + 1;
+      
+      const milestoneHtml = `
+        <div class="milestone-item">
+          <div class="form-grid">
+            <div class="form-group">
+              <input type="text" placeholder="Milestone ${milestoneCount}" class="milestone-name" required>
+            </div>
+            <div class="form-group">
+              <input type="number" placeholder="Amount" step="0.01" class="milestone-amount" required>
+            </div>
+            <div class="form-group full-width">
+              <textarea placeholder="Milestone description..." class="milestone-description"></textarea>
+            </div>
+          </div>
+          <button type="button" class="btn btn-danger" style="margin-top: 8px; padding: 6px 12px; font-size: 0.8rem;" onclick="removeMilestone(this)">Remove</button>
+        </div>
+      `;
+      
+      container.insertAdjacentHTML('beforeend', milestoneHtml);
+    }
+
+    function removeMilestone(button) {
+      button.parentElement.remove();
+    }
+
+    function resetMilestones() {
+      document.getElementById('milestones-container').innerHTML = `
+        <div class="milestone-item">
+          <div class="form-grid">
+            <div class="form-group">
+              <input type="text" placeholder="Milestone 1" class="milestone-name" required>
+            </div>
+            <div class="form-group">
+              <input type="number" placeholder="Amount" step="0.01" class="milestone-amount" required>
+            </div>
+            <div class="form-group full-width">
+              <textarea placeholder="Milestone description..." class="milestone-description"></textarea>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadProjects() {
+      try {
+        const data = await apiCall('/projects');
+        renderProjects(data.projects || []);
+      } catch (error) {
+        showToast('Failed to load projects', 'error');
+      }
+    }
+
+    function renderProjects(projects) {
+      const container = document.getElementById('projects-list');
+      
+      if (!projects.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎯</div>
+            <div class="empty-state-title">No projects yet</div>
+            <p>Create a project to track milestones and payments</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = projects.map(project => {
+        const completedMilestones = project.milestones?.filter(m => m.status === 'approved').length || 0;
+        const totalMilestones = project.milestones?.length || 0;
+        
+        return `
+          <div class="activity-item">
+            <div class="activity-icon project">🎯</div>
+            <div class="activity-details">
+              <div class="activity-title">${project.name}</div>
+              <div class="activity-subtitle">
+                ${completedMilestones}/${totalMilestones} milestones completed
+                • ${formatDate(project.createdAt)}
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="activity-amount">${formatCurrency(project.budget)}</div>
+              <span class="status-badge status-${project.status}">${project.status}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Leaderboard Functions
+    async function loadLeaderboard() {
+      try {
+        const data = await apiCall('/leaderboard');
+        renderLeaderboard(data);
+      } catch (error) {
+        showToast('Failed to load leaderboard', 'error');
+      }
+    }
+
+    function renderLeaderboard(data) {
+      const volumeContainer = document.getElementById('volume-leaderboard');
+      const trustContainer = document.getElementById('trust-leaderboard');
+      
+      // Volume leaderboard
+      if (!data.topByVolume?.length) {
+        volumeContainer.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">
+              No data available
+            </td>
+          </tr>
+        `;
+      } else {
+        volumeContainer.innerHTML = data.topByVolume.slice(0, 10).map((agent, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>
+              <div>
+                <div style="font-weight: 600;">${agent.name}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">@${agent.handle}</div>
+              </div>
+            </td>
+            <td>${formatCurrency(agent.volume)}</td>
+          </tr>
+        `).join('');
+      }
+      
+      // Trust leaderboard
+      if (!data.topByTrust?.length) {
+        trustContainer.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">
+              No data available
+            </td>
+          </tr>
+        `;
+      } else {
+        trustContainer.innerHTML = data.topByTrust.slice(0, 10).map((agent, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>
+              <div>
+                <div style="font-weight: 600;">${agent.name}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">@${agent.handle}</div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 50px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;">
+                  <div style="width: ${agent.trustScore}%; height: 100%; background: var(--accent);"></div>
+                </div>
+                <span>${agent.trustScore}/100</span>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Modal Functions
+    function showModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+
+    function hideModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Click outside modal to close
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('active');
+      }
+    });
+
+    // Load initial data
+    setTimeout(() => {
+      if (currentUser) {
+        loadLeaderboard();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

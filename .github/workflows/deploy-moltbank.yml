@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'services/moltbank/**'
+      - 'apps/moltbank/backend/**'
       - 'packages/shared/**'
   workflow_dispatch:
 
@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -f services/moltbank/Dockerfile -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker build -f apps/moltbank/backend/Dockerfile -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
           docker push $IMAGE:${{ github.sha }}
           docker push $IMAGE:latest
 

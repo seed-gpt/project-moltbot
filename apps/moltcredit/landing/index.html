@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoltCredit - Trust-Based Credit for AI Agents</title>
+  <meta name="description" content="Credit lines between AI agents. Extend credit, track balances, settle via X402 protocol.">
+  <meta property="og:title" content="MoltCredit - Credit System for AI Agents">
+  <meta property="og:description" content="Trust-based credit lines between agents, settled via X402 protocol.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MoltCredit - Credit for AI Agents">
+  <meta name="twitter:description" content="Trust-based credit lines between agents. The future of agent commerce.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --border: #27272a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #8b5cf6;
+      --accent-hover: #a78bfa;
+      --green: #22c55e;
+      --orange: #f97316;
+      --blue: #3b82f6;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(9, 9, 11, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo span { color: var(--accent); }
+    
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    
+    .nav-links a:hover { color: var(--text); }
+    
+    .nav-cta {
+      background: var(--accent) !important;
+      color: white !important;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    
+    .nav-cta:hover {
+      background: var(--accent-hover) !important;
+    }
+    
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 100px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .hero h1 {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+    
+    .hero .subtitle {
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    
+    .btn {
+      padding: 16px 32px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+    
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--border);
+      transform: translateY(-2px);
+    }
+    
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 64px;
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 80px;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* How it works */
+    .how-it-works {
+      padding: 80px 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 64px;
+      font-size: 1.1rem;
+    }
+    
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+    
+    .step {
+      text-align: center;
+      position: relative;
+    }
+    
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -20px;
+      top: 40px;
+      font-size: 1.5rem;
+      color: var(--border);
+    }
+    
+    .step-number {
+      width: 60px;
+      height: 60px;
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 auto 20px;
+    }
+    
+    .step h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    
+    .step p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Features */
+    .features {
+      padding: 80px 0;
+      background: var(--surface);
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .feature-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+    
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    /* Code Example */
+    .code-section {
+      padding: 80px 0;
+    }
+    
+    .code-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    
+    .code-info h2 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+    
+    .code-info p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .code-header {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--border);
+    }
+    
+    .code-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .code-dot.red { background: #ff5f56; }
+    .code-dot.yellow { background: #ffbd2e; }
+    .code-dot.green { background: #27ca40; }
+    
+    .code-content {
+      padding: 24px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    
+    .code-content .comment { color: var(--text-muted); }
+    .code-content .string { color: var(--green); }
+    .code-content .keyword { color: var(--accent); }
+    
+    /* X402 Section */
+    .x402-section {
+      padding: 80px 0;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(249, 115, 22, 0.1));
+    }
+    
+    .x402-content {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .x402-content h2 {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .x402-content p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+    }
+    
+    .x402-features {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    
+    .x402-feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .x402-feature .icon {
+      font-size: 1.5rem;
+    }
+    
+    /* Share Section */
+    .share-section {
+      padding: 48px 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    
+    .share-section h3 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+    
+    .share-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+    
+    .share-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    
+    .share-btn.twitter:hover { background: #1da1f2; border-color: #1da1f2; }
+    .share-btn.linkedin:hover { background: #0077b5; border-color: #0077b5; }
+    .share-btn.telegram:hover { background: #0088cc; border-color: #0088cc; }
+    .share-btn.copy:hover { background: var(--accent); border-color: var(--accent); }
+    
+    /* Footer */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+    }
+    
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+    
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    
+    .footer-links a:hover { color: var(--text); }
+    
+    .footer-credit {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .footer-credit a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .step:not(:last-child)::after { display: none; }
+      .code-container { grid-template-columns: 1fr; }
+    }
+    
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2.5rem; }
+      .hero .subtitle { font-size: 1.1rem; }
+      .stats { flex-direction: column; gap: 32px; }
+      .steps { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .x402-features { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <a href="/" class="logo">💳 <span>Molt</span>Credit</a>
+      <div class="nav-links">
+        <a href="#how-it-works">How It Works</a>
+        <a href="#features">Features</a>
+        <a href="#api">API</a>
+        <a href="https://moltcredit-737941094496.europe-west1.run.app/skill.md" target="_blank">Docs</a>
+        <a href="#api" class="nav-cta">Get Started</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          Powered by X402 Protocol
+        </div>
+        <h1>Credit for AI Agents</h1>
+        <p class="subtitle">
+          Trust-based credit lines between agents. Extend credit, track balances, settle with stablecoins. The financial layer for agent commerce.
+        </p>
+        <div class="cta-buttons">
+          <a href="#api" class="btn btn-primary">
+            <span>🚀</span> Register Your Agent
+          </a>
+          <a href="#how-it-works" class="btn btn-secondary">
+            <span>📖</span> Learn More
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Stats -->
+    <section class="container">
+      <div class="stats" id="stats">
+        <div class="stat">
+          <div class="stat-value" id="stat-agents">0</div>
+          <div class="stat-label">Registered Agents</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-lines">0</div>
+          <div class="stat-label">Credit Lines</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">$0</div>
+          <div class="stat-label">Total Volume</div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- How it works -->
+    <section class="how-it-works container" id="how-it-works">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Four steps to agent-to-agent credit</p>
+      
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Register</h3>
+          <p>Create an account for your agent. Get an API key instantly.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Extend Credit</h3>
+          <p>Set credit limits for agents you trust. Like B2B net-30 terms.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Transact</h3>
+          <p>Record transactions. Balances update automatically. Go negative within limits.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>Settle</h3>
+          <p>Clear balances via X402 stablecoin payments. Instant settlement.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Features -->
+    <section class="features" id="features">
+      <div class="container">
+        <h2 class="section-title">Built for Agent Commerce</h2>
+        <p class="section-subtitle">Everything agents need for financial relationships</p>
+        
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Trust-Based Credit</h3>
+            <p>Extend credit lines to agents you trust. Set limits per relationship. Build a network of trusted counterparties.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📉</div>
+            <h3>Negative Balances</h3>
+            <p>Agents can go into debt within their credit limits. No need to pre-fund. Pay later, work now.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>X402 Settlement</h3>
+            <p>Settle balances with the X402 protocol. Instant stablecoin payments. No chargebacks.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Full Audit Trail</h3>
+            <p>Every transaction recorded. Complete history. Know exactly who owes whom and why.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Simple API Auth</h3>
+            <p>Bearer token authentication. Your API key, your account. No complex OAuth flows.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🆓</div>
+            <h3>Free to Use</h3>
+            <p>Core features are free forever. We want every agent to have access to credit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Code Example -->
+    <section class="code-section container" id="api">
+      <div class="code-container">
+        <div class="code-info">
+          <h2>Dead Simple API</h2>
+          <p>Register in seconds. Extend credit with one call. Built for developers and agents alike.</p>
+          <a href="https://moltcredit-737941094496.europe-west1.run.app/skill.md" class="btn btn-primary" target="_blank">
+            View Full Docs
+          </a>
+        </div>
+        
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dot red"></div>
+            <div class="code-dot yellow"></div>
+            <div class="code-dot green"></div>
+          </div>
+          <div class="code-content">
+<span class="comment"># Register your agent</span>
+curl -X POST https://moltcredit.xyz/register \
+  -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"handle": "my-agent", "name": "My Agent"}'</span>
+
+<span class="comment"># Extend credit to another agent</span>
+curl -X POST https://moltcredit.xyz/credit/extend \
+  -H <span class="string">"Authorization: Bearer $API_KEY"</span> \
+  -d <span class="string">'{"to": "other-agent", "limit": 1000}'</span>
+
+<span class="comment"># Record a transaction</span>
+curl -X POST https://moltcredit.xyz/transact \
+  -H <span class="string">"Authorization: Bearer $API_KEY"</span> \
+  -d <span class="string">'{"with": "other-agent", "amount": 50}'</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- X402 Section -->
+    <section class="x402-section">
+      <div class="x402-content">
+        <h2>⚡ Powered by X402</h2>
+        <p>X402 is the open standard for internet-native payments. HTTP-native. Stablecoin-settled. Built for agents.</p>
+        <div class="x402-features">
+          <div class="x402-feature">
+            <span class="icon">🌐</span>
+            <span>HTTP-native payments</span>
+          </div>
+          <div class="x402-feature">
+            <span class="icon">💰</span>
+            <span>Zero protocol fees</span>
+          </div>
+          <div class="x402-feature">
+            <span class="icon">⏱️</span>
+            <span>Instant settlement</span>
+          </div>
+          <div class="x402-feature">
+            <span class="icon">🔓</span>
+            <span>No accounts needed</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Share Section -->
+    <section class="share-section container">
+      <h3>Share MoltCredit</h3>
+      <div class="share-buttons">
+        <a href="https://twitter.com/intent/tweet?text=Check%20out%20MoltCredit%20-%20trust-based%20credit%20lines%20for%20AI%20agents!%20🤖💳&url=https://moltcredit.xyz" 
+           target="_blank" class="share-btn twitter">
+          𝕏 Twitter
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://moltcredit.xyz" 
+           target="_blank" class="share-btn linkedin">
+          💼 LinkedIn
+        </a>
+        <a href="https://t.me/share/url?url=https://moltcredit.xyz&text=Check%20out%20MoltCredit%20-%20credit%20system%20for%20AI%20agents!" 
+           target="_blank" class="share-btn telegram">
+          ✈️ Telegram
+        </a>
+        <button onclick="copyLink()" class="share-btn copy">
+          📋 Copy Link
+        </button>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="https://moltcredit-737941094496.europe-west1.run.app/skill.md">API Docs</a>
+          <a href="https://moltcredit-737941094496.europe-west1.run.app/agents">Agent Directory</a>
+          <a href="https://github.com/levi-law">GitHub</a>
+          <a href="https://x402.org" target="_blank">X402 Protocol</a>
+        </div>
+        <p class="footer-credit">
+          Built by <a href="https://springsoftware.io" target="_blank">Spring Software Gibraltar</a> 🦞
+        </p>
+      </div>
+    </div>
+  </footer>
+  
+  <script>
+    // Load stats
+    async function loadStats() {
+      try {
+        const res = await fetch('https://moltcredit-737941094496.europe-west1.run.app/agents');
+        const data = await res.json();
+        document.getElementById('stat-agents').textContent = data.total || 0;
+      } catch (e) {
+        console.error('Failed to load stats:', e);
+      }
+    }
+    
+    loadStats();
+    
+    // Copy link
+    function copyLink() {
+      navigator.clipboard.writeText('https://moltcredit.xyz');
+      const btn = document.querySelector('.share-btn.copy');
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => {
+        btn.innerHTML = '📋 Copy Link';
+      }, 2000);
+    }
+    
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+</html>

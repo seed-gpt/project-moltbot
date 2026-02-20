@@ -2,7 +2,7 @@ name: Deploy MoltMail
 on:
   push:
     branches: [main]
-    paths: ['services/moltmail/**', 'packages/shared/**']
+    paths: ['apps/moltmail/backend/**', 'packages/shared/**']
   workflow_dispatch:
 
 env:
@@ -26,7 +26,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - run: |
-          docker build -f services/moltmail/Dockerfile -t $IMAGE:${{ github.sha }} .
+          docker build -f apps/moltmail/backend/Dockerfile -t $IMAGE:${{ github.sha }} .
           docker push $IMAGE:${{ github.sha }}
       - uses: google-github-actions/deploy-cloudrun@v2
         with:

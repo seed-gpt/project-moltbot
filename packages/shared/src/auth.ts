@@ -1,4 +1,8 @@
 import { randomBytes, createHmac } from 'node:crypto';
+import { eq } from 'drizzle-orm';
+import type { Request, Response, NextFunction } from 'express';
+import { getDb } from './db.js';
+import { agents } from './db/schema.js';
 
 const PREFIXES: Record<string, string> = {
   moltbank: 'mb_',
@@ -18,10 +22,7 @@ export function hashApiKey(apiKey: string): string {
   return createHmac('sha256', salt).update(apiKey).digest('hex');
 }
 
-// Express middleware
-import type { Request, Response, NextFunction } from 'express';
-
-export function authMiddleware(queryFn: (text: string, params: unknown[]) => Promise<any>) {
+export function authMiddleware() {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
@@ -31,12 +32,18 @@ export function authMiddleware(queryFn: (text: string, params: unknown[]) => Pro
     const apiKey = authHeader.slice(7);
     const keyHash = hashApiKey(apiKey);
     try {
-      const result = await queryFn('SELECT id, handle, name FROM agents WHERE api_key_hash = $1', [keyHash]);
-      if (result.rows.length === 0) {
+      const db = getDb();
+      const result = await db.select({
+        id: agents.id,
+        handle: agents.handle,
+        name: agents.name,
+      }).from(agents).where(eq(agents.apiKeyHash, keyHash));
+
+      if (result.length === 0) {
         res.status(401).json({ error: 'Invalid API key' });
         return;
       }
-      (req as any).agent = result.rows[0];
+      (req as any).agent = result[0];
       next();
     } catch (err) {
       next(err);
