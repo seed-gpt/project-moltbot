@@ -14,6 +14,49 @@ const callSchema = z.object({
   }),
 });
 
+const webappCallSchema = z.object({
+  phoneNumber: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Must be E.164 format'),
+  task: z.string().min(1),
+  agentName: z.string().optional(),
+});
+
+// POST /call/webapp (Unauthenticated endpoint for the landing page)
+router.post('/call/webapp', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const body = webappCallSchema.parse(req.body);
+    const db = getFirestore();
+
+    const assistantConfig = {
+      first_message: `Hello, this is ${body.agentName || 'an AI assistant'}. I'm calling on behalf of a user from MoltPhone.`,
+      system_prompt: `You are an AI assistant making an outbound call. Your objective is: ${body.task}\n\nBe concise, polite, and helpful.`,
+      voice: 'jennifer',
+    };
+
+    const callRef = await db.collection('calls').add({
+      agentId: 'webapp', // Hardcoded for unauthenticated landing page calls
+      direction: 'outbound',
+      toNumber: body.phoneNumber,
+      status: 'queued',
+      assistantConfig,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    res.status(201).json({
+      callId: callRef.id,
+      status: 'queued',
+      to_number: body.phoneNumber,
+      direction: 'outbound'
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return;
+    }
+    next(err);
+  }
+});
+
 // POST /call
 router.post('/call', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
