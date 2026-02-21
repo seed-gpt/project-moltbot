@@ -104,8 +104,10 @@ paths:
                     system_prompt: { type: string }
                     voice: { type: string }
       responses:
-        "201": { description: Call initiated }
+        "201": { description: Call initiated, returns call details and twilioCallSid }
+        "402": { description: Insufficient token balance }
         "429": { description: Rate limit exceeded }
+        "503": { description: Voice calling service not configured }
   /call/end/{id}:
     post:
       summary: End an active call
