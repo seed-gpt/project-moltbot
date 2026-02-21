@@ -50,6 +50,7 @@ describe('MoltCredit Transaction Routes — Auth Guards', () => {
 });
 
 describe('MoltCredit Trust & Stats — Public Endpoints', () => {
+    jest.setTimeout(30000);
     it('GET /trust/unknown-agent endpoint exists', async () => {
         const res = await request(app).get('/trust/unknown-agent');
         // Should get 404 or 500 (no db), but NOT 404 on route

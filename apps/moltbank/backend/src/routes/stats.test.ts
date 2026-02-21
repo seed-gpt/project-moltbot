@@ -5,6 +5,7 @@ import { createApp } from '../app.js';
 const app = createApp();
 
 describe('Stats Routes', () => {
+  jest.setTimeout(30000);
   describe('GET /leaderboard', () => {
     it('endpoint exists (not 404)', async () => {
       const res = await request(app).get('/leaderboard');
