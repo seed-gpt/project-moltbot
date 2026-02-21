@@ -1,114 +1,82 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getDb, authMiddleware, AppError } from '@moltbot/shared';
-import { eq, desc, count, sql } from 'drizzle-orm';
-import { tokenBalances, tokenPurchases } from '../db/schema.js';
+import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
 
 const router = express.Router();
 
-// Token packages
-const PACKAGES: Record<string, { name: string; tokens: number; priceCents: number }> = {
-    starter: { name: 'Starter', tokens: 100, priceCents: 1000 },
-    pro: { name: 'Pro', tokens: 500, priceCents: 4000 },
-    enterprise: { name: 'Enterprise', tokens: 2000, priceCents: 12000 },
+const PACKAGES: Record<string, { tokens: number; priceCents: number; name: string }> = {
+    starter: { tokens: 100, priceCents: 1000, name: 'Starter' },
+    pro: { tokens: 500, priceCents: 4000, name: 'Pro' },
+    enterprise: { tokens: 2000, priceCents: 12000, name: 'Enterprise' },
 };
 
 const purchaseSchema = z.object({
     package: z.enum(['starter', 'pro', 'enterprise']),
 });
 
-// GET /tokens/balance - Get current token balance
+// GET /tokens/balance
 router.get('/tokens/balance', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const agent = (req as any).agent;
-        const db = getDb();
+        const db = getFirestore();
 
-        const result = await db.select({ balance: tokenBalances.balance, updatedAt: tokenBalances.updatedAt })
-            .from(tokenBalances).where(eq(tokenBalances.agentId, agent.id));
+        const doc = await db.collection('tokenBalances').doc(agent.id).get();
+        const balance = doc.exists ? (doc.data()?.balance || 0) : 0;
 
-        if (result.length === 0) {
-            // Auto-create if missing
-            await db.insert(tokenBalances).values({ agentId: agent.id, balance: 0 });
-            res.json({ balance: 0, packages: PACKAGES });
-            return;
-        }
-
-        res.json({ balance: result[0].balance, updated_at: result[0].updatedAt, packages: PACKAGES });
+        res.json({
+            balance,
+            packages: Object.entries(PACKAGES).map(([key, pkg]) => ({
+                id: key, name: pkg.name, tokens: pkg.tokens, price_cents: pkg.priceCents,
+            })),
+        });
     } catch (err) { next(err); }
 });
 
-// POST /tokens/purchase - Buy a token package
+// POST /tokens/purchase
 router.post('/tokens/purchase', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const agent = (req as any).agent;
         const body = purchaseSchema.parse(req.body);
         const pkg = PACKAGES[body.package];
-        const db = getDb();
+        const db = getFirestore();
 
-        // Credit tokens
-        const updated = await db.update(tokenBalances)
-            .set({
-                balance: sql`${tokenBalances.balance} + ${pkg.tokens}`,
-                updatedAt: new Date(),
-            })
-            .where(eq(tokenBalances.agentId, agent.id))
-            .returning({ balance: tokenBalances.balance });
+        const newBalance = await db.runTransaction(async (tx) => {
+            const balRef = db.collection('tokenBalances').doc(agent.id);
+            const balDoc = await tx.get(balRef);
+            const current = balDoc.exists ? (balDoc.data()?.balance || 0) : 0;
+            const updated = current + pkg.tokens;
+            tx.set(balRef, { agentId: agent.id, balance: updated, updatedAt: new Date().toISOString() }, { merge: true });
+            return updated;
+        });
 
-        if (updated.length === 0) {
-            // Auto-create + credit
-            await db.insert(tokenBalances).values({ agentId: agent.id, balance: pkg.tokens });
-        }
-
-        // Record purchase
-        const [purchase] = await db.insert(tokenPurchases).values({
-            agentId: agent.id,
-            packageName: pkg.name,
-            tokenAmount: pkg.tokens,
-            priceCents: pkg.priceCents,
-        }).returning();
-
-        const newBalance = updated.length > 0 ? updated[0].balance : pkg.tokens;
+        const purchaseRef = await db.collection('tokenPurchases').add({
+            agentId: agent.id, packageName: body.package, tokenAmount: pkg.tokens,
+            priceCents: pkg.priceCents, createdAt: new Date().toISOString(),
+        });
 
         res.status(201).json({
-            success: true,
-            purchase: {
-                id: purchase.id,
-                package: pkg.name,
-                tokens_added: pkg.tokens,
-                price_cents: pkg.priceCents,
-            },
+            purchase: { id: purchaseRef.id, package: body.package, tokens_added: pkg.tokens, price_cents: pkg.priceCents },
             new_balance: newBalance,
         });
     } catch (err) {
-        if (err instanceof z.ZodError) {
-            res.status(400).json({ error: 'Validation failed', details: err.errors });
-            return;
-        }
+        if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
         next(err);
     }
 });
 
-// GET /tokens/history - Paginated purchase history
+// GET /tokens/history
 router.get('/tokens/history', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const agent = (req as any).agent;
-        const page = parseInt(req.query.page as string) || 1;
         const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-        const offset = (page - 1) * limit;
-        const db = getDb();
+        const db = getFirestore();
 
-        const purchases = await db.select().from(tokenPurchases)
-            .where(eq(tokenPurchases.agentId, agent.id))
-            .orderBy(desc(tokenPurchases.createdAt))
-            .limit(limit).offset(offset);
+        const snapshot = await db.collection('tokenPurchases')
+            .where('agentId', '==', agent.id)
+            .orderBy('createdAt', 'desc').limit(limit).get();
 
-        const [{ total }] = await db.select({ total: count() }).from(tokenPurchases)
-            .where(eq(tokenPurchases.agentId, agent.id));
-
-        res.json({
-            purchases,
-            pagination: { page, limit, total, total_pages: Math.ceil(total / limit) },
-        });
+        const purchases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json({ purchases });
     } catch (err) { next(err); }
 });
 

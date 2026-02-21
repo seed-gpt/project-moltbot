@@ -1,73 +1,74 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { getDb } from '@moltbot/shared';
-import { eq, desc, count, sql } from 'drizzle-orm';
-import { agents, wallets } from '../db/schema.js';
+import { getFirestore, AppError } from '@moltbot/shared';
 
 const router = express.Router();
 
-// GET /directory - Paginated list of agents
+// GET /directory
 router.get('/directory', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-    const offset = (page - 1) * limit;
-    const db = getDb();
+    const db = getFirestore();
 
-    // Complex query with subqueries for services detection - use sql template
-    const result = await db.execute(sql`
-      SELECT a.handle,
-        ARRAY_REMOVE(ARRAY[
-          CASE WHEN EXISTS(SELECT 1 FROM wallets w WHERE w.agent_id = a.id) THEN 'moltbank' END,
-          CASE WHEN EXISTS(SELECT 1 FROM email_addresses e WHERE e.agent_id = a.id) THEN 'moltmail' END,
-          CASE WHEN EXISTS(SELECT 1 FROM credit_lines c WHERE c.grantor_id = a.id OR c.grantee_id = a.id) THEN 'moltcredit' END,
-          CASE WHEN EXISTS(SELECT 1 FROM calls ca WHERE ca.agent_id = a.id) THEN 'moltphone' END
-        ], NULL) as services
-      FROM agents a ORDER BY a.created_at DESC LIMIT ${limit} OFFSET ${offset}
-    `);
+    const agentsSnap = await db.collection('agents').orderBy('createdAt', 'desc').limit(limit).get();
+    const agents: any[] = [];
 
-    const [{ total }] = await db.select({ total: count() }).from(agents);
+    for (const doc of agentsSnap.docs) {
+      const data = doc.data();
+      const services: string[] = [];
 
-    res.json({
-      agents: (result as any).rows.map((row: any) => ({ handle: row.handle, services: row.services || [] })),
-      pagination: { page, limit, total, total_pages: Math.ceil(total / limit) },
-    });
-  } catch (err) {
-    next(err);
-  }
+      const [wallet, email, credit, call] = await Promise.all([
+        db.collection('wallets').doc(doc.id).get(),
+        db.collection('emailAddresses').where('agentId', '==', doc.id).limit(1).get(),
+        db.collection('creditLines').where('grantorId', '==', doc.id).limit(1).get(),
+        db.collection('calls').where('agentId', '==', doc.id).limit(1).get(),
+      ]);
+      if (wallet.exists) services.push('moltbank');
+      if (!email.empty) services.push('moltmail');
+      if (!credit.empty) services.push('moltcredit');
+      if (!call.empty) services.push('moltphone');
+
+      agents.push({ handle: data.handle, services });
+    }
+
+    const total = (await db.collection('agents').count().get()).data().count;
+    const page = parseInt(req.query.page as string) || 1;
+    res.json({ agents, pagination: { page, limit, total, total_pages: Math.ceil(total / limit) } });
+  } catch (err) { next(err); }
 });
 
-// GET /directory/:handle - Single agent profile
+// GET /directory/:handle
 router.get('/directory/:handle', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { handle } = req.params;
-    const db = getDb();
+    const db = getFirestore();
 
-    const result = await db.execute(sql`
-      SELECT a.handle, a.name, a.created_at, w.balance,
-        ARRAY_REMOVE(ARRAY[
-          CASE WHEN EXISTS(SELECT 1 FROM wallets w2 WHERE w2.agent_id = a.id) THEN 'moltbank' END,
-          CASE WHEN EXISTS(SELECT 1 FROM email_addresses e WHERE e.agent_id = a.id) THEN 'moltmail' END,
-          CASE WHEN EXISTS(SELECT 1 FROM credit_lines c WHERE c.grantor_id = a.id OR c.grantee_id = a.id) THEN 'moltcredit' END,
-          CASE WHEN EXISTS(SELECT 1 FROM calls ca WHERE ca.agent_id = a.id) THEN 'moltphone' END
-        ], NULL) as services
-      FROM agents a LEFT JOIN wallets w ON w.agent_id = a.id WHERE a.handle = ${handle}
-    `);
+    const agentSnap = await db.collection('agents').where('handle', '==', handle).limit(1).get();
+    if (agentSnap.empty) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const agentDoc = agentSnap.docs[0];
+    const agent = agentDoc.data();
 
-    const rows = (result as any).rows;
-    if (rows.length === 0) { res.status(404).json({ error: 'Agent not found' }); return; }
+    const services: string[] = [];
+    const [wallet, email, credit, call] = await Promise.all([
+      db.collection('wallets').doc(agentDoc.id).get(),
+      db.collection('emailAddresses').where('agentId', '==', agentDoc.id).limit(1).get(),
+      db.collection('creditLines').where('grantorId', '==', agentDoc.id).limit(1).get(),
+      db.collection('calls').where('agentId', '==', agentDoc.id).limit(1).get(),
+    ]);
+    if (wallet.exists) services.push('moltbank');
+    if (!email.empty) services.push('moltmail');
+    if (!credit.empty) services.push('moltcredit');
+    if (!call.empty) services.push('moltphone');
 
-    const agent = rows[0];
     let walletBalanceTier = 'none';
-    if (agent.balance !== null) {
-      if (agent.balance >= 10000) walletBalanceTier = 'high';
-      else if (agent.balance >= 1000) walletBalanceTier = 'medium';
-      else if (agent.balance > 0) walletBalanceTier = 'low';
+    if (wallet.exists) {
+      const bal = wallet.data()?.balance || 0;
+      if (bal >= 10000) walletBalanceTier = 'high';
+      else if (bal >= 1000) walletBalanceTier = 'medium';
+      else if (bal > 0) walletBalanceTier = 'low';
     }
 
-    res.json({ handle: agent.handle, name: agent.name, services: agent.services || [], wallet_balance_tier: walletBalanceTier, created_at: agent.created_at });
-  } catch (err) {
-    next(err);
-  }
+    res.json({ handle: agent.handle, name: agent.name, services, wallet_balance_tier: walletBalanceTier, created_at: agent.createdAt });
+  } catch (err) { next(err); }
 });
 
 export default router;

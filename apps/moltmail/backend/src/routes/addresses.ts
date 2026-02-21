@@ -1,8 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getDb, authMiddleware, AppError } from '@moltbot/shared';
-import { eq, desc } from 'drizzle-orm';
-import { emailAddresses } from '../db/schema.js';
+import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
 
 const router = express.Router();
 
@@ -17,9 +15,10 @@ const addAddressSchema = z.object({
 router.get('/addresses', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const db = getDb();
-    const result = await db.select().from(emailAddresses).where(eq(emailAddresses.agentId, agent.id)).orderBy(desc(emailAddresses.createdAt));
-    res.json({ addresses: result });
+    const db = getFirestore();
+    const snapshot = await db.collection('emailAddresses').where('agentId', '==', agent.id).orderBy('createdAt', 'desc').get();
+    const addresses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ addresses });
   } catch (err) { next(err); }
 });
 
@@ -28,13 +27,19 @@ router.post('/addresses/add', authMiddleware(), async (req: Request, res: Respon
   try {
     const agent = (req as any).agent;
     const body = addAddressSchema.parse(req.body);
-    const db = getDb();
+    const db = getFirestore();
 
-    const existing = await db.select({ id: emailAddresses.id }).from(emailAddresses).where(eq(emailAddresses.address, body.address));
-    if (existing.length > 0) throw new AppError(409, 'Email address already exists', 'ADDRESS_EXISTS');
+    const existing = await db.collection('emailAddresses').where('address', '==', body.address).limit(1).get();
+    if (!existing.empty) throw new AppError(409, 'Email address already exists', 'ADDRESS_EXISTS');
 
-    const [addr] = await db.insert(emailAddresses).values({ agentId: agent.id, address: body.address, verified: true }).returning();
-    res.status(201).json({ address: addr, message: `Email address ${body.address} added successfully` });
+    const ref = await db.collection('emailAddresses').add({
+      agentId: agent.id, address: body.address, verified: true, createdAt: new Date().toISOString(),
+    });
+
+    res.status(201).json({
+      address: { id: ref.id, agentId: agent.id, address: body.address, verified: true },
+      message: `Email address ${body.address} added successfully`,
+    });
   } catch (err) {
     if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
     next(err);

@@ -1,5 +1,4 @@
-export { getPool, getDb, closePool, query } from './db.js';
-export { agents } from './db/schema.js';
+export { getFirestore } from './firestore.js';
 export { generateApiKey, hashApiKey, authMiddleware } from './auth.js';
 export { logger } from './logger.js';
 export { loadEnv, type Env } from './env.js';

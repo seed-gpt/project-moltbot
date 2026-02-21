@@ -1,62 +1,67 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getDb, authMiddleware, AppError } from '@moltbot/shared';
-import { eq, and, desc } from 'drizzle-orm';
-import { calls, transcripts, callWebhooks } from '../db/schema.js';
+import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
 
 const router = express.Router();
 
-const subscribeWebhookSchema = z.object({
-  url: z.string().url().max(500),
-  events: z.array(z.string()).optional().default([]),
-});
-
-// POST /webhooks/vapi - Public Vapi callback
+// POST /webhooks/vapi - Receive Vapi callbacks (public)
 router.post('/webhooks/vapi', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const event = req.body;
-    const eventType = event.type;
-    if (!eventType) { res.status(400).json({ error: 'Missing event type' }); return; }
+    const db = getFirestore();
+    const payload = req.body;
+    const callId = payload.call?.id || payload.phone_call_id;
+    if (!callId) { res.json({ received: true }); return; }
 
-    const db = getDb();
+    const callDoc = await db.collection('calls').doc(callId).get();
+    if (!callDoc.exists) { res.json({ received: true }); return; }
 
-    switch (eventType) {
-      case 'call.started':
-        if (event.call_id && event.vapi_call_id) {
-          await db.update(calls).set({ status: 'in_progress', vapiCallId: event.vapi_call_id }).where(eq(calls.id, event.call_id));
-        }
-        break;
-      case 'call.ended':
-        if (event.call_id) {
-          await db.update(calls).set({
-            status: 'completed', durationSeconds: event.duration_seconds || 0,
-            costCents: event.cost_cents || 0, endedAt: new Date(),
-          }).where(eq(calls.id, event.call_id));
-        }
-        break;
-      case 'transcript.update':
-        if (event.call_id && event.transcript) {
-          await db.insert(transcripts).values({
-            callId: event.call_id, role: event.transcript.role,
-            content: event.transcript.content, timestampMs: event.transcript.timestamp_ms || 0,
-          });
-        }
-        break;
+    const callData = callDoc.data()!;
+    if (payload.type === 'transcript') {
+      await db.collection('calls').doc(callId).collection('transcripts').add({
+        role: payload.role || 'unknown', content: payload.transcript || '', timestamp: new Date().toISOString(),
+      });
     }
 
-    res.status(200).json({ received: true });
+    if (payload.type === 'end-of-call-report' || payload.type === 'status-update') {
+      await db.collection('calls').doc(callId).update({
+        status: payload.status || callData.status, updatedAt: new Date().toISOString(),
+      });
+    }
+
+    // Fan out to registered webhooks
+    const hooks = await db.collection('callWebhooks')
+      .where('agentId', '==', callData.agentId).where('active', '==', true).get();
+    for (const hook of hooks.docs) {
+      const hookData = hook.data();
+      if (hookData.events?.includes(payload.type) || hookData.events?.length === 0) {
+        fetch(hookData.url, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: payload.type, call_id: callId, data: payload }),
+        }).catch(() => { });
+      }
+    }
+
+    res.json({ received: true });
   } catch (err) { next(err); }
+});
+
+const subscribeSchema = z.object({
+  url: z.string().url(), events: z.array(z.string()).optional(),
 });
 
 // POST /webhooks/subscribe
 router.post('/webhooks/subscribe', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const body = subscribeWebhookSchema.parse(req.body);
-    const db = getDb();
+    const body = subscribeSchema.parse(req.body);
+    const db = getFirestore();
 
-    const [wh] = await db.insert(callWebhooks).values({ agentId: agent.id, url: body.url, events: body.events }).returning();
-    res.status(201).json({ webhook: wh });
+    const ref = await db.collection('callWebhooks').add({
+      agentId: agent.id, url: body.url, events: body.events || [],
+      active: true, createdAt: new Date().toISOString(),
+    });
+
+    res.status(201).json({ webhook: { id: ref.id, url: body.url, events: body.events || [], active: true } });
   } catch (err) {
     if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
     next(err);
@@ -67,9 +72,10 @@ router.post('/webhooks/subscribe', authMiddleware(), async (req: Request, res: R
 router.get('/webhooks', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const db = getDb();
-    const result = await db.select().from(callWebhooks).where(eq(callWebhooks.agentId, agent.id)).orderBy(desc(callWebhooks.createdAt));
-    res.json({ webhooks: result });
+    const db = getFirestore();
+    const snapshot = await db.collection('callWebhooks').where('agentId', '==', agent.id).get();
+    const webhooks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ webhooks });
   } catch (err) { next(err); }
 });
 
@@ -77,11 +83,15 @@ router.get('/webhooks', authMiddleware(), async (req: Request, res: Response, ne
 router.delete('/webhooks/:id', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const db = getDb();
-    const result = await db.delete(callWebhooks)
-      .where(and(eq(callWebhooks.id, req.params.id), eq(callWebhooks.agentId, agent.id))).returning({ id: callWebhooks.id });
-    if (result.length === 0) throw new AppError(404, 'Webhook not found', 'WEBHOOK_NOT_FOUND');
-    res.json({ message: 'Webhook deleted', id: result[0].id });
+    const { id } = req.params;
+    const db = getFirestore();
+
+    const doc = await db.collection('callWebhooks').doc(id).get();
+    if (!doc.exists) throw new AppError(404, 'Webhook not found');
+    if (doc.data()?.agentId !== agent.id) throw new AppError(403, 'Access denied');
+
+    await db.collection('callWebhooks').doc(id).delete();
+    res.json({ message: 'Webhook deleted successfully', webhook_id: id });
   } catch (err) { next(err); }
 });
 

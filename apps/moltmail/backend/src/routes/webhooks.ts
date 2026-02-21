@@ -1,9 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getDb, authMiddleware, AppError } from '@moltbot/shared';
-import { eq, and, desc } from 'drizzle-orm';
+import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
 import { randomUUID } from 'node:crypto';
-import { emailAddresses, emails, emailWebhooks } from '../db/schema.js';
 
 const router = express.Router();
 
@@ -21,35 +19,36 @@ const inboundEmailSchema = z.object({
 router.post('/webhooks/inbound', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const body = inboundEmailSchema.parse(req.body);
-    const db = getDb();
+    const db = getFirestore();
 
-    const addr = await db.select({ agentId: emailAddresses.agentId }).from(emailAddresses)
-      .where(and(eq(emailAddresses.address, body.to), eq(emailAddresses.verified, true)));
-    if (addr.length === 0) throw new AppError(404, 'Recipient address not found', 'RECIPIENT_NOT_FOUND');
+    const addrSnap = await db.collection('emailAddresses')
+      .where('address', '==', body.to).where('verified', '==', true).limit(1).get();
+    if (addrSnap.empty) throw new AppError(404, 'Recipient address not found', 'RECIPIENT_NOT_FOUND');
 
-    const agentId = addr[0].agentId;
+    const agentId = addrSnap.docs[0].data().agentId;
     const messageId = body.message_id || `<${randomUUID()}@agentmail.xyz>`;
 
-    const [email] = await db.insert(emails).values({
+    const emailRef = await db.collection('emails').add({
       fromAddress: body.from, toAddress: body.to, subject: body.subject || '(no subject)',
       bodyText: body.body_text || '', bodyHtml: body.body_html || null, status: 'received',
-      direction: 'inbound', messageId, agentId,
-    }).returning();
+      direction: 'inbound', messageId, agentId, createdAt: new Date().toISOString(),
+    });
 
-    const hooks = await db.select({ url: emailWebhooks.url, events: emailWebhooks.events }).from(emailWebhooks)
-      .where(and(eq(emailWebhooks.agentId, agentId), eq(emailWebhooks.active, true)));
+    const hooksSnap = await db.collection('emailWebhooks')
+      .where('agentId', '==', agentId).where('active', '==', true).get();
 
-    for (const wh of hooks) {
-      const events = wh.events || [];
+    for (const hook of hooksSnap.docs) {
+      const hookData = hook.data();
+      const events = hookData.events || [];
       if (events.length === 0 || events.includes('email.received')) {
-        fetch(wh.url, {
+        fetch(hookData.url, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event: 'email.received', email: { id: email.id, from: email.fromAddress, to: email.toAddress, subject: email.subject, body_text: body.body_text, body_html: body.body_html, received_at: email.createdAt } }),
+          body: JSON.stringify({ event: 'email.received', email: { id: emailRef.id, from: body.from, to: body.to, subject: body.subject, body_text: body.body_text, body_html: body.body_html, received_at: new Date().toISOString() } }),
         }).catch(() => { });
       }
     }
 
-    res.status(201).json({ message: 'Email received', email_id: email.id });
+    res.status(201).json({ message: 'Email received', email_id: emailRef.id });
   } catch (err) {
     if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
     next(err);
@@ -61,10 +60,13 @@ router.post('/webhooks/subscribe', authMiddleware(), async (req: Request, res: R
   try {
     const agent = (req as any).agent;
     const body = subscribeWebhookSchema.parse(req.body);
-    const db = getDb();
+    const db = getFirestore();
 
-    const [wh] = await db.insert(emailWebhooks).values({ agentId: agent.id, url: body.url, events: body.events, active: true }).returning();
-    res.status(201).json({ webhook: wh, message: 'Webhook subscription created' });
+    const ref = await db.collection('emailWebhooks').add({
+      agentId: agent.id, url: body.url, events: body.events, active: true, createdAt: new Date().toISOString(),
+    });
+
+    res.status(201).json({ webhook: { id: ref.id, url: body.url, events: body.events, active: true }, message: 'Webhook subscription created' });
   } catch (err) {
     if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
     next(err);
@@ -75,9 +77,10 @@ router.post('/webhooks/subscribe', authMiddleware(), async (req: Request, res: R
 router.get('/webhooks', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const db = getDb();
-    const result = await db.select().from(emailWebhooks).where(eq(emailWebhooks.agentId, agent.id)).orderBy(desc(emailWebhooks.createdAt));
-    res.json({ webhooks: result });
+    const db = getFirestore();
+    const snapshot = await db.collection('emailWebhooks').where('agentId', '==', agent.id).orderBy('createdAt', 'desc').get();
+    const webhooks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ webhooks });
   } catch (err) { next(err); }
 });
 
@@ -86,10 +89,13 @@ router.delete('/webhooks/:id', authMiddleware(), async (req: Request, res: Respo
   try {
     const agent = (req as any).agent;
     const { id } = req.params;
-    const db = getDb();
+    const db = getFirestore();
 
-    const result = await db.delete(emailWebhooks).where(and(eq(emailWebhooks.id, id), eq(emailWebhooks.agentId, agent.id))).returning({ id: emailWebhooks.id });
-    if (result.length === 0) throw new AppError(404, 'Webhook not found or access denied', 'WEBHOOK_NOT_FOUND');
+    const doc = await db.collection('emailWebhooks').doc(id).get();
+    if (!doc.exists) throw new AppError(404, 'Webhook not found or access denied', 'WEBHOOK_NOT_FOUND');
+    if (doc.data()?.agentId !== agent.id) throw new AppError(404, 'Webhook not found or access denied', 'WEBHOOK_NOT_FOUND');
+
+    await db.collection('emailWebhooks').doc(id).delete();
     res.json({ message: 'Webhook subscription removed', webhook_id: id });
   } catch (err) { next(err); }
 });

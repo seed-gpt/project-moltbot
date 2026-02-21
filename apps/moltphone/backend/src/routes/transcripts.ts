@@ -1,7 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { getDb, authMiddleware, AppError } from '@moltbot/shared';
-import { eq, and, asc } from 'drizzle-orm';
-import { calls, transcripts } from '../db/schema.js';
+import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
 
 const router = express.Router();
 
@@ -9,17 +7,18 @@ const router = express.Router();
 router.get('/calls/:id/transcript', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const callId = req.params.id;
-    const db = getDb();
+    const { id } = req.params;
+    const db = getFirestore();
 
-    const call = await db.select({ id: calls.id }).from(calls)
-      .where(and(eq(calls.id, callId), eq(calls.agentId, agent.id)));
-    if (call.length === 0) throw new AppError(404, 'Call not found', 'CALL_NOT_FOUND');
+    const callDoc = await db.collection('calls').doc(id).get();
+    if (!callDoc.exists) throw new AppError(404, 'Call not found');
+    if (callDoc.data()?.agentId !== agent.id) throw new AppError(403, 'Access denied');
 
-    const result = await db.select().from(transcripts)
-      .where(eq(transcripts.callId, callId)).orderBy(asc(transcripts.timestampMs));
+    const snapshot = await db.collection('calls').doc(id).collection('transcripts')
+      .orderBy('timestamp', 'asc').get();
 
-    res.json({ call_id: callId, transcript: result });
+    const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json({ call_id: id, transcript: entries });
   } catch (err) { next(err); }
 });
 

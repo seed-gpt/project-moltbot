@@ -1,14 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getDb, authMiddleware, AppError } from '@moltbot/shared';
-import { eq, and, desc, sql } from 'drizzle-orm';
-import { agents, creditLines, creditTransactions } from '../db/schema.js';
+import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
 
 const router = express.Router();
 
 const extendCreditSchema = z.object({
-  grantee_handle: z.string().min(3, 'Grantee handle must be at least 3 characters'),
-  limit_amount: z.number().int().positive('Limit amount must be positive'),
+  grantee_handle: z.string().min(3),
+  limit_amount: z.number().int().positive(),
   memo: z.string().optional(),
 });
 
@@ -17,23 +15,26 @@ router.post('/credit/extend', authMiddleware(), async (req: Request, res: Respon
   try {
     const agent = (req as any).agent;
     const body = extendCreditSchema.parse(req.body);
-    const db = getDb();
+    const db = getFirestore();
 
     if (body.grantee_handle === agent.handle) throw new AppError(400, 'Cannot extend credit to yourself', 'SELF_CREDIT');
 
-    const grantee = await db.select({ id: agents.id, handle: agents.handle }).from(agents).where(eq(agents.handle, body.grantee_handle));
-    if (grantee.length === 0) throw new AppError(404, 'Grantee not found', 'GRANTEE_NOT_FOUND');
+    const granteeSnap = await db.collection('agents').where('handle', '==', body.grantee_handle).limit(1).get();
+    if (granteeSnap.empty) throw new AppError(404, 'Grantee not found', 'GRANTEE_NOT_FOUND');
+    const granteeId = granteeSnap.docs[0].id;
 
-    const existing = await db.select({ id: creditLines.id }).from(creditLines)
-      .where(and(eq(creditLines.grantorId, agent.id), eq(creditLines.granteeId, grantee[0].id), eq(creditLines.status, 'active')));
-    if (existing.length > 0) throw new AppError(409, 'Active credit line already exists with this agent', 'CREDIT_LINE_EXISTS');
+    const existing = await db.collection('creditLines')
+      .where('grantorId', '==', agent.id).where('granteeId', '==', granteeId).where('status', '==', 'active').limit(1).get();
+    if (!existing.empty) throw new AppError(409, 'Active credit line already exists with this agent', 'CREDIT_LINE_EXISTS');
 
-    const [cl] = await db.insert(creditLines).values({
-      grantorId: agent.id, granteeId: grantee[0].id, limitAmount: body.limit_amount, usedAmount: 0, currency: 'USDC', status: 'active',
-    }).returning();
+    const clRef = await db.collection('creditLines').add({
+      grantorId: agent.id, granteeId, limitAmount: body.limit_amount, usedAmount: 0,
+      currency: 'USDC', status: 'active', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    });
 
+    const cl = { id: clRef.id, grantorId: agent.id, granteeId, limitAmount: body.limit_amount, usedAmount: 0, currency: 'USDC', status: 'active' };
     res.status(201).json({
-      credit_line: { ...cl, grantee_handle: body.grantee_handle, available_amount: cl.limitAmount - cl.usedAmount },
+      credit_line: { ...cl, grantee_handle: body.grantee_handle, available_amount: body.limit_amount },
       message: `Credit line of ${body.limit_amount} USDC extended to ${body.grantee_handle}`,
     });
   } catch (err) {
@@ -46,23 +47,32 @@ router.post('/credit/extend', authMiddleware(), async (req: Request, res: Respon
 router.get('/credit', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const agent = (req as any).agent;
-    const db = getDb();
+    const db = getFirestore();
 
-    const given = await db.select({ cl: creditLines, granteeHandle: agents.handle, granteeName: agents.name })
-      .from(creditLines).innerJoin(agents, eq(creditLines.granteeId, agents.id))
-      .where(eq(creditLines.grantorId, agent.id)).orderBy(desc(creditLines.createdAt));
+    const [givenSnap, receivedSnap] = await Promise.all([
+      db.collection('creditLines').where('grantorId', '==', agent.id).orderBy('createdAt', 'desc').get(),
+      db.collection('creditLines').where('granteeId', '==', agent.id).orderBy('createdAt', 'desc').get(),
+    ]);
 
-    const received = await db.select({ cl: creditLines, grantorHandle: agents.handle, grantorName: agents.name })
-      .from(creditLines).innerJoin(agents, eq(creditLines.grantorId, agents.id))
-      .where(eq(creditLines.granteeId, agent.id)).orderBy(desc(creditLines.createdAt));
+    const resolveAgent = async (id: string) => {
+      const doc = await db.collection('agents').doc(id).get();
+      return doc.exists ? { handle: doc.data()?.handle, name: doc.data()?.name } : { handle: 'unknown', name: 'Unknown' };
+    };
 
-    res.json({
-      given: given.map(r => ({ ...r.cl, grantee_handle: r.granteeHandle, grantee_name: r.granteeName, available_amount: r.cl.limitAmount - r.cl.usedAmount })),
-      received: received.map(r => ({ ...r.cl, grantor_handle: r.grantorHandle, grantor_name: r.grantorName, available_amount: r.cl.limitAmount - r.cl.usedAmount })),
-    });
-  } catch (err) {
-    next(err);
-  }
+    const given = await Promise.all(givenSnap.docs.map(async doc => {
+      const d = doc.data();
+      const grantee = await resolveAgent(d.granteeId);
+      return { ...d, id: doc.id, grantee_handle: grantee.handle, grantee_name: grantee.name, available_amount: d.limitAmount - d.usedAmount };
+    }));
+
+    const received = await Promise.all(receivedSnap.docs.map(async doc => {
+      const d = doc.data();
+      const grantor = await resolveAgent(d.grantorId);
+      return { ...d, id: doc.id, grantor_handle: grantor.handle, grantor_name: grantor.name, available_amount: d.limitAmount - d.usedAmount };
+    }));
+
+    res.json({ given, received });
+  } catch (err) { next(err); }
 });
 
 // GET /credit/:id
@@ -70,28 +80,27 @@ router.get('/credit/:id', authMiddleware(), async (req: Request, res: Response, 
   try {
     const agent = (req as any).agent;
     const { id } = req.params;
-    const db = getDb();
+    const db = getFirestore();
 
-    const result = await db.execute(sql`
-      SELECT cl.*, grantor.handle as grantor_handle, grantor.name as grantor_name,
-             grantee.handle as grantee_handle, grantee.name as grantee_name
-      FROM credit_lines cl
-      JOIN agents grantor ON cl.grantor_id = grantor.id
-      JOIN agents grantee ON cl.grantee_id = grantee.id
-      WHERE cl.id = ${id} AND (cl.grantor_id = ${agent.id} OR cl.grantee_id = ${agent.id})
-    `);
+    const clDoc = await db.collection('creditLines').doc(id).get();
+    if (!clDoc.exists) throw new AppError(404, 'Credit line not found or access denied', 'CREDIT_LINE_NOT_FOUND');
+    const cl = clDoc.data()!;
+    if (cl.grantorId !== agent.id && cl.granteeId !== agent.id) throw new AppError(404, 'Credit line not found or access denied', 'CREDIT_LINE_NOT_FOUND');
 
-    const rows = (result as any).rows;
-    if (rows.length === 0) throw new AppError(404, 'Credit line not found or access denied', 'CREDIT_LINE_NOT_FOUND');
+    const [grantor, grantee] = await Promise.all([
+      db.collection('agents').doc(cl.grantorId).get(),
+      db.collection('agents').doc(cl.granteeId).get(),
+    ]);
 
-    const txs = await db.select().from(creditTransactions)
-      .where(eq(creditTransactions.creditLineId, id)).orderBy(desc(creditTransactions.createdAt));
+    const txSnap = await db.collection('creditTransactions').where('creditLineId', '==', id).orderBy('createdAt', 'desc').get();
+    const txs = txSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    const line = rows[0];
-    res.json({ ...line, available_amount: line.limit_amount - line.used_amount, transactions: txs });
-  } catch (err) {
-    next(err);
-  }
+    res.json({
+      ...cl, id, grantor_handle: grantor.data()?.handle, grantor_name: grantor.data()?.name,
+      grantee_handle: grantee.data()?.handle, grantee_name: grantee.data()?.name,
+      available_amount: cl.limitAmount - cl.usedAmount, transactions: txs,
+    });
+  } catch (err) { next(err); }
 });
 
 // POST /credit/:id/revoke
@@ -99,17 +108,15 @@ router.post('/credit/:id/revoke', authMiddleware(), async (req: Request, res: Re
   try {
     const agent = (req as any).agent;
     const { id } = req.params;
-    const db = getDb();
+    const db = getFirestore();
 
-    const result = await db.select().from(creditLines).where(and(eq(creditLines.id, id), eq(creditLines.grantorId, agent.id)));
-    if (result.length === 0) throw new AppError(404, 'Credit line not found or you are not the grantor', 'CREDIT_LINE_NOT_FOUND');
-    if (result[0].usedAmount > 0) throw new AppError(400, 'Cannot revoke credit line with outstanding balance', 'OUTSTANDING_BALANCE');
+    const clDoc = await db.collection('creditLines').doc(id).get();
+    if (!clDoc.exists || clDoc.data()?.grantorId !== agent.id) throw new AppError(404, 'Credit line not found or you are not the grantor', 'CREDIT_LINE_NOT_FOUND');
+    if (clDoc.data()?.usedAmount > 0) throw new AppError(400, 'Cannot revoke credit line with outstanding balance', 'OUTSTANDING_BALANCE');
 
-    await db.update(creditLines).set({ status: 'revoked', updatedAt: new Date() }).where(eq(creditLines.id, id));
+    await db.collection('creditLines').doc(id).update({ status: 'revoked', updatedAt: new Date().toISOString() });
     res.json({ message: 'Credit line revoked successfully', credit_line_id: id });
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 });
 
 // POST /credit/:id/settle
@@ -117,24 +124,22 @@ router.post('/credit/:id/settle', authMiddleware(), async (req: Request, res: Re
   try {
     const agent = (req as any).agent;
     const { id } = req.params;
-    const db = getDb();
+    const db = getFirestore();
 
-    const result = await db.select().from(creditLines).where(and(eq(creditLines.id, id), eq(creditLines.grantorId, agent.id)));
-    if (result.length === 0) throw new AppError(404, 'Credit line not found or you are not the grantor', 'CREDIT_LINE_NOT_FOUND');
+    const clDoc = await db.collection('creditLines').doc(id).get();
+    if (!clDoc.exists || clDoc.data()?.grantorId !== agent.id) throw new AppError(404, 'Credit line not found or you are not the grantor', 'CREDIT_LINE_NOT_FOUND');
 
-    const usedAmount = result[0].usedAmount;
+    const usedAmount = clDoc.data()?.usedAmount || 0;
     if (usedAmount > 0) {
-      const [settlement] = await db.insert(creditTransactions).values({
-        creditLineId: id, amount: usedAmount, type: 'settlement', memo: 'Credit line settlement',
-      }).returning();
-      await db.update(creditLines).set({ usedAmount: 0, updatedAt: new Date() }).where(eq(creditLines.id, id));
-      res.json({ message: 'Credit line settled successfully', settlement, previous_balance: usedAmount, new_balance: 0 });
+      const txRef = await db.collection('creditTransactions').add({
+        creditLineId: id, amount: usedAmount, type: 'settlement', memo: 'Credit line settlement', createdAt: new Date().toISOString(),
+      });
+      await db.collection('creditLines').doc(id).update({ usedAmount: 0, updatedAt: new Date().toISOString() });
+      res.json({ message: 'Credit line settled successfully', settlement: { id: txRef.id, amount: usedAmount, type: 'settlement' }, previous_balance: usedAmount, new_balance: 0 });
     } else {
       res.json({ message: 'No outstanding balance to settle', credit_line_id: id, balance: 0 });
     }
-  } catch (err) {
-    next(err);
-  }
+  } catch (err) { next(err); }
 });
 
 export default router;

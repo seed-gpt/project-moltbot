@@ -1,8 +1,6 @@
 import { randomBytes, createHmac } from 'node:crypto';
-import { eq } from 'drizzle-orm';
 import type { Request, Response, NextFunction } from 'express';
-import { getDb } from './db.js';
-import { agents } from './db/schema.js';
+import { getFirestore } from './firestore.js';
 
 const PREFIXES: Record<string, string> = {
   moltbank: 'mb_',
@@ -32,18 +30,16 @@ export function authMiddleware() {
     const apiKey = authHeader.slice(7);
     const keyHash = hashApiKey(apiKey);
     try {
-      const db = getDb();
-      const result = await db.select({
-        id: agents.id,
-        handle: agents.handle,
-        name: agents.name,
-      }).from(agents).where(eq(agents.apiKeyHash, keyHash));
+      const db = getFirestore();
+      const snapshot = await db.collection('agents')
+        .where('apiKeyHash', '==', keyHash).limit(1).get();
 
-      if (result.length === 0) {
+      if (snapshot.empty) {
         res.status(401).json({ error: 'Invalid API key' });
         return;
       }
-      (req as any).agent = result[0];
+      const doc = snapshot.docs[0];
+      (req as any).agent = { id: doc.id, ...doc.data() };
       next();
     } catch (err) {
       next(err);
