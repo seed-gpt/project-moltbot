@@ -26,49 +26,47 @@ router.post('/call/webapp', async (req: Request, res: Response, next: NextFuncti
     const body = webappCallSchema.parse(req.body);
     const db = getFirestore();
 
-    const vapiKey = process.env.VAPI_API_KEY;
-    const phoneNumberId = process.env.VAPI_PHONE_NUMBER_ID;
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
-    if (!vapiKey || !phoneNumberId) {
+    if (!accountSid || !authToken || !fromNumber) {
       res.status(503).json({ error: 'Voice calling service is not configured' });
       return;
     }
 
-    const firstMessage = `Hello, this is ${body.agentName || 'an AI assistant'}. I'm calling on behalf of a user from MoltPhone.`;
-    const systemPrompt = `You are an AI assistant making an outbound call. Your objective is: ${body.task}\n\nBe concise, polite, and helpful. Stay focused on the task.`;
+    const agentName = body.agentName || 'an AI assistant';
+    const greeting = `Hello, this is ${agentName} calling from MoltPhone. ${body.task}`;
 
-    // Call the Vapi API to actually place the outbound call
-    const vapiResponse = await fetch('https://api.vapi.ai/call', {
+    // Build TwiML for the call
+    const twiml = `<Response><Say voice="alice">${greeting.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Say><Pause length="2"/><Say voice="alice">Thank you for your time. Goodbye.</Say></Response>`;
+
+    // Call Twilio REST API to place the outbound call
+    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Calls.json`;
+    const auth = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
+
+    const params = new URLSearchParams();
+    params.append('To', body.phoneNumber);
+    params.append('From', fromNumber);
+    params.append('Twiml', twiml);
+
+    const twilioResponse = await fetch(twilioUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${vapiKey}`,
-        'Content-Type': 'application/json',
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
-        phoneNumberId,
-        customer: { number: body.phoneNumber },
-        assistant: {
-          firstMessage,
-          model: {
-            provider: 'openai',
-            model: 'gpt-4o-mini',
-            messages: [
-              { role: 'system', content: systemPrompt },
-            ],
-          },
-          voice: {
-            provider: '11labs',
-            voiceId: 'jennifer',
-          },
-        },
-      }),
+      body: params.toString(),
     });
 
-    const vapiData = await vapiResponse.json();
+    const twilioData = await twilioResponse.json();
 
-    if (!vapiResponse.ok) {
-      console.error('Vapi API error:', vapiData);
-      res.status(vapiResponse.status).json({ error: vapiData.message || 'Failed to initiate call via Vapi' });
+    if (!twilioResponse.ok) {
+      console.error('Twilio API error:', twilioData);
+      res.status(twilioResponse.status).json({
+        error: twilioData.message || 'Failed to initiate call via Twilio',
+        code: twilioData.code,
+      });
       return;
     }
 
@@ -78,16 +76,16 @@ router.post('/call/webapp', async (req: Request, res: Response, next: NextFuncti
       direction: 'outbound',
       toNumber: body.phoneNumber,
       status: 'queued',
-      vapiCallId: vapiData.id,
-      assistantConfig: { first_message: firstMessage, system_prompt: systemPrompt },
+      twilioCallSid: twilioData.sid,
+      task: body.task,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
 
     res.status(201).json({
       callId: callRef.id,
-      vapiCallId: vapiData.id,
-      status: vapiData.status || 'queued',
+      twilioCallSid: twilioData.sid,
+      status: twilioData.status || 'queued',
       to_number: body.phoneNumber,
       direction: 'outbound',
     });
