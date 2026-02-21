@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HP6XZJLHP5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-HP6XZJLHP5');
-</script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HP6XZJLHP5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-HP6XZJLHP5');
+  </script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoltPhone — AI Phone Calls</title>
-  <meta name="description" content="Make AI phone calls instantly. Enter a number, describe the task, and let AI handle the conversation.">
+  <meta name="description"
+    content="Make AI phone calls instantly. Enter a number, describe the task, and let AI handle the conversation.">
   <meta property="og:title" content="MoltPhone — AI Phone Calls">
-  <meta property="og:description" content="Make AI phone calls instantly. Enter a number, describe the task, and let AI handle the conversation.">
+  <meta property="og:description"
+    content="Make AI phone calls instantly. Enter a number, describe the task, and let AI handle the conversation.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://app.moltphone.xyz">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
       --bg: #09090b;
@@ -34,8 +44,8 @@
       --text-dim: #71717a;
       --accent: #22c55e;
       --accent-hover: #16a34a;
-      --accent-dim: rgba(34,197,94,0.1);
-      --accent-glow: rgba(34,197,94,0.15);
+      --accent-dim: rgba(34, 197, 94, 0.1);
+      --accent-glow: rgba(34, 197, 94, 0.15);
       --danger: #ef4444;
       --warning: #f59e0b;
       --blue: #3b82f6;
@@ -55,117 +65,233 @@
       overflow-x: hidden;
     }
 
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-    .container-sm { max-width: 640px; margin: 0 auto; padding: 0 24px; }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .container-sm {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
     /* ─── Header ─── */
     header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(9,9,11,0.85);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 9, 11, 0.85);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
+
     header .container {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       height: 64px;
     }
+
     .logo {
-      font-size: 1.25rem; font-weight: 700;
-      color: var(--text); text-decoration: none;
-      display: flex; align-items: center; gap: 8px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 28px; align-items: center; }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
     .nav-links a {
-      color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
       transition: color var(--transition);
     }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--accent) !important; color: #fff !important;
-      padding: 8px 18px; border-radius: var(--radius-sm); font-weight: 600;
+
+    .nav-links a:hover {
+      color: var(--text);
     }
-    .nav-cta:hover { background: var(--accent-hover) !important; }
+
+    .nav-cta {
+      background: var(--accent) !important;
+      color: #fff !important;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+    }
+
+    .nav-cta:hover {
+      background: var(--accent-hover) !important;
+    }
+
     .mobile-menu-btn {
-      display: none; background: none; border: none; color: var(--text);
-      font-size: 1.5rem; cursor: pointer; padding: 4px;
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 4px;
     }
 
     /* ─── Hero ─── */
     .hero {
-      padding: 100px 0 80px; text-align: center;
+      padding: 100px 0 80px;
+      text-align: center;
       position: relative;
     }
+
     .hero::before {
       content: '';
-      position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
-      width: 600px; height: 600px;
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
       background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
       pointer-events: none;
     }
+
     .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--accent-dim); border: 1px solid rgba(34,197,94,0.2);
-      color: var(--accent); padding: 6px 16px; border-radius: 100px;
-      font-size: 0.85rem; font-weight: 500; margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 24px;
     }
+
     .hero h1 {
       font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 800; line-height: 1.1;
-      letter-spacing: -0.03em; margin-bottom: 16px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
     }
+
     .hero h1 em {
       font-style: normal;
       background: linear-gradient(135deg, var(--accent), #4ade80);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+
     .hero p {
-      color: var(--text-muted); font-size: 1.15rem;
-      max-width: 520px; margin: 0 auto 36px;
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 520px;
+      margin: 0 auto 36px;
     }
+
     .hero-cta {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: var(--accent); color: #fff;
-      padding: 16px 32px; border-radius: var(--radius);
-      font-size: 1.1rem; font-weight: 600;
-      text-decoration: none; border: none; cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
       transition: all var(--transition);
       box-shadow: 0 0 40px var(--accent-glow);
     }
+
     .hero-cta:hover {
       background: var(--accent-hover);
       transform: translateY(-2px);
-      box-shadow: 0 8px 40px rgba(34,197,94,0.3);
+      box-shadow: 0 8px 40px rgba(34, 197, 94, 0.3);
     }
+
     .hero-stats {
-      display: flex; justify-content: center; gap: 48px;
-      margin-top: 60px; padding-top: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 60px;
+      padding-top: 40px;
       border-top: 1px solid var(--border);
     }
-    .hero-stat { text-align: center; }
-    .hero-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-    .hero-stat .label { font-size: 0.85rem; color: var(--text-muted); }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat .num {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .hero-stat .label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
 
     /* ─── Sections ─── */
-    section { padding: 80px 0; }
-    .section-label {
-      font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--accent); margin-bottom: 12px;
+    section {
+      padding: 80px 0;
     }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
     .section-title {
       font-size: clamp(1.75rem, 4vw, 2.25rem);
-      font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
     }
+
     .section-desc {
-      color: var(--text-muted); font-size: 1.05rem;
-      max-width: 560px; margin-bottom: 48px;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin-bottom: 48px;
     }
-    .section-center { text-align: center; }
-    .section-center .section-desc { margin-left: auto; margin-right: auto; }
+
+    .section-center {
+      text-align: center;
+    }
+
+    .section-center .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
 
     /* ─── Make a Call ─── */
-    #call { padding-top: 40px; }
+    #call {
+      padding-top: 40px;
+    }
+
     .call-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -174,432 +300,1353 @@
       position: relative;
       overflow: hidden;
     }
+
     .call-card::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: linear-gradient(90deg, var(--accent), var(--blue));
     }
+
     .call-card h2 {
-      font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
+
     .call-card .subtitle {
-      color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-size: 0.95rem;
     }
+
     .rate-limit-bar {
-      display: flex; align-items: center; gap: 8px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 16px;
-      margin-bottom: 28px; font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      margin-bottom: 28px;
+      font-size: 0.85rem;
     }
-    .rate-dots { display: flex; gap: 6px; }
+
+    .rate-dots {
+      display: flex;
+      gap: 6px;
+    }
+
     .rate-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--accent); transition: all var(--transition);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      transition: all var(--transition);
     }
-    .rate-dot.used { background: var(--border); }
-    .rate-text { color: var(--text-muted); }
 
-    .form-group { margin-bottom: 20px; }
+    .rate-dot.used {
+      background: var(--border);
+    }
+
+    .rate-text {
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
     .form-label {
-      display: block; font-size: 0.875rem; font-weight: 600;
-      color: var(--text-secondary); margin-bottom: 8px;
-    }
-    .form-label .req { color: var(--accent); }
-    .form-hint {
-      font-size: 0.8rem; color: var(--text-dim); margin-top: 6px;
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
     }
 
-    input[type="text"], input[type="tel"], textarea, select {
-      width: 100%; padding: 12px 16px;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text);
-      font-size: 0.95rem; font-family: inherit;
+    .form-label .req {
+      color: var(--accent);
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
       transition: border-color var(--transition), box-shadow var(--transition);
     }
-    input:focus, textarea:focus, select:focus {
-      outline: none; border-color: var(--accent);
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-dim);
     }
-    input::placeholder, textarea::placeholder { color: var(--text-dim); }
-    textarea { resize: vertical; min-height: 100px; }
-    select { cursor: pointer; }
-    option { background: var(--bg); }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    option {
+      background: var(--bg);
+    }
 
     /* Phone input */
-    .phone-row { display: flex; gap: 10px; }
-    .country-select {
-      width: 140px; flex-shrink: 0;
-      padding: 12px 10px; font-size: 0.9rem;
+    .phone-row {
+      display: flex;
+      gap: 10px;
     }
-    .phone-input { flex: 1; font-size: 1.1rem; letter-spacing: 0.5px; }
+
+    .country-select {
+      width: 140px;
+      flex-shrink: 0;
+      padding: 12px 10px;
+      font-size: 0.9rem;
+    }
+
+    .phone-input {
+      flex: 1;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
 
     /* Call button */
     .call-btn {
-      width: 100%; padding: 16px;
-      background: var(--accent); color: #fff;
-      border: none; border-radius: var(--radius);
-      font-size: 1.05rem; font-weight: 700;
-      cursor: pointer; transition: all var(--transition);
-      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       margin-top: 8px;
     }
+
     .call-btn:hover:not(:disabled) {
       background: var(--accent-hover);
       transform: translateY(-1px);
-      box-shadow: 0 8px 30px rgba(34,197,94,0.25);
+      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.25);
     }
-    .call-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .call-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .call-btn .spinner {
-      width: 20px; height: 20px;
-      border: 2.5px solid rgba(255,255,255,0.3);
-      border-top-color: #fff; border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
     /* Call status overlay */
     .call-status-card {
-      display: none; text-align: center; padding: 48px 24px;
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
     }
-    .call-status-card.active { display: block; }
-    .call-status-icon { font-size: 3.5rem; margin-bottom: 16px; }
-    .call-status-icon.ringing { animation: ring 1.5s ease-in-out infinite; }
+
+    .call-status-card.active {
+      display: block;
+    }
+
+    .call-status-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+    }
+
+    .call-status-icon.ringing {
+      animation: ring 1.5s ease-in-out infinite;
+    }
+
     @keyframes ring {
-      0%,100% { transform: rotate(0); }
-      10%,30% { transform: rotate(-12deg); }
-      20%,40% { transform: rotate(12deg); }
-      50% { transform: rotate(0); }
+
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+
+      10%,
+      30% {
+        transform: rotate(-12deg);
+      }
+
+      20%,
+      40% {
+        transform: rotate(12deg);
+      }
+
+      50% {
+        transform: rotate(0);
+      }
     }
+
     .call-status-text {
-      font-size: 1.25rem; font-weight: 600; margin-bottom: 4px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 4px;
     }
-    .call-status-sub { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+
+    .call-status-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
     .call-timer-display {
       font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
-      font-size: 2rem; color: var(--accent); font-weight: 600; margin-bottom: 28px;
+      font-size: 2rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 28px;
     }
+
     .wave-container {
-      display: flex; justify-content: center; align-items: flex-end;
-      gap: 4px; height: 32px; margin-bottom: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 4px;
+      height: 32px;
+      margin-bottom: 28px;
     }
+
     .wave-bar {
-      width: 4px; border-radius: 2px; background: var(--accent);
+      width: 4px;
+      border-radius: 2px;
+      background: var(--accent);
       animation: wave 1.2s ease-in-out infinite;
     }
-    .wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-    .wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
-    .wave-bar:nth-child(3) { height: 24px; animation-delay: 0.2s; }
-    .wave-bar:nth-child(4) { height: 12px; animation-delay: 0.3s; }
-    .wave-bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+
+    .wave-bar:nth-child(1) {
+      height: 8px;
+      animation-delay: 0s;
+    }
+
+    .wave-bar:nth-child(2) {
+      height: 16px;
+      animation-delay: 0.1s;
+    }
+
+    .wave-bar:nth-child(3) {
+      height: 24px;
+      animation-delay: 0.2s;
+    }
+
+    .wave-bar:nth-child(4) {
+      height: 12px;
+      animation-delay: 0.3s;
+    }
+
+    .wave-bar:nth-child(5) {
+      height: 20px;
+      animation-delay: 0.4s;
+    }
+
     @keyframes wave {
-      0%,100% { transform: scaleY(0.4); opacity: 0.5; }
-      50% { transform: scaleY(1); opacity: 1; }
+
+      0%,
+      100% {
+        transform: scaleY(0.4);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
     }
+
     .end-call-btn {
-      background: var(--danger); color: #fff; border: none;
-      padding: 14px 40px; border-radius: 100px; font-size: 1rem;
-      font-weight: 600; cursor: pointer; transition: all var(--transition);
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 100px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
     }
-    .end-call-btn:hover { background: #dc2626; transform: translateY(-1px); }
+
+    .end-call-btn:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+    }
 
     /* Call result */
-    .call-result { display: none; }
-    .call-result.active { display: block; }
-    .result-header { text-align: center; margin-bottom: 32px; }
-    .result-icon { font-size: 3rem; margin-bottom: 12px; }
-    .result-title { font-size: 1.5rem; font-weight: 700; }
-    .result-sub { color: var(--text-muted); }
+    .call-result {
+      display: none;
+    }
+
+    .call-result.active {
+      display: block;
+    }
+
+    .result-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .result-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .result-sub {
+      color: var(--text-muted);
+    }
+
     .result-box {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
     }
+
     .result-box h4 {
-      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--text-muted); margin-bottom: 12px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
     }
+
     .result-actions {
-      display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
     }
+
     .result-btn {
-      flex: 1; min-width: 140px; padding: 12px 20px;
-      border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600;
-      cursor: pointer; transition: all var(--transition); border: none;
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
     }
-    .result-btn-primary { background: var(--accent); color: #fff; }
-    .result-btn-primary:hover { background: var(--accent-hover); }
+
+    .result-btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .result-btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
     .result-btn-secondary {
-      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
-    .result-btn-secondary:hover { background: var(--border); }
+
+    .result-btn-secondary:hover {
+      background: var(--border);
+    }
 
     /* Error/success messages */
     .msg-error {
-      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5; padding: 12px 16px; border-radius: var(--radius-sm);
-      margin-bottom: 20px; font-size: 0.9rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      font-size: 0.9rem;
     }
 
     /* ─── How it Works ─── */
     .steps-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
     }
+
     .step-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 32px 24px;
-      text-align: center; position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
       transition: border-color var(--transition);
     }
-    .step-card:hover { border-color: var(--accent); }
-    .step-num {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--accent-dim); color: var(--accent);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 1rem; margin-bottom: 16px;
+
+    .step-card:hover {
+      border-color: var(--accent);
     }
-    .step-icon { font-size: 2rem; margin-bottom: 12px; }
-    .step-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
-    .step-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+
+    .step-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .step-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
 
     /* ─── Pricing ─── */
     .pricing-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
     }
+
     .pricing-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
       position: relative;
     }
+
     .pricing-card.featured {
       border-color: var(--accent);
       box-shadow: 0 0 40px var(--accent-glow);
     }
+
     .pricing-card.featured::before {
       content: 'POPULAR';
-      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: #fff;
-      padding: 4px 16px; border-radius: 100px;
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 16px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
     }
-    .pricing-tier { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .pricing-price { font-size: 2.25rem; font-weight: 800; margin-bottom: 4px; }
-    .pricing-price span { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
-    .pricing-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
-    .pricing-features { list-style: none; margin-bottom: 28px; }
+
+    .pricing-tier {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price span {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .pricing-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
     .pricing-features li {
-      padding: 8px 0; font-size: 0.9rem; color: var(--text-secondary);
-      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+
     .pricing-features li::before {
-      content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0;
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
     }
+
     .pricing-btn {
-      display: block; width: 100%; padding: 12px;
-      border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600;
-      text-align: center; text-decoration: none; cursor: pointer;
-      border: 1px solid var(--border); background: var(--surface-2);
-      color: var(--text); transition: all var(--transition);
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      transition: all var(--transition);
     }
-    .pricing-btn:hover { background: var(--border); }
+
+    .pricing-btn:hover {
+      background: var(--border);
+    }
+
     .pricing-btn.primary {
-      background: var(--accent); color: #fff; border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
-    .pricing-btn.primary:hover { background: var(--accent-hover); }
+
+    .pricing-btn.primary:hover {
+      background: var(--accent-hover);
+    }
 
     /* ─── Recent Calls ─── */
-    .calls-list { display: flex; flex-direction: column; gap: 12px; }
+    .calls-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .call-item {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px 20px;
-      display: flex; justify-content: space-between; align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       transition: border-color var(--transition);
     }
-    .call-item:hover { border-color: var(--border-light); }
-    .call-item-left { display: flex; align-items: center; gap: 14px; }
+
+    .call-item:hover {
+      border-color: var(--border-light);
+    }
+
+    .call-item-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
     .call-item-icon {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--accent-dim); color: var(--accent);
-      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
     }
-    .call-item-number { font-weight: 600; font-size: 0.95rem; }
-    .call-item-task { color: var(--text-muted); font-size: 0.85rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .call-item-right { text-align: right; }
-    .call-item-time { font-size: 0.8rem; color: var(--text-dim); }
+
+    .call-item-number {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .call-item-task {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .call-item-right {
+      text-align: right;
+    }
+
+    .call-item-time {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
     .call-item-status {
-      font-size: 0.75rem; font-weight: 600; padding: 2px 10px;
-      border-radius: 100px; display: inline-block; margin-top: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 100px;
+      display: inline-block;
+      margin-top: 4px;
     }
-    .status-completed { background: var(--accent-dim); color: var(--accent); }
-    .status-failed { background: rgba(239,68,68,0.1); color: #f87171; }
-    .status-calling { background: rgba(59,130,246,0.1); color: var(--blue); }
+
+    .status-completed {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .status-failed {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+    }
+
+    .status-calling {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--blue);
+    }
+
     .empty-calls {
-      text-align: center; padding: 48px; color: var(--text-dim);
+      text-align: center;
+      padding: 48px;
+      color: var(--text-dim);
     }
-    .empty-calls-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    .empty-calls-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
     .clear-history-btn {
-      background: none; border: 1px solid var(--border); color: var(--text-muted);
-      padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.85rem;
-      cursor: pointer; transition: all var(--transition); margin-top: 16px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      margin-top: 16px;
     }
-    .clear-history-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    .clear-history-btn:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
 
     /* ─── API Section ─── */
-    .api-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .code-block {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px;
-      overflow-x: auto; position: relative;
+    .api-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
+
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      overflow-x: auto;
+      position: relative;
+    }
+
     .code-block pre {
       font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', monospace;
-      font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
     }
+
     .code-copy {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--surface-2); border: 1px solid var(--border);
-      color: var(--text-muted); padding: 6px 12px; border-radius: 6px;
-      font-size: 0.75rem; cursor: pointer; transition: all var(--transition);
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all var(--transition);
     }
-    .code-copy:hover { color: var(--text); border-color: var(--border-light); }
-    .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-    .api-info h3 { font-size: 1.1rem; margin-bottom: 12px; }
-    .api-info p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px; }
+
+    .code-copy:hover {
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    .api-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .api-info h3 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    .api-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
     .api-endpoint {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--bg); border: 1px solid var(--border);
-      padding: 8px 14px; border-radius: var(--radius-sm);
-      font-family: monospace; font-size: 0.85rem; color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
     }
+
     .api-method {
-      background: var(--accent); color: #fff; padding: 2px 8px;
-      border-radius: 4px; font-size: 0.75rem; font-weight: 700;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
     }
 
     /* ─── Footer ─── */
     footer {
-      border-top: 1px solid var(--border); padding: 40px 0;
-      text-align: center; color: var(--text-dim); font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
     }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
 
     /* ─── Responsive ─── */
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .nav-links.open {
-        display: flex; flex-direction: column;
-        position: absolute; top: 64px; left: 0; right: 0;
-        background: var(--bg); border-bottom: 1px solid var(--border);
-        padding: 16px 24px; gap: 16px;
+      .nav-links {
+        display: none;
       }
-      .mobile-menu-btn { display: block; }
-      .hero { padding: 60px 0 50px; }
-      .hero-stats { gap: 24px; flex-wrap: wrap; }
-      .call-card { padding: 24px; }
-      .steps-grid { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr; }
-      .api-grid { grid-template-columns: 1fr; }
-      .phone-row { flex-direction: column; }
-      .country-select { width: 100%; }
-      .call-item { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .call-item-right { text-align: left; }
-      .result-actions { flex-direction: column; }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+        gap: 16px;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .hero {
+        padding: 60px 0 50px;
+      }
+
+      .hero-stats {
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .call-card {
+        padding: 24px;
+      }
+
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .api-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-row {
+        flex-direction: column;
+      }
+
+      .country-select {
+        width: 100%;
+      }
+
+      .call-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .call-item-right {
+        text-align: left;
+      }
+
+      .result-actions {
+        flex-direction: column;
+      }
     }
 
     /* ─── Auth ─── */
-    .auth-area { display: flex; align-items: center; gap: 12px; }
+    .auth-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .auth-btn {
-      background: var(--accent); color: #fff; border: none;
-      padding: 8px 18px; border-radius: var(--radius-sm); font-weight: 600;
-      font-size: 0.9rem; cursor: pointer; transition: all var(--transition);
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all var(--transition);
     }
-    .auth-btn:hover { background: var(--accent-hover); }
+
+    .auth-btn:hover {
+      background: var(--accent-hover);
+    }
+
     .auth-btn.secondary {
-      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
-    .auth-btn.secondary:hover { background: var(--border); }
+
+    .auth-btn.secondary:hover {
+      background: var(--border);
+    }
+
     .auth-user {
-      display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
     }
-    .auth-user-email { color: var(--text-secondary); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .auth-user-email {
+      color: var(--text-secondary);
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .auth-user-badge {
-      background: var(--accent-dim); color: var(--accent); padding: 2px 8px;
-      border-radius: 100px; font-size: 0.7rem; font-weight: 600;
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
     }
+
     .logout-btn {
-      background: none; border: none; color: var(--text-dim); cursor: pointer;
-      font-size: 0.85rem; padding: 4px 8px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px 8px;
     }
-    .logout-btn:hover { color: var(--danger); }
+
+    .logout-btn:hover {
+      color: var(--danger);
+    }
 
     /* ─── Modal ─── */
     .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-      align-items: center; justify-content: center;
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
     }
-    .modal-overlay.active { display: flex; }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
     .modal {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 32px; width: 90%; max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 90%;
+      max-width: 420px;
     }
-    .modal h2 { font-size: 1.3rem; margin-bottom: 8px; }
-    .modal .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
-    .modal .form-group { margin-bottom: 16px; }
+
+    .modal h2 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+
+    .modal .subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .modal .form-group {
+      margin-bottom: 16px;
+    }
+
     .modal-btn {
-      width: 100%; padding: 14px; background: var(--accent); color: #fff;
-      border: none; border-radius: var(--radius-sm); font-size: 1rem;
-      font-weight: 600; cursor: pointer; transition: all var(--transition);
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
     }
-    .modal-btn:hover { background: var(--accent-hover); }
-    .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .modal-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .modal-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .modal-close {
-      float: right; background: none; border: none; color: var(--text-dim);
-      font-size: 1.5rem; cursor: pointer; line-height: 1;
+      float: right;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
     }
-    .modal-close:hover { color: var(--text); }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
     .modal-switch {
-      text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
-    .modal-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
-    .modal-switch a:hover { text-decoration: underline; }
+
+    .modal-switch a {
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .modal-switch a:hover {
+      text-decoration: underline;
+    }
+
     .modal-error {
-      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5; padding: 10px 14px; border-radius: var(--radius-sm);
-      margin-bottom: 16px; font-size: 0.85rem; display: none;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      display: none;
     }
+
     .modal-success {
-      background: var(--accent-dim); border: 1px solid rgba(34,197,94,0.3);
-      color: var(--accent); padding: 10px 14px; border-radius: var(--radius-sm);
-      margin-bottom: 16px; font-size: 0.85rem; display: none;
+      background: var(--accent-dim);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--accent);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      display: none;
     }
 
     /* ─── Upgrade Banner ─── */
     .upgrade-banner {
-      display: none; background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(59,130,246,0.1));
-      border: 1px solid rgba(34,197,94,0.2); border-radius: var(--radius);
-      padding: 16px 20px; margin-bottom: 24px; text-align: center;
+      display: none;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      text-align: center;
     }
-    .upgrade-banner.active { display: block; }
-    .upgrade-banner p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; }
+
+    .upgrade-banner.active {
+      display: block;
+    }
+
+    .upgrade-banner p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
     .upgrade-banner .upgrade-link {
-      color: var(--accent); font-weight: 600; text-decoration: none; cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
     }
 
     /* ─── Smooth scroll ─── */
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     /* ─── Animations ─── */
     .fade-in {
-      opacity: 0; transform: translateY(20px);
+      opacity: 0;
+      transform: translateY(20px);
       animation: fadeIn 0.6s ease forwards;
     }
+
     @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    .fade-in:nth-child(2) { animation-delay: 0.1s; }
-    .fade-in:nth-child(3) { animation-delay: 0.2s; }
+
+    .fade-in:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .fade-in:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    /* ─── Dashboard Panel ─── */
+    .dashboard-panel {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      margin-bottom: 32px;
+    }
+
+    .dashboard-panel.active {
+      display: block;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .dashboard-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* API Key Card */
+    .apikey-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .apikey-card .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .apikey-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .apikey-value {
+      flex: 1;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: var(--surface-2);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .apikey-copy,
+    .apikey-toggle {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .apikey-copy:hover,
+    .apikey-toggle:hover {
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    /* Token Balance Card */
+    .token-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .token-card .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .token-balance {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .token-balance span {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .token-buy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .token-buy-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    /* ─── Token Purchase Modal ─── */
+    .pkg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .pkg-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pkg-card {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .pkg-card:hover {
+      border-color: var(--accent);
+    }
+
+    .pkg-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .pkg-card .pkg-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .pkg-card .pkg-tokens {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .pkg-card .pkg-price {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .pkg-card .pkg-rate {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* API Key Success Card */
+    .apikey-success-card {
+      background: var(--bg);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .apikey-success-card .label {
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .apikey-success-card .key-display {
+      font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--surface-2);
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+
+    .apikey-success-card .copy-key-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .apikey-success-card .copy-key-btn:hover {
+      background: var(--accent-hover);
+    }
   </style>
 </head>
+
 <body>
 
   <!-- Header -->
@@ -625,7 +1672,8 @@
     <div class="container">
       <div class="hero-badge">🟢 Live — Make calls now</div>
       <h1>AI <em>Phone Calls</em>,<br>Made Simple</h1>
-      <p>Enter a number, tell the AI what to say, and it handles the conversation. Appointments, inquiries, reservations — done in seconds.</p>
+      <p>Enter a number, tell the AI what to say, and it handles the conversation. Appointments, inquiries, reservations
+        — done in seconds.</p>
       <a href="#call" class="hero-cta">📞 Make a Call</a>
       <div class="hero-stats">
         <div class="hero-stat">
@@ -639,6 +1687,34 @@
         <div class="hero-stat">
           <div class="num">50+</div>
           <div class="label">Countries supported</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard Panel (shown when logged in) -->
+  <section id="dashboard-section">
+    <div class="container-sm">
+      <div class="dashboard-panel" id="dashboard-panel">
+        <div class="dashboard-header">
+          <h3>👤 My Account</h3>
+          <button class="auth-btn secondary" onclick="logout()" style="font-size:0.8rem;padding:6px 14px">Sign
+            Out</button>
+        </div>
+        <div class="dashboard-grid">
+          <div class="apikey-card">
+            <div class="label">API Key</div>
+            <div class="apikey-row">
+              <div class="apikey-value" id="dash-apikey">mp_••••••••••••••••</div>
+              <button class="apikey-toggle" id="dash-toggle" onclick="toggleApiKeyVisibility()">Show</button>
+              <button class="apikey-copy" id="dash-copy" onclick="copyDashApiKey()">Copy</button>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="label">Token Balance</div>
+            <div class="token-balance"><span id="dash-token-balance">0</span> <span>tokens</span></div>
+            <button class="token-buy-btn" onclick="openPurchaseModal()">⚡ Buy Tokens</button>
+          </div>
         </div>
       </div>
     </div>
@@ -702,12 +1778,15 @@
 
           <div class="form-group">
             <label class="form-label" for="task">What should the AI say? <span class="req">*</span></label>
-            <textarea id="task" placeholder="e.g. Call this restaurant and make a reservation for 2 people this Saturday at 8pm. My name is Alex." required></textarea>
+            <textarea id="task"
+              placeholder="e.g. Call this restaurant and make a reservation for 2 people this Saturday at 8pm. My name is Alex."
+              required></textarea>
             <div class="form-hint">Be specific about what the AI should accomplish and any details to mention.</div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="agent-name">Caller Name <span style="color:var(--text-dim)">(optional)</span></label>
+            <label class="form-label" for="agent-name">Caller Name <span
+                style="color:var(--text-dim)">(optional)</span></label>
             <input type="text" id="agent-name" placeholder="e.g. Alex's Assistant">
             <div class="form-hint">The AI will introduce itself with this name.</div>
           </div>
@@ -725,8 +1804,11 @@
         <div class="call-status-sub" id="status-number"></div>
         <div class="call-timer-display" id="call-timer">00:00</div>
         <div class="wave-container" id="wave-container" style="display:none">
-          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-          <div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
         </div>
         <button class="end-call-btn" id="end-call-btn">✕ End Call</button>
       </div>
@@ -787,40 +1869,40 @@
       <div class="section-desc">Start free. Scale when you need to.</div>
       <div class="pricing-grid">
         <div class="pricing-card">
-          <div class="pricing-tier">Free</div>
-          <div class="pricing-price">$0 <span>/ call</span></div>
-          <div class="pricing-desc">Try it out, no signup required</div>
+          <div class="pricing-tier">Starter</div>
+          <div class="pricing-price">$10 <span>/ 100 tokens</span></div>
+          <div class="pricing-desc">Try it out, get started fast</div>
           <ul class="pricing-features">
-            <li>3 calls per hour</li>
+            <li>100 call tokens</li>
             <li>Standard AI voice</li>
             <li>Call status tracking</li>
             <li>50+ countries</li>
           </ul>
-          <a href="#call" class="pricing-btn primary">Start Calling</a>
+          <button class="pricing-btn primary" onclick="openPurchaseModal('starter')">Buy Starter</button>
         </div>
         <div class="pricing-card featured">
-          <div class="pricing-tier">Webapp</div>
-          <div class="pricing-price">$0.50 <span>/ call</span></div>
-          <div class="pricing-desc">Unlimited calls via the webapp</div>
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-price">$40 <span>/ 500 tokens</span></div>
+          <div class="pricing-desc">Best value for regular users</div>
           <ul class="pricing-features">
-            <li>Unlimited calls</li>
+            <li>500 call tokens</li>
             <li>Priority voice quality</li>
             <li>Call history & details</li>
-            <li>Longer call duration</li>
+            <li>API access included</li>
           </ul>
-          <a href="https://t.me/KantaClaw_bot" target="_blank" class="pricing-btn primary">Contact for Access</a>
+          <button class="pricing-btn primary" onclick="openPurchaseModal('pro')">Buy Pro</button>
         </div>
         <div class="pricing-card">
-          <div class="pricing-tier">API</div>
-          <div class="pricing-price">$0.15 <span>/ call</span></div>
+          <div class="pricing-tier">Enterprise</div>
+          <div class="pricing-price">$120 <span>/ 2000 tokens</span></div>
           <div class="pricing-desc">For developers & AI agents</div>
           <ul class="pricing-features">
-            <li>REST API access</li>
-            <li>Webhook callbacks</li>
+            <li>2000 call tokens</li>
+            <li>REST API + Webhooks</li>
             <li>Custom AI personas</li>
             <li>Bulk calling</li>
           </ul>
-          <a href="https://t.me/KantaClaw_bot" target="_blank" class="pricing-btn">Get API Access</a>
+          <button class="pricing-btn" onclick="openPurchaseModal('enterprise')">Buy Enterprise</button>
         </div>
       </div>
     </div>
@@ -851,7 +1933,8 @@
         <div class="api-info">
           <div class="section-label">For Developers</div>
           <div class="section-title" style="margin-bottom:16px">API Access</div>
-          <p>Integrate AI phone calls into your app with a single API call. Perfect for AI agents, automation workflows, and custom integrations.</p>
+          <p>Integrate AI phone calls into your app with a single API call. Perfect for AI agents, automation workflows,
+            and custom integrations.</p>
           <div class="api-endpoint">
             <span class="api-method">POST</span>
             api.moltphone.xyz/call/webapp
@@ -927,10 +2010,46 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     </div>
   </div>
 
+  <!-- Token Purchase Modal -->
+  <div class="modal-overlay" id="purchase-modal">
+    <div class="modal" style="max-width:560px">
+      <button class="modal-close" onclick="closePurchaseModal()">&times;</button>
+      <h2>⚡ Buy Tokens</h2>
+      <p class="subtitle">Select a package to add tokens to your account.</p>
+      <div class="modal-error" id="purchase-error"></div>
+      <div class="modal-success" id="purchase-success"></div>
+      <div class="pkg-grid">
+        <div class="pkg-card" data-pkg="starter" onclick="selectPackage('starter')">
+          <div class="pkg-name">Starter</div>
+          <div class="pkg-tokens">100</div>
+          <div class="pkg-price">$10</div>
+          <div class="pkg-rate">$0.10 / token</div>
+        </div>
+        <div class="pkg-card" data-pkg="pro" onclick="selectPackage('pro')">
+          <div class="pkg-name">Pro</div>
+          <div class="pkg-tokens">500</div>
+          <div class="pkg-price">$40</div>
+          <div class="pkg-rate">$0.08 / token</div>
+        </div>
+        <div class="pkg-card" data-pkg="enterprise" onclick="selectPackage('enterprise')">
+          <div class="pkg-name">Enterprise</div>
+          <div class="pkg-tokens">2,000</div>
+          <div class="pkg-price">$120</div>
+          <div class="pkg-rate">$0.06 / token</div>
+        </div>
+      </div>
+      <button class="modal-btn" id="purchase-btn" onclick="handlePurchase()" disabled>Select a package</button>
+      <div class="modal-switch" style="margin-top:12px">
+        Not signed up? <a onclick="closePurchaseModal(); showAuthModal()">Create account first</a>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <div class="container">
-      <p>📞 MoltPhone — AI Phone Calls &nbsp;·&nbsp; Powered by <a href="https://spring.gib" target="_blank">Spring Software Gibraltar</a> 🦞</p>
+      <p>📞 MoltPhone — AI Phone Calls &nbsp;·&nbsp; Powered by <a href="https://spring.gib" target="_blank">Spring
+          Software Gibraltar</a> 🦞</p>
     </div>
   </footer>
 
@@ -1261,8 +2380,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     $('#phone-number').addEventListener('input', (e) => {
       let v = e.target.value.replace(/[^\d]/g, '');
       // Simple grouping: XXX XXX XXXX
-      if (v.length > 6) v = v.slice(0,3) + ' ' + v.slice(3,6) + ' ' + v.slice(6,10);
-      else if (v.length > 3) v = v.slice(0,3) + ' ' + v.slice(3,6);
+      if (v.length > 6) v = v.slice(0, 3) + ' ' + v.slice(3, 6) + ' ' + v.slice(6, 10);
+      else if (v.length > 3) v = v.slice(0, 3) + ' ' + v.slice(3, 6);
       e.target.value = v;
     });
 
@@ -1270,6 +2389,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     const AUTH_KEY = 'moltphone_auth';
     const API_BASE = 'https://api.moltphone.xyz';
     const API_BASE_FALLBACK = 'https://moltphone-737941094496.europe-west1.run.app';
+    let apiKeyVisible = false;
+    let selectedPackage = null;
 
     function getAuth() {
       try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch { return null; }
@@ -1278,11 +2399,25 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     function setAuth(data) {
       localStorage.setItem(AUTH_KEY, JSON.stringify(data));
       updateAuthUI();
+      updateDashboard();
     }
 
     function clearAuth() {
       localStorage.removeItem(AUTH_KEY);
       updateAuthUI();
+      updateDashboard();
+    }
+
+    async function apiFetch(path, options = {}) {
+      try {
+        return await fetch(`${API_BASE}${path}`, options);
+      } catch {
+        return await fetch(`${API_BASE_FALLBACK}${path}`, options);
+      }
+    }
+
+    function authHeaders(apiKey) {
+      return { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
     }
 
     function updateAuthUI() {
@@ -1301,10 +2436,67 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       }
     }
 
+    // ─── Dashboard ───
+    function updateDashboard() {
+      const auth = getAuth();
+      const panel = $('#dashboard-panel');
+      if (auth && auth.apiKey) {
+        panel.classList.add('active');
+        updateApiKeyDisplay();
+        fetchTokenBalance();
+      } else {
+        panel.classList.remove('active');
+      }
+    }
+
+    function updateApiKeyDisplay() {
+      const auth = getAuth();
+      if (!auth) return;
+      const el = $('#dash-apikey');
+      if (apiKeyVisible) {
+        el.textContent = auth.apiKey;
+        $('#dash-toggle').textContent = 'Hide';
+      } else {
+        el.textContent = auth.apiKey.substring(0, 6) + '••••••••••••••••';
+        $('#dash-toggle').textContent = 'Show';
+      }
+    }
+
+    function toggleApiKeyVisibility() {
+      apiKeyVisible = !apiKeyVisible;
+      updateApiKeyDisplay();
+    }
+
+    function copyDashApiKey() {
+      const auth = getAuth();
+      if (!auth) return;
+      navigator.clipboard.writeText(auth.apiKey).then(() => {
+        const btn = $('#dash-copy');
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+
+    async function fetchTokenBalance() {
+      const auth = getAuth();
+      if (!auth || !auth.apiKey) return;
+      try {
+        const res = await apiFetch('/tokens/balance', { headers: authHeaders(auth.apiKey) });
+        if (res.ok) {
+          const data = await res.json();
+          $('#dash-token-balance').textContent = data.balance.toLocaleString();
+        }
+      } catch { /* silent fail */ }
+    }
+
+    // ─── Modals ───
     function showAuthModal() {
       $('#auth-modal').classList.add('active');
       $('#auth-error').style.display = 'none';
       $('#auth-success').style.display = 'none';
+      // Remove any previous API key card
+      const existingCard = document.querySelector('#auth-modal .apikey-success-card');
+      if (existingCard) existingCard.remove();
     }
 
     function closeAuthModal() {
@@ -1321,6 +2513,74 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       $('#login-modal').classList.remove('active');
     }
 
+    // ─── Token Purchase Modal ───
+    function openPurchaseModal(preselect) {
+      const auth = getAuth();
+      if (!auth || !auth.apiKey) {
+        showAuthModal();
+        return;
+      }
+      selectedPackage = null;
+      $$('.pkg-card').forEach(c => c.classList.remove('selected'));
+      $('#purchase-error').style.display = 'none';
+      $('#purchase-success').style.display = 'none';
+      $('#purchase-btn').disabled = true;
+      $('#purchase-btn').textContent = 'Select a package';
+      $('#purchase-modal').classList.add('active');
+      if (preselect) selectPackage(preselect);
+    }
+
+    function closePurchaseModal() {
+      $('#purchase-modal').classList.remove('active');
+    }
+
+    function selectPackage(pkg) {
+      selectedPackage = pkg;
+      $$('.pkg-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.pkg === pkg);
+      });
+      const names = { starter: 'Buy Starter — $10', pro: 'Buy Pro — $40', enterprise: 'Buy Enterprise — $120' };
+      $('#purchase-btn').disabled = false;
+      $('#purchase-btn').textContent = names[pkg] || 'Buy';
+    }
+
+    async function handlePurchase() {
+      if (!selectedPackage) return;
+      const auth = getAuth();
+      if (!auth || !auth.apiKey) { openPurchaseModal(); return; }
+
+      const btn = $('#purchase-btn');
+      const errEl = $('#purchase-error');
+      const successEl = $('#purchase-success');
+      errEl.style.display = 'none';
+      successEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      try {
+        const res = await apiFetch('/tokens/purchase', {
+          method: 'POST',
+          headers: authHeaders(auth.apiKey),
+          body: JSON.stringify({ package: selectedPackage }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || 'Purchase failed');
+
+        successEl.textContent = `✅ Added ${data.purchase.tokens_added} tokens! New balance: ${data.new_balance.toLocaleString()}`;
+        successEl.style.display = 'block';
+        $('#dash-token-balance').textContent = data.new_balance.toLocaleString();
+        btn.textContent = '✅ Purchase Complete';
+        setTimeout(() => { closePurchaseModal(); }, 2500);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        const names = { starter: 'Buy Starter — $10', pro: 'Buy Pro — $40', enterprise: 'Buy Enterprise — $120' };
+        btn.textContent = names[selectedPackage] || 'Retry';
+      }
+    }
+
+    // ─── Registration ───
     async function handleAuth(e) {
       e.preventDefault();
       const email = $('#auth-email').value.trim();
@@ -1335,28 +2595,42 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       btn.textContent = 'Creating account...';
 
       try {
-        let response;
-        try {
-          response = await fetch(`${API_BASE}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ handle, name: name || handle, email })
-          });
-        } catch {
-          response = await fetch(`${API_BASE_FALLBACK}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ handle, name: name || handle, email })
-          });
-        }
+        const response = await apiFetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ handle, name: name || handle, email }),
+        });
 
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || data.message || 'Registration failed');
 
-        setAuth({ apiKey: data.apiKey || data.api_key, handle, email, name });
-        successEl.textContent = '✅ Account created! Your API key has been saved.';
+        const apiKey = data.api_key || data.apiKey;
+        setAuth({ apiKey, handle, email, name });
+
+        // Show API key prominently
+        successEl.textContent = '✅ Account created!';
         successEl.style.display = 'block';
-        setTimeout(closeAuthModal, 2000);
+
+        // Remove old key card if any
+        const old = document.querySelector('#auth-modal .apikey-success-card');
+        if (old) old.remove();
+
+        const keyCard = document.createElement('div');
+        keyCard.className = 'apikey-success-card';
+        keyCard.innerHTML = `
+          <div class="label">🔑 Your API Key — save it now!</div>
+          <div class="key-display">${escapeHtml(apiKey)}</div>
+          <button class="copy-key-btn" onclick="navigator.clipboard.writeText('${apiKey}').then(()=>{this.textContent='✅ Copied!'})">📋 Copy API Key</button>
+        `;
+        const form = document.querySelector('#auth-form');
+        form.style.display = 'none';
+        form.parentElement.insertBefore(keyCard, form.nextSibling);
+
+        // Auto-close after 8 seconds
+        setTimeout(() => {
+          closeAuthModal();
+          form.style.display = 'block';
+        }, 8000);
       } catch (err) {
         errEl.textContent = err.message;
         errEl.style.display = 'block';
@@ -1366,6 +2640,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       }
     }
 
+    // ─── Login ───
     async function handleLogin(e) {
       e.preventDefault();
       const apiKey = $('#login-apikey').value.trim();
@@ -1374,17 +2649,12 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
       if (!apiKey) { errEl.textContent = 'Please enter your API key.'; errEl.style.display = 'block'; return; }
 
-      // Validate key by calling /calls
       try {
-        let response;
-        try {
-          response = await fetch(`${API_BASE}/calls`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
-        } catch {
-          response = await fetch(`${API_BASE_FALLBACK}/calls`, { headers: { 'Authorization': `Bearer ${apiKey}` } });
-        }
+        const response = await apiFetch('/me', { headers: { 'Authorization': `Bearer ${apiKey}` } });
 
         if (!response.ok) throw new Error('Invalid API key');
-        setAuth({ apiKey, handle: 'user', email: '' });
+        const data = await response.json();
+        setAuth({ apiKey, handle: data.handle || 'user', email: data.email || '' });
         closeLoginModal();
       } catch (err) {
         errEl.textContent = err.message;
@@ -1410,18 +2680,22 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
     // Patch updateRateUI to also check upgrade banner
     const _origUpdateRateUI = updateRateUI;
-    updateRateUI = function() {
+    updateRateUI = function () {
       _origUpdateRateUI();
       checkUpgradeBanner();
     };
 
     // ─── Init ───
     updateAuthUI();
+    updateDashboard();
     updateRateUI();
     renderHistory();
 
     // Refresh rate limit display every 30s
     setInterval(updateRateUI, 30000);
+    // Refresh token balance every 60s
+    setInterval(fetchTokenBalance, 60000);
   </script>
 </body>
+
 </html>

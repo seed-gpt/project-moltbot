@@ -9,6 +9,8 @@ import { dirname, join } from 'node:path';
 import callsRouter from './routes/calls.js';
 import transcriptsRouter from './routes/transcripts.js';
 import webhooksRouter from './routes/webhooks.js';
+import agentsRouter from './routes/agents.js';
+import tokensRouter from './routes/tokens.js';
 
 export function createApp() {
   const app = express();
@@ -40,9 +42,11 @@ export function createApp() {
   });
 
   // Mount route handlers
+  app.use('/', agentsRouter);
   app.use('/', callsRouter);
   app.use('/', transcriptsRouter);
   app.use('/', webhooksRouter);
+  app.use('/', tokensRouter);
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

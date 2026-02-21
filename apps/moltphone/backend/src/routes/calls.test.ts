@@ -12,6 +12,50 @@ describe('MoltPhone Health', () => {
     });
 });
 
+describe('MoltPhone Agents — Auth Guards & Validation', () => {
+    it('POST /register returns 400 without required fields', async () => {
+        const res = await request(app).post('/register').send({ name: 'Test' });
+        expect(res.status).toBe(400);
+    });
+
+    it('POST /register returns 400 with invalid handle', async () => {
+        const res = await request(app).post('/register').send({ handle: 'a', name: 'Test', email: 'test@example.com' });
+        expect(res.status).toBe(400);
+    });
+
+    it('POST /register returns 400 with invalid email', async () => {
+        const res = await request(app).post('/register').send({ handle: 'valid-handle', name: 'Test', email: 'not-an-email' });
+        expect(res.status).toBe(400);
+    });
+
+    it('GET /me returns 401 without auth', async () => {
+        const res = await request(app).get('/me');
+        expect(res.status).toBe(401);
+    });
+
+    it('POST /rotate-key returns 401 without auth', async () => {
+        const res = await request(app).post('/rotate-key');
+        expect(res.status).toBe(401);
+    });
+});
+
+describe('MoltPhone Tokens — Auth Guards', () => {
+    it('GET /tokens/balance returns 401 without auth', async () => {
+        const res = await request(app).get('/tokens/balance');
+        expect(res.status).toBe(401);
+    });
+
+    it('POST /tokens/purchase returns 401 without auth', async () => {
+        const res = await request(app).post('/tokens/purchase').send({ package: 'starter' });
+        expect(res.status).toBe(401);
+    });
+
+    it('GET /tokens/history returns 401 without auth', async () => {
+        const res = await request(app).get('/tokens/history');
+        expect(res.status).toBe(401);
+    });
+});
+
 describe('MoltPhone Calls — Auth Guards', () => {
     it('POST /call returns 401 without auth', async () => {
         const res = await request(app).post('/call').send({

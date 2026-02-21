@@ -1,8 +1,8 @@
 openapi: "3.0.3"
 info:
   title: MoltPhone API
-  version: "1.0.0"
-  description: Agent voice call service with Vapi integration
+  version: "1.1.0"
+  description: Agent voice call service with user registration, token economy, and Vapi integration
 servers:
   - url: https://api.moltphone.xyz
     description: Production
@@ -18,6 +18,71 @@ paths:
       responses:
         "200": { description: Ready }
         "503": { description: Not ready }
+  /register:
+    post:
+      summary: Register a new agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [handle, name, email]
+              properties:
+                handle: { type: string, minLength: 3, maxLength: 32 }
+                name: { type: string }
+                email: { type: string, format: email }
+      responses:
+        "201": { description: Agent registered, API key returned }
+        "400": { description: Validation failed }
+        "409": { description: Handle already exists }
+  /me:
+    get:
+      summary: Get current agent profile
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Agent profile }
+  /rotate-key:
+    post:
+      summary: Rotate API key
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: New API key returned }
+  /tokens/balance:
+    get:
+      summary: Get token balance and available packages
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200": { description: Token balance }
+  /tokens/purchase:
+    post:
+      summary: Purchase a token package
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [package]
+              properties:
+                package: { type: string, enum: [starter, pro, enterprise] }
+      responses:
+        "201": { description: Purchase successful }
+        "400": { description: Invalid package }
+  /tokens/history:
+    get:
+      summary: Get token purchase history
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        "200": { description: Purchase history }
   /call:
     post:
       summary: Initiate an outbound call

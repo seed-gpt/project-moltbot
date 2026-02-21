@@ -45,3 +45,26 @@ export const callWebhooks = pgTable('call_webhooks', {
 }, (table) => [
     index('idx_call_webhooks_agent_id').on(table.agentId),
 ]);
+
+// Token balances — one per agent
+export const tokenBalances = pgTable('token_balances', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    agentId: uuid('agent_id').notNull().unique().references(() => agents.id, { onDelete: 'cascade' }),
+    balance: integer('balance').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+}, (table) => [
+    index('idx_token_balances_agent_id').on(table.agentId),
+]);
+
+// Token purchases — history
+export const tokenPurchases = pgTable('token_purchases', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+    packageName: varchar('package_name', { length: 50 }).notNull(),
+    tokenAmount: integer('token_amount').notNull(),
+    priceCents: integer('price_cents').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+}, (table) => [
+    index('idx_token_purchases_agent_id').on(table.agentId),
+]);
