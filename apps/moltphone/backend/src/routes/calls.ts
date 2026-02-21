@@ -26,27 +26,68 @@ router.post('/call/webapp', async (req: Request, res: Response, next: NextFuncti
     const body = webappCallSchema.parse(req.body);
     const db = getFirestore();
 
-    const assistantConfig = {
-      first_message: `Hello, this is ${body.agentName || 'an AI assistant'}. I'm calling on behalf of a user from MoltPhone.`,
-      system_prompt: `You are an AI assistant making an outbound call. Your objective is: ${body.task}\n\nBe concise, polite, and helpful.`,
-      voice: 'jennifer',
-    };
+    const vapiKey = process.env.VAPI_API_KEY;
+    const phoneNumberId = process.env.VAPI_PHONE_NUMBER_ID;
 
+    if (!vapiKey || !phoneNumberId) {
+      res.status(503).json({ error: 'Voice calling service is not configured' });
+      return;
+    }
+
+    const firstMessage = `Hello, this is ${body.agentName || 'an AI assistant'}. I'm calling on behalf of a user from MoltPhone.`;
+    const systemPrompt = `You are an AI assistant making an outbound call. Your objective is: ${body.task}\n\nBe concise, polite, and helpful. Stay focused on the task.`;
+
+    // Call the Vapi API to actually place the outbound call
+    const vapiResponse = await fetch('https://api.vapi.ai/call', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${vapiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phoneNumberId,
+        customer: { number: body.phoneNumber },
+        assistant: {
+          firstMessage,
+          model: {
+            provider: 'openai',
+            model: 'gpt-4o-mini',
+            systemMessage: systemPrompt,
+          },
+          voice: {
+            provider: '11labs',
+            voiceId: 'jennifer',
+          },
+        },
+      }),
+    });
+
+    const vapiData = await vapiResponse.json();
+
+    if (!vapiResponse.ok) {
+      console.error('Vapi API error:', vapiData);
+      res.status(vapiResponse.status).json({ error: vapiData.message || 'Failed to initiate call via Vapi' });
+      return;
+    }
+
+    // Store the call record in Firestore
     const callRef = await db.collection('calls').add({
-      agentId: 'webapp', // Hardcoded for unauthenticated landing page calls
+      agentId: 'webapp',
       direction: 'outbound',
       toNumber: body.phoneNumber,
       status: 'queued',
-      assistantConfig,
+      vapiCallId: vapiData.id,
+      assistantConfig: { first_message: firstMessage, system_prompt: systemPrompt },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
 
     res.status(201).json({
       callId: callRef.id,
-      status: 'queued',
+      vapiCallId: vapiData.id,
+      status: vapiData.status || 'queued',
       to_number: body.phoneNumber,
-      direction: 'outbound'
+      direction: 'outbound',
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
