@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { errorMiddleware, notFoundMiddleware, getFirestore } from '@moltbot/shared';
 import swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'node:fs';
@@ -13,6 +14,17 @@ import tokensRouter from './routes/tokens.js';
 
 export function createApp() {
   const app = express();
+
+  app.use(cors({
+    origin: [
+      'https://app.moltphone.xyz',
+      'https://moltphone.xyz',
+      'https://www.moltphone.xyz',
+      /^http:\/\/localhost(:\d+)?$/,
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
 
   app.use(express.json());
 
