@@ -52,7 +52,9 @@ router.post('/call/webapp', async (req: Request, res: Response, next: NextFuncti
           model: {
             provider: 'openai',
             model: 'gpt-4o-mini',
-            systemMessage: systemPrompt,
+            messages: [
+              { role: 'system', content: systemPrompt },
+            ],
           },
           voice: {
             provider: '11labs',
