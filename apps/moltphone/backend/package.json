@@ -15,7 +15,11 @@
     "cors": "^2.8.6",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "openai": "^6.22.0",
     "swagger-ui-express": "^5.0.0",
+    "twilio": "^5.12.2",
+    "uuid": "^9.0.1",
+    "ws": "^8.19.0",
     "yaml": "^2.3.4",
     "zod": "^3.22.4"
   },
@@ -24,6 +28,8 @@
     "@types/node": "^20.10.6",
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "supertest": "^6.3.3",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"

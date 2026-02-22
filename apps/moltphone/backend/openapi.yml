@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: MoltPhone API
   version: "1.1.0"
-  description: Agent voice call service with user registration, token economy, and Vapi integration
+  description: Agent voice call service with LIVE_AI_AGENT and RECORDED_MESSAGE modes, user registration, token economy, and Twilio integration
 servers:
   - url: https://api.moltphone.xyz
     description: Production
@@ -104,7 +104,7 @@ paths:
                     system_prompt: { type: string }
                     voice: { type: string }
       responses:
-        "201": { description: Call initiated, returns call details and twilioCallSid }
+        "201": { description: Call initiated, returns call details, twilioCallSid, and mode }
         "402": { description: Insufficient token balance }
         "429": { description: Rate limit exceeded }
         "503": { description: Voice calling service not configured }
@@ -168,9 +168,30 @@ paths:
         "404": { description: Call not found }
   /webhooks/vapi:
     post:
-      summary: Receive webhook callbacks from Vapi
+      summary: Receive webhook callbacks from Vapi (legacy)
       responses:
         "200": { description: Processed }
+  /webhooks/twilio-status:
+    post:
+      summary: Receive Twilio call status callbacks
+      description: Updates call record with status (completed/failed/busy/no-answer) and callResult (success/failure)
+      responses:
+        "200": { description: Processed }
+  /webhooks/twilio-connect-action:
+    post:
+      summary: ConversationRelay session ended callback
+      responses:
+        "200": { description: Returns TwiML to end call }
+  /twiml/conversation-relay:
+    get:
+      summary: TwiML webhook for ConversationRelay (called by Twilio)
+      parameters:
+        - name: callDocId
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: TwiML with ConversationRelay configuration }
   /webhooks/subscribe:
     post:
       summary: Subscribe to call event webhooks

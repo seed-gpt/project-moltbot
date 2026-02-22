@@ -1,8 +1,14 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
+import { createLogger, type Logger } from '../middleware/logger.js';
 
 const router = express.Router();
+
+function getLog(req: Request): Logger {
+  return (req as any).log || createLogger('unknown', 'webhooks');
+}
+
 
 // POST /webhooks/vapi - Receive Vapi callbacks (public)
 router.post('/webhooks/vapi', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -43,6 +49,97 @@ router.post('/webhooks/vapi', async (req: Request, res: Response, next: NextFunc
 
     res.json({ received: true });
   } catch (err) { next(err); }
+});
+
+// POST /webhooks/twilio-status - Twilio call status callback
+router.post('/webhooks/twilio-status', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const db = getFirestore();
+    const { CallSid, CallStatus, CallDuration, Timestamp } = req.body;
+
+    if (!CallSid) { res.sendStatus(200); return; }
+
+    console.log(`[Twilio Status] CallSid=${CallSid} Status=${CallStatus} Duration=${CallDuration}`);
+
+    // Find call by Twilio SID
+    const snapshot = await db.collection('calls')
+      .where('twilioCallSid', '==', CallSid)
+      .limit(1).get();
+
+    if (snapshot.empty) {
+      console.warn(`[Twilio Status] No call found for SID ${CallSid}`);
+      res.sendStatus(200);
+      return;
+    }
+
+    const callDoc = snapshot.docs[0];
+    const callData = callDoc.data();
+
+    // Map Twilio status to our status + callResult
+    const statusMap: Record<string, string> = {
+      'queued': 'queued',
+      'initiated': 'initiated',
+      'ringing': 'ringing',
+      'in-progress': 'in-progress',
+      'completed': 'completed',
+      'busy': 'failed',
+      'no-answer': 'failed',
+      'failed': 'failed',
+      'canceled': 'failed',
+    };
+
+    const callResultMap: Record<string, string> = {
+      'completed': 'success',
+      'busy': 'failure',
+      'no-answer': 'failure',
+      'failed': 'failure',
+      'canceled': 'failure',
+    };
+
+    const update: any = {
+      status: statusMap[CallStatus] || CallStatus,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (callResultMap[CallStatus]) {
+      update.callResult = callResultMap[CallStatus];
+    }
+    if (CallDuration) {
+      update.duration = parseInt(CallDuration, 10);
+    }
+    if (CallStatus === 'completed' || callResultMap[CallStatus] === 'failure') {
+      update.endedAt = Timestamp || new Date().toISOString();
+    }
+
+    await db.collection('calls').doc(callDoc.id).update(update);
+
+    // Fan out to agent webhooks
+    const hooks = await db.collection('callWebhooks')
+      .where('agentId', '==', callData.agentId).where('active', '==', true).get();
+    for (const hook of hooks.docs) {
+      const hookData = hook.data();
+      if (hookData.events?.includes('status-update') || hookData.events?.length === 0) {
+        fetch(hookData.url, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'status-update',
+            call_id: callDoc.id,
+            data: { callStatus: CallStatus, callResult: callResultMap[CallStatus], duration: CallDuration },
+          }),
+        }).catch(() => { });
+      }
+    }
+
+    res.sendStatus(200);
+  } catch (err) { next(err); }
+});
+
+// POST /webhooks/twilio-connect-action - ConversationRelay session ended
+router.post('/webhooks/twilio-connect-action', async (req: Request, res: Response): Promise<void> => {
+  console.log('[Twilio Connect Action] Session ended:', JSON.stringify(req.body));
+  // Return empty TwiML to end the call gracefully
+  res.type('text/xml');
+  res.send('<Response><Hangup/></Response>');
 });
 
 const subscribeSchema = z.object({

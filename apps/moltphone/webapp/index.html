@@ -23,6 +23,7 @@
   <meta property="og:url" content="https://app.moltphone.xyz">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
   <style>
     *,
     *::before,
@@ -1201,6 +1202,14 @@
       font-size: 0.9rem;
     }
 
+    .auth-user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+    }
+
     .auth-user-email {
       color: var(--text-secondary);
       max-width: 160px;
@@ -1730,7 +1739,7 @@
 
         <div class="upgrade-banner" id="upgrade-banner">
           <p>⚡ You've used your free calls. Sign up for more!</p>
-          <a class="upgrade-link" onclick="showAuthModal()">Create Free Account →</a>
+          <a class="upgrade-link" onclick="auth0Login()">Create Free Account →</a>
         </div>
 
         <div class="rate-limit-bar" id="rate-limit-bar">
@@ -1960,55 +1969,26 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     </div>
   </section>
 
-  <!-- Auth Modal -->
-  <div class="modal-overlay" id="auth-modal">
-    <div class="modal">
-      <button class="modal-close" onclick="closeAuthModal()">&times;</button>
-      <h2 id="auth-modal-title">Sign Up</h2>
-      <p class="subtitle" id="auth-modal-subtitle">Create an account to get more calls and track your history.</p>
-      <div class="modal-error" id="auth-error"></div>
-      <div class="modal-success" id="auth-success"></div>
-      <form id="auth-form" onsubmit="handleAuth(event)">
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" id="auth-email" placeholder="you@example.com" required>
-        </div>
-        <div class="form-group" id="auth-handle-group">
-          <label class="form-label">Username</label>
-          <input type="text" id="auth-handle" placeholder="my-agent" required>
-          <div class="form-hint">This will be your agent handle.</div>
-        </div>
-        <div class="form-group" id="auth-name-group">
-          <label class="form-label">Name <span style="color:var(--text-dim)">(optional)</span></label>
-          <input type="text" id="auth-name" placeholder="Your Name">
-        </div>
-        <button type="submit" class="modal-btn" id="auth-submit-btn">Create Account</button>
-      </form>
-      <div class="modal-switch" id="auth-switch">
-        Already have an API key? <a onclick="switchToLogin()">Sign in</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login Modal (API Key) -->
+  <!-- API Key Login Modal (for agents only) -->
   <div class="modal-overlay" id="login-modal">
     <div class="modal">
       <button class="modal-close" onclick="closeLoginModal()">&times;</button>
-      <h2>Sign In</h2>
-      <p class="subtitle">Enter your MoltPhone API key to sign in.</p>
+      <h2>🔑 Agent Login</h2>
+      <p class="subtitle">Enter your MoltPhone API key to sign in as an agent.</p>
       <div class="modal-error" id="login-error"></div>
-      <form id="login-form" onsubmit="handleLogin(event)">
+      <form id="login-form" onsubmit="handleApiKeyLogin(event)">
         <div class="form-group">
           <label class="form-label">API Key</label>
           <input type="text" id="login-apikey" placeholder="mp_..." required>
         </div>
-        <button type="submit" class="modal-btn">Sign In</button>
+        <button type="submit" class="modal-btn">Sign In with API Key</button>
       </form>
       <div class="modal-switch">
-        Don't have an account? <a onclick="closeLoginModal(); showAuthModal()">Sign up</a>
+        Not an agent? <a onclick="closeLoginModal(); auth0Login()">Sign in with Auth0</a>
       </div>
     </div>
   </div>
+
 
   <!-- Token Purchase Modal -->
   <div class="modal-overlay" id="purchase-modal">
@@ -2040,7 +2020,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       </div>
       <button class="modal-btn" id="purchase-btn" onclick="handlePurchase()" disabled>Select a package</button>
       <div class="modal-switch" style="margin-top:12px">
-        Not signed up? <a onclick="closePurchaseModal(); showAuthModal()">Create account first</a>
+        Not signed up? <a onclick="closePurchaseModal(); auth0Login()">Create account first</a>
       </div>
     </div>
   </div>
@@ -2215,9 +2195,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       };
 
       try {
-        const auth = getAuth();
-        const headers = { 'Content-Type': 'application/json' };
-        if (auth && auth.apiKey) headers['Authorization'] = `Bearer ${auth.apiKey}`;
+        const headers = await getAuthHeaders();
 
         let response;
         try {
@@ -2385,13 +2363,69 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       e.target.value = v;
     });
 
-    // ─── Auth ───
+    // ─── Auth0 Config ───
+    const AUTH0_DOMAIN = 'dev-qi4l073sys2rptlp.us.auth0.com';
+    const AUTH0_CLIENT_ID = 'fFQpwQmlDBGksNYFR5B7G7Y0QaA1c8g1';
+    const AUTH0_AUDIENCE = 'https://api.moltphone.xyz';
     const AUTH_KEY = 'moltphone_auth';
     const API_BASE = 'https://api.moltphone.xyz';
     const API_BASE_FALLBACK = 'https://moltphone-oy7ayfiglq-uc.a.run.app';
+    let auth0Client = null;
+    let currentAccessToken = null;
     let apiKeyVisible = false;
     let selectedPackage = null;
 
+    // ─── Auth0 Init ───
+    async function initAuth0() {
+      auth0Client = await auth0.createAuth0Client({
+        domain: AUTH0_DOMAIN,
+        clientId: AUTH0_CLIENT_ID,
+        authorizationParams: {
+          redirect_uri: window.location.origin,
+          audience: AUTH0_AUDIENCE,
+        },
+        cacheLocation: 'localstorage',
+        useRefreshTokens: true,
+      });
+
+      // Handle redirect callback
+      const query = window.location.search;
+      if (query.includes('code=') && query.includes('state=')) {
+        try {
+          await auth0Client.handleRedirectCallback();
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (err) {
+          console.error('Auth0 callback error:', err);
+        }
+      }
+
+      // Check if user is authenticated
+      const isAuthenticated = await auth0Client.isAuthenticated();
+      if (isAuthenticated) {
+        currentAccessToken = await auth0Client.getTokenSilently();
+        const user = await auth0Client.getUser();
+        setAuth({
+          authType: 'auth0',
+          email: user.email || '',
+          name: user.name || '',
+          picture: user.picture || '',
+          sub: user.sub,
+        });
+      } else {
+        // Check for API key login
+        const saved = getAuth();
+        if (saved && saved.authType === 'apikey' && saved.apiKey) {
+          // API key login is still valid
+        } else {
+          clearAuth();
+        }
+      }
+
+      updateAuthUI();
+      updateDashboard();
+    }
+
+    // ─── Auth helpers ───
     function getAuth() {
       try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch { return null; }
     }
@@ -2404,6 +2438,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
     function clearAuth() {
       localStorage.removeItem(AUTH_KEY);
+      currentAccessToken = null;
       updateAuthUI();
       updateDashboard();
     }
@@ -2416,6 +2451,24 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       }
     }
 
+    async function getAuthHeaders() {
+      const auth = getAuth();
+      if (!auth) return { 'Content-Type': 'application/json' };
+
+      if (auth.authType === 'auth0' && auth0Client) {
+        try {
+          currentAccessToken = await auth0Client.getTokenSilently();
+          return { 'Authorization': `Bearer ${currentAccessToken}`, 'Content-Type': 'application/json' };
+        } catch {
+          return { 'Content-Type': 'application/json' };
+        }
+      } else if (auth.apiKey) {
+        return { 'Authorization': `Bearer ${auth.apiKey}`, 'Content-Type': 'application/json' };
+      }
+      return { 'Content-Type': 'application/json' };
+    }
+
+    // Legacy sync version for simple calls
     function authHeaders(apiKey) {
       return { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
     }
@@ -2423,16 +2476,23 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     function updateAuthUI() {
       const auth = getAuth();
       const area = $('#auth-area');
-      if (auth && auth.apiKey) {
+      if (auth && (auth.authType === 'auth0' || auth.apiKey)) {
+        const displayName = auth.name || auth.email || auth.handle || 'User';
+        const avatarHtml = auth.picture
+          ? `<img class="auth-user-avatar" src="${auth.picture}" alt="">`
+          : `<span class="auth-user-badge">PRO</span>`;
         area.innerHTML = `
           <div class="auth-user">
-            <span class="auth-user-badge">PRO</span>
-            <span class="auth-user-email">${escapeHtml(auth.email || auth.handle)}</span>
+            ${avatarHtml}
+            <span class="auth-user-email">${escapeHtml(displayName)}</span>
             <button class="logout-btn" onclick="logout()" title="Sign out">✕</button>
           </div>
         `;
       } else {
-        area.innerHTML = '<button class="auth-btn" onclick="showAuthModal()">Sign Up</button>';
+        area.innerHTML = `
+          <button class="auth-btn" onclick="auth0Login()">Sign In</button>
+          <button class="auth-btn secondary" onclick="showApiKeyLogin()" style="font-size:0.8rem;padding:6px 14px">API Key</button>
+        `;
       }
     }
 
@@ -2440,7 +2500,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     function updateDashboard() {
       const auth = getAuth();
       const panel = $('#dashboard-panel');
-      if (auth && auth.apiKey) {
+      if (auth && (auth.authType === 'auth0' || auth.apiKey)) {
         panel.classList.add('active');
         updateApiKeyDisplay();
         fetchTokenBalance();
@@ -2453,12 +2513,24 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       const auth = getAuth();
       if (!auth) return;
       const el = $('#dash-apikey');
-      if (apiKeyVisible) {
-        el.textContent = auth.apiKey;
-        $('#dash-toggle').textContent = 'Hide';
-      } else {
-        el.textContent = auth.apiKey.substring(0, 6) + '••••••••••••••••';
-        $('#dash-toggle').textContent = 'Show';
+      if (auth.authType === 'auth0') {
+        el.textContent = 'Using Auth0 login (no API key)';
+        const toggleBtn = $('#dash-toggle');
+        const copyBtn = $('#dash-copy');
+        if (toggleBtn) toggleBtn.style.display = 'none';
+        if (copyBtn) copyBtn.style.display = 'none';
+      } else if (auth.apiKey) {
+        const toggleBtn = $('#dash-toggle');
+        const copyBtn = $('#dash-copy');
+        if (toggleBtn) toggleBtn.style.display = '';
+        if (copyBtn) copyBtn.style.display = '';
+        if (apiKeyVisible) {
+          el.textContent = auth.apiKey;
+          if (toggleBtn) toggleBtn.textContent = 'Hide';
+        } else {
+          el.textContent = auth.apiKey.substring(0, 6) + '••••••••••••••••';
+          if (toggleBtn) toggleBtn.textContent = 'Show';
+        }
       }
     }
 
@@ -2469,7 +2541,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
     function copyDashApiKey() {
       const auth = getAuth();
-      if (!auth) return;
+      if (!auth || !auth.apiKey) return;
       navigator.clipboard.writeText(auth.apiKey).then(() => {
         const btn = $('#dash-copy');
         btn.textContent = '✅ Copied!';
@@ -2479,9 +2551,10 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
     async function fetchTokenBalance() {
       const auth = getAuth();
-      if (!auth || !auth.apiKey) return;
+      if (!auth) return;
       try {
-        const res = await apiFetch('/tokens/balance', { headers: authHeaders(auth.apiKey) });
+        const headers = await getAuthHeaders();
+        const res = await apiFetch('/tokens/balance', { headers });
         if (res.ok) {
           const data = await res.json();
           $('#dash-token-balance').textContent = data.balance.toLocaleString();
@@ -2489,22 +2562,29 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       } catch { /* silent fail */ }
     }
 
-    // ─── Modals ───
-    function showAuthModal() {
-      $('#auth-modal').classList.add('active');
-      $('#auth-error').style.display = 'none';
-      $('#auth-success').style.display = 'none';
-      // Remove any previous API key card
-      const existingCard = document.querySelector('#auth-modal .apikey-success-card');
-      if (existingCard) existingCard.remove();
+    // ─── Auth0 Login / Logout ───
+    async function auth0Login() {
+      if (!auth0Client) return;
+      await auth0Client.loginWithRedirect({
+        authorizationParams: { screen_hint: 'signup' },
+      });
     }
 
-    function closeAuthModal() {
-      $('#auth-modal').classList.remove('active');
+    async function auth0SignIn() {
+      if (!auth0Client) return;
+      await auth0Client.loginWithRedirect();
     }
 
-    function switchToLogin() {
-      closeAuthModal();
+    async function logout() {
+      const auth = getAuth();
+      clearAuth();
+      if (auth && auth.authType === 'auth0' && auth0Client) {
+        await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } });
+      }
+    }
+
+    // ─── API Key Login (for agents) ───
+    function showApiKeyLogin() {
       $('#login-modal').classList.add('active');
       $('#login-error').style.display = 'none';
     }
@@ -2513,11 +2593,31 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       $('#login-modal').classList.remove('active');
     }
 
+    async function handleApiKeyLogin(e) {
+      e.preventDefault();
+      const apiKey = $('#login-apikey').value.trim();
+      const errEl = $('#login-error');
+      errEl.style.display = 'none';
+
+      if (!apiKey) { errEl.textContent = 'Please enter your API key.'; errEl.style.display = 'block'; return; }
+
+      try {
+        const response = await apiFetch('/me', { headers: { 'Authorization': `Bearer ${apiKey}` } });
+        if (!response.ok) throw new Error('Invalid API key');
+        const data = await response.json();
+        setAuth({ authType: 'apikey', apiKey, handle: data.handle || 'user', email: data.email || '' });
+        closeLoginModal();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+      }
+    }
+
     // ─── Token Purchase Modal ───
     function openPurchaseModal(preselect) {
       const auth = getAuth();
-      if (!auth || !auth.apiKey) {
-        showAuthModal();
+      if (!auth || (!auth.apiKey && auth.authType !== 'auth0')) {
+        auth0Login();
         return;
       }
       selectedPackage = null;
@@ -2547,7 +2647,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     async function handlePurchase() {
       if (!selectedPackage) return;
       const auth = getAuth();
-      if (!auth || !auth.apiKey) { openPurchaseModal(); return; }
+      if (!auth) { openPurchaseModal(); return; }
 
       const btn = $('#purchase-btn');
       const errEl = $('#purchase-error');
@@ -2558,9 +2658,10 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       btn.textContent = 'Processing...';
 
       try {
+        const headers = await getAuthHeaders();
         const res = await apiFetch('/tokens/purchase', {
           method: 'POST',
-          headers: authHeaders(auth.apiKey),
+          headers,
           body: JSON.stringify({ package: selectedPackage }),
         });
         const data = await res.json();
@@ -2580,93 +2681,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       }
     }
 
-    // ─── Registration ───
-    async function handleAuth(e) {
-      e.preventDefault();
-      const email = $('#auth-email').value.trim();
-      const handle = $('#auth-handle').value.trim();
-      const name = $('#auth-name').value.trim();
-      const btn = $('#auth-submit-btn');
-      const errEl = $('#auth-error');
-      const successEl = $('#auth-success');
-
-      errEl.style.display = 'none';
-      btn.disabled = true;
-      btn.textContent = 'Creating account...';
-
-      try {
-        const response = await apiFetch('/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ handle, name: name || handle, email }),
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || data.message || 'Registration failed');
-
-        const apiKey = data.api_key || data.apiKey;
-        setAuth({ apiKey, handle, email, name });
-
-        // Show API key prominently
-        successEl.textContent = '✅ Account created!';
-        successEl.style.display = 'block';
-
-        // Remove old key card if any
-        const old = document.querySelector('#auth-modal .apikey-success-card');
-        if (old) old.remove();
-
-        const keyCard = document.createElement('div');
-        keyCard.className = 'apikey-success-card';
-        keyCard.innerHTML = `
-          <div class="label">🔑 Your API Key — save it now!</div>
-          <div class="key-display">${escapeHtml(apiKey)}</div>
-          <button class="copy-key-btn" onclick="navigator.clipboard.writeText('${apiKey}').then(()=>{this.textContent='✅ Copied!'})">📋 Copy API Key</button>
-        `;
-        const form = document.querySelector('#auth-form');
-        form.style.display = 'none';
-        form.parentElement.insertBefore(keyCard, form.nextSibling);
-
-        // Auto-close after 8 seconds
-        setTimeout(() => {
-          closeAuthModal();
-          form.style.display = 'block';
-        }, 8000);
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.style.display = 'block';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
-      }
-    }
-
-    // ─── Login ───
-    async function handleLogin(e) {
-      e.preventDefault();
-      const apiKey = $('#login-apikey').value.trim();
-      const errEl = $('#login-error');
-      errEl.style.display = 'none';
-
-      if (!apiKey) { errEl.textContent = 'Please enter your API key.'; errEl.style.display = 'block'; return; }
-
-      try {
-        const response = await apiFetch('/me', { headers: { 'Authorization': `Bearer ${apiKey}` } });
-
-        if (!response.ok) throw new Error('Invalid API key');
-        const data = await response.json();
-        setAuth({ apiKey, handle: data.handle || 'user', email: data.email || '' });
-        closeLoginModal();
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.style.display = 'block';
-      }
-    }
-
-    function logout() {
-      if (confirm('Sign out?')) clearAuth();
-    }
-
-    // Show upgrade banner when rate limited
+    // ─── Upgrade Banner ───
     function checkUpgradeBanner() {
       const auth = getAuth();
       const { remaining } = getRateInfo();
@@ -2686,10 +2701,16 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     };
 
     // ─── Init ───
-    updateAuthUI();
-    updateDashboard();
-    updateRateUI();
-    renderHistory();
+    initAuth0().then(() => {
+      updateRateUI();
+      renderHistory();
+    }).catch(err => {
+      console.error('Auth0 init failed:', err);
+      updateAuthUI();
+      updateDashboard();
+      updateRateUI();
+      renderHistory();
+    });
 
     // Refresh rate limit display every 30s
     setInterval(updateRateUI, 30000);

@@ -11,6 +11,9 @@ import callsRouter from './routes/calls.js';
 import transcriptsRouter from './routes/transcripts.js';
 import webhooksRouter from './routes/webhooks.js';
 import tokensRouter from './routes/tokens.js';
+import auth0Router from './routes/auth0.js';
+import twimlRouter from './routes/twiml.js';
+import { requestIdMiddleware, requestLogMiddleware } from './middleware/logger.js';
 
 export function createApp() {
   const app = express();
@@ -27,6 +30,9 @@ export function createApp() {
   }));
 
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(requestIdMiddleware);
+  app.use(requestLogMiddleware);
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
@@ -56,6 +62,8 @@ export function createApp() {
   app.use('/', transcriptsRouter);
   app.use('/', webhooksRouter);
   app.use('/', tokensRouter);
+  app.use('/', auth0Router);
+  app.use('/', twimlRouter);
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

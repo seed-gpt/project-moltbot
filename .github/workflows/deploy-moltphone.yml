@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: europe-west1
+  REGION: us-central1
   SERVICE: moltphone
-  IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/moltbot/moltphone
+  IMAGE: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/moltbot/moltphone
 
 jobs:
   deploy:
@@ -24,7 +24,7 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SA }}
       - uses: google-github-actions/setup-gcloud@v2
-      - run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+      - run: gcloud auth configure-docker us-central1-docker.pkg.dev
       - run: |
           docker build -f apps/moltphone/backend/Dockerfile -t $IMAGE:${{ github.sha }} .
           docker push $IMAGE:${{ github.sha }}
@@ -34,3 +34,5 @@ jobs:
           image: ${{ env.IMAGE }}:${{ github.sha }}
           region: ${{ env.REGION }}
           flags: '--min-instances=0 --max-instances=3'
+          env_vars: |
+            APP_BASE_URL=https://api.moltphone.xyz
