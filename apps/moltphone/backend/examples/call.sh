@@ -28,7 +28,7 @@ place_call() {
 get_transcript() {
   echo "📋 Fetching latest call..."
   CALL_ID=$(curl -s "$API_BASE/calls?limit=1" -H "$AUTH" \
-    | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['calls'][0]['id'] if d.get('calls') else '')")
+    | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d["calls"][0]["id"] if d.get("calls") else "")')
 
   if [ -z "$CALL_ID" ]; then
     echo "❌ No calls found"
@@ -37,36 +37,34 @@ get_transcript() {
 
   echo "   Call ID: $CALL_ID"
 
-  # Call details
   echo ""
   echo "── Call Details ──"
   curl -s "$API_BASE/calls/$CALL_ID" -H "$AUTH" \
-    | python3 -c "
+    | python3 -c '
 import sys, json
-d = json.load(sys.stdin).get('call', {})
-print(f\"  Status:  {d.get('status', 'N/A')}\")
-print(f\"  To:      {d.get('toNumber', 'N/A')}\")
-print(f\"  Mode:    {d.get('mode', 'N/A')}\")
-print(f\"  Result:  {d.get('callResult', 'N/A')}\")
-print(f\"  Created: {d.get('createdAt', 'N/A')}\")
-"
+d = json.load(sys.stdin).get("call", {})
+print("  Status:  " + d.get("status", "N/A"))
+print("  To:      " + d.get("toNumber", "N/A"))
+print("  Mode:    " + d.get("mode", "N/A"))
+print("  Result:  " + str(d.get("callResult", "N/A")))
+print("  Created: " + d.get("createdAt", "N/A"))
+'
 
-  # Transcript
   echo ""
   echo "── Transcript ──"
   curl -s "$API_BASE/calls/$CALL_ID/transcript" -H "$AUTH" \
-    | python3 -c "
+    | python3 -c '
 import sys, json
 data = json.load(sys.stdin)
-entries = data.get('transcript', data.get('transcripts', []))
+entries = data.get("transcript", data.get("transcripts", []))
 if not entries:
-    print('  (no transcript yet — call may still be in progress)')
+    print("  (no transcript yet)")
 else:
-    for e in sorted(entries, key=lambda x: x.get('timestamp', '')):
-        role = '🧑 Caller' if e['role'] == 'user' else '🤖 AI'
-        print(f\"  {role}: {e['content']}\")
+    for e in sorted(entries, key=lambda x: x.get("timestamp", "")):
+        role = "Caller" if e["role"] == "user" else "AI"
+        print("  " + role + ": " + e["content"])
         print()
-"
+'
 }
 
 case "${1:-call}" in
@@ -74,5 +72,3 @@ case "${1:-call}" in
   transcript) get_transcript ;;
   *)          echo "Usage: ./call.sh [call|transcript]" ;;
 esac
-
-
