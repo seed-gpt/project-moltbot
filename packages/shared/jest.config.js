@@ -9,4 +9,5 @@ export default {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   testMatch: ['<rootDir>/src/**/*.test.ts'],
+  setupFiles: ['./jest.teardown.ts'],
 };

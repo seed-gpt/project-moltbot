@@ -1,12 +1,7 @@
 import request from 'supertest';
 import { createApp } from '../app.js';
-import { terminateFirestore } from '@moltbot/shared';
 
 const app = createApp();
-
-afterAll(async () => {
-    await terminateFirestore();
-});
 
 describe('MoltPhone Health', () => {
     it('GET /health returns 200', async () => {
