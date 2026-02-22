@@ -11,11 +11,20 @@ export interface LLMSession {
  * Streams response tokens for low-latency ConversationRelay integration.
  */
 export function createLLMSession(systemPrompt: string, model?: string): LLMSession {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new Error('OPENAI_API_KEY is not set');
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set');
 
-    const openai = new OpenAI({ apiKey });
-    const selectedModel = model || 'gpt-4o-mini';
+    const openai = new OpenAI({
+        apiKey,
+        baseURL: 'https://openrouter.ai/api/v1',
+        defaultHeaders: {
+            'HTTP-Referer': process.env.APP_BASE_URL || 'https://moltphone.xyz',
+            'X-Title': 'MoltPhone',
+        }
+    });
+
+    // Default to gemini-2.5-flash for fastest response, unless overridden
+    const selectedModel = model || 'google/gemini-2.5-flash';
 
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         { role: 'system', content: systemPrompt },

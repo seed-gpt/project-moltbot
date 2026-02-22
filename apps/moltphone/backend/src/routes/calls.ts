@@ -54,9 +54,9 @@ function validateTwilioConfig(res: Response, log: Logger): boolean {
 
 function validateLiveAIConfig(res: Response, log: Logger): boolean {
   if (CALL_MODE === 'LIVE_AI_AGENT') {
-    if (!process.env.OPENAI_API_KEY) {
-      log.error('OPENAI_API_KEY not set for LIVE_AI_AGENT mode');
-      res.status(503).json({ error: 'Live AI agent requires OPENAI_API_KEY' });
+    if (!process.env.OPENROUTER_API_KEY) {
+      log.error('OPENROUTER_API_KEY not set for LIVE_AI_AGENT mode');
+      res.status(503).json({ error: 'Live AI agent requires OPENROUTER_API_KEY' });
       return false;
     }
     if (!process.env.APP_BASE_URL) {
