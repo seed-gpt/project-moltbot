@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { v4 as uuidv4 } from 'uuid';
 import { Request, Response, NextFunction } from 'express';
 
@@ -43,24 +44,58 @@ export function createLogger(requestId: string, component: string): Logger {
     };
 }
 
-/** Create a standalone logger (not tied to a request) */
-export function createStandaloneLogger(component: string): Logger {
-    return createLogger('system', component);
+// ── AsyncLocalStorage context ────────────────────────────────────
+
+interface RequestContext {
+    requestId: string;
+    log: Logger;
 }
 
-/** Express middleware: attaches requestId + logger to every request */
+const requestContext = new AsyncLocalStorage<RequestContext>();
+
+/**
+ * Get the logger from the current async context.
+ * Falls back to a standalone logger if called outside a context.
+ */
+export function getLogger(component?: string): Logger {
+    const ctx = requestContext.getStore();
+    if (ctx) {
+        // If a specific component is requested, create a logger
+        // with that component name but the same request ID
+        if (component) {
+            return createLogger(ctx.requestId, component);
+        }
+        return ctx.log;
+    }
+    return createLogger('system', component || 'unknown');
+}
+
+/** Get the request ID from the current async context */
+export function getRequestId(): string {
+    return requestContext.getStore()?.requestId || 'unknown';
+}
+
+/**
+ * Run a function inside a named context (for non-Express contexts like WebSockets).
+ * Everything executed within `fn` (including async continuations) can use getLogger().
+ */
+export function runInContext<T>(requestId: string, component: string, fn: () => T): T {
+    const log = createLogger(requestId, component);
+    return requestContext.run({ requestId, log }, fn);
+}
+
+/** Express middleware: wraps request in AsyncLocalStorage context */
 export function requestIdMiddleware(req: Request, _res: Response, next: NextFunction): void {
     const requestId = (req.headers['x-request-id'] as string) || uuidv4();
-    (req as any).requestId = requestId;
-    (req as any).log = createLogger(requestId, 'http');
-    next();
+    const log = createLogger(requestId, 'http');
+    requestContext.run({ requestId, log }, () => next());
 }
 
 /** Express middleware: logs every request/response */
 export function requestLogMiddleware(req: Request, res: Response, next: NextFunction): void {
     const start = Date.now();
-    const log: Logger = (req as any).log;
-    const requestId: string = (req as any).requestId;
+    const log = getLogger();
+    const requestId = getRequestId();
 
     log.info(`→ ${req.method} ${req.originalUrl}`, {
         method: req.method,

@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import type { Server as HTTPServer } from 'node:http';
 import { getFirestore } from '@moltbot/shared';
 import { createLLMSession, type LLMSession } from './openai-llm.js';
-import { createStandaloneLogger, type Logger } from '../middleware/logger.js';
+import { getLogger, runInContext } from '../middleware/logger.js';
 
 interface SessionState {
     callDocId: string;
@@ -11,7 +11,6 @@ interface SessionState {
     errorMessage: string;
     llm: LLMSession;
     transcript: Array<{ role: string; content: string; timestamp: string }>;
-    log: Logger;
 }
 
 /**
@@ -19,27 +18,36 @@ interface SessionState {
  */
 export function attachConversationRelayWS(server: HTTPServer): WebSocketServer {
     const wss = new WebSocketServer({ server, path: '/ws/conversation-relay' });
-    const bootLog = createStandaloneLogger('conversation-relay');
+    const bootLog = getLogger('conversation-relay');
 
     wss.on('connection', (ws: WebSocket) => {
-        const connLog = createStandaloneLogger('conversation-relay');
+        const connLog = getLogger('conversation-relay');
         connLog.info('WebSocket connection established');
         let session: SessionState | null = null;
 
         ws.on('message', async (data: Buffer) => {
             try {
                 const msg = JSON.parse(data.toString());
-                await handleMessage(ws, msg, session, (s) => { session = s; }, connLog);
+                // Run inside the session's async context so getLogger() returns
+                // a logger scoped to this call's ID
+                const contextId = session?.callDocId || 'pre-setup';
+                await runInContext(contextId, 'conversation-relay', () =>
+                    handleMessage(ws, msg, session, (s) => { session = s; }),
+                );
             } catch (err) {
                 connLog.error('Error handling WebSocket message', { error: (err as Error).message });
             }
         });
 
         ws.on('close', async () => {
-            const log = session?.log || connLog;
+            const log = session
+                ? getLogger('conversation-relay')
+                : connLog;
             log.info('WebSocket closed');
             if (session) {
-                await saveTranscript(session);
+                await runInContext(session.callDocId, 'conversation-relay', () =>
+                    saveTranscript(session!),
+                );
             }
         });
 
@@ -57,8 +65,9 @@ async function handleMessage(
     msg: any,
     session: SessionState | null,
     setSession: (s: SessionState) => void,
-    connLog: Logger,
 ): Promise<void> {
+    const log = getLogger('conversation-relay');
+
     switch (msg.type) {
         case 'setup': {
             const params = msg.customParameters || {};
@@ -66,7 +75,6 @@ async function handleMessage(
             const systemPrompt = params.systemPrompt || 'You are a helpful AI phone assistant. Keep responses concise and conversational.';
             const errorMessage = params.errorMessage || 'I apologize, I encountered an issue. Could you please repeat that?';
 
-            const log = createStandaloneLogger(`cr:${callDocId.substring(0, 8)}`);
             log.info('Setup message received', {
                 callSid: msg.callSid,
                 direction: msg.direction,
@@ -83,7 +91,6 @@ async function handleMessage(
                 errorMessage,
                 llm,
                 transcript: [],
-                log,
             };
             setSession(newSession);
 
@@ -100,14 +107,14 @@ async function handleMessage(
 
         case 'prompt': {
             if (!session) {
-                connLog.error('Prompt received before setup');
+                log.error('Prompt received before setup');
                 return;
             }
 
             const userText = msg.voicePrompt || '';
             if (!userText.trim()) return;
 
-            session.log.info('Caller speech received', { text: userText });
+            log.info('Caller speech received', { text: userText });
             session.transcript.push({
                 role: 'user',
                 content: userText,
@@ -128,9 +135,9 @@ async function handleMessage(
                     timestamp: new Date().toISOString(),
                 });
 
-                session.log.info('AI response sent', { responseLength: fullResponse.length, preview: fullResponse.substring(0, 100) });
+                log.info('AI response sent', { responseLength: fullResponse.length, preview: fullResponse.substring(0, 100) });
             } catch (err) {
-                session.log.error('LLM error', { error: (err as Error).message });
+                log.error('LLM error', { error: (err as Error).message });
                 ws.send(JSON.stringify({
                     type: 'text',
                     token: session.errorMessage,
@@ -141,31 +148,29 @@ async function handleMessage(
         }
 
         case 'interrupt': {
-            const log = session?.log || connLog;
             log.info('Caller interrupted TTS', { utterance: msg.utteranceUntilInterrupt });
             break;
         }
 
         case 'dtmf': {
-            const log = session?.log || connLog;
             log.info('DTMF digit received', { digit: msg.digit });
             break;
         }
 
         case 'error': {
-            const log = session?.log || connLog;
             log.error('Error from Twilio ConversationRelay', { description: msg.description });
             break;
         }
 
         default: {
-            connLog.info('Unknown message type', { type: msg.type, msg });
+            log.info('Unknown message type', { type: msg.type, msg });
         }
     }
 }
 
 async function saveTranscript(session: SessionState): Promise<void> {
     if (!session.callDocId || session.transcript.length === 0) return;
+    const log = getLogger('conversation-relay');
 
     try {
         const db = getFirestore();
@@ -177,8 +182,8 @@ async function saveTranscript(session: SessionState): Promise<void> {
         }
 
         await batch.commit();
-        session.log.info('Transcript saved to Firestore', { entries: session.transcript.length, callDocId: session.callDocId });
+        log.info('Transcript saved to Firestore', { entries: session.transcript.length, callDocId: session.callDocId });
     } catch (err) {
-        session.log.error('Failed to save transcript', { error: (err as Error).message });
+        log.error('Failed to save transcript', { error: (err as Error).message });
     }
 }

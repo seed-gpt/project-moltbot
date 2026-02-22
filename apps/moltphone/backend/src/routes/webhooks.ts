@@ -1,37 +1,42 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
-import { createLogger, type Logger } from '../middleware/logger.js';
+import { getLogger } from '../middleware/logger.js';
 
 const router = express.Router();
-
-function getLog(req: Request): Logger {
-  return (req as any).log || createLogger('unknown', 'webhooks');
-}
 
 
 // POST /webhooks/vapi - Receive Vapi callbacks (public)
 router.post('/webhooks/vapi', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const log = getLogger('webhooks');
   try {
     const db = getFirestore();
     const payload = req.body;
     const callId = payload.call?.id || payload.phone_call_id;
     if (!callId) { res.json({ received: true }); return; }
 
+    log.info('Vapi webhook received', { callId, type: payload.type });
+
     const callDoc = await db.collection('calls').doc(callId).get();
-    if (!callDoc.exists) { res.json({ received: true }); return; }
+    if (!callDoc.exists) {
+      log.warn('Vapi callback for unknown call', { callId });
+      res.json({ received: true });
+      return;
+    }
 
     const callData = callDoc.data()!;
     if (payload.type === 'transcript') {
       await db.collection('calls').doc(callId).collection('transcripts').add({
         role: payload.role || 'unknown', content: payload.transcript || '', timestamp: new Date().toISOString(),
       });
+      log.info('Transcript entry saved', { callId, role: payload.role });
     }
 
     if (payload.type === 'end-of-call-report' || payload.type === 'status-update') {
       await db.collection('calls').doc(callId).update({
         status: payload.status || callData.status, updatedAt: new Date().toISOString(),
       });
+      log.info('Call status updated via Vapi', { callId, status: payload.status });
     }
 
     // Fan out to registered webhooks
@@ -59,7 +64,8 @@ router.post('/webhooks/twilio-status', async (req: Request, res: Response, next:
 
     if (!CallSid) { res.sendStatus(200); return; }
 
-    console.log(`[Twilio Status] CallSid=${CallSid} Status=${CallStatus} Duration=${CallDuration}`);
+    const log = getLogger('webhooks');
+    log.info('Twilio status callback received', { CallSid, CallStatus, CallDuration });
 
     // Find call by Twilio SID
     const snapshot = await db.collection('calls')
@@ -67,7 +73,7 @@ router.post('/webhooks/twilio-status', async (req: Request, res: Response, next:
       .limit(1).get();
 
     if (snapshot.empty) {
-      console.warn(`[Twilio Status] No call found for SID ${CallSid}`);
+      log.warn('No call found for Twilio SID', { CallSid });
       res.sendStatus(200);
       return;
     }
@@ -136,7 +142,8 @@ router.post('/webhooks/twilio-status', async (req: Request, res: Response, next:
 
 // POST /webhooks/twilio-connect-action - ConversationRelay session ended
 router.post('/webhooks/twilio-connect-action', async (req: Request, res: Response): Promise<void> => {
-  console.log('[Twilio Connect Action] Session ended:', JSON.stringify(req.body));
+  const log = getLogger('webhooks');
+  log.info('Twilio Connect Action — session ended', { body: req.body });
   // Return empty TwiML to end the call gracefully
   res.type('text/xml');
   res.send('<Response><Hangup/></Response>');

@@ -1,10 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
+import { getLogger } from '../middleware/logger.js';
 
 const router = express.Router();
 
 // GET /calls/:id/transcript
 router.get('/calls/:id/transcript', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const log = getLogger('transcripts');
   try {
     const agent = (req as any).agent;
     const { id } = req.params;
@@ -18,6 +20,7 @@ router.get('/calls/:id/transcript', authMiddleware(), async (req: Request, res: 
       .orderBy('timestamp', 'asc').get();
 
     const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    log.info('Transcript retrieved', { callId: id, entries: entries.length });
     res.json({ call_id: id, transcript: entries });
   } catch (err) { next(err); }
 });

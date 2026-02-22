@@ -1,12 +1,15 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { authMiddleware, AppError } from '@moltbot/shared';
+import { getLogger } from '../middleware/logger.js';
 
 const router = express.Router();
 
 // GET /auth/me — Returns user profile for Auth0-authenticated users
 router.get('/auth/me', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const log = getLogger('auth0');
     try {
         const agent = (req as any).agent;
+        log.info('Auth0 user profile retrieved', { agentId: agent.id, authType: agent.authType });
         res.json({
             id: agent.id,
             handle: agent.handle || agent.email?.split('@')[0] || 'user',

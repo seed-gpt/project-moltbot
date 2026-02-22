@@ -1,21 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { getFirestore } from '@moltbot/shared';
 import twilio from 'twilio';
-import { createLogger, type Logger } from '../middleware/logger.js';
+import { getLogger } from '../middleware/logger.js';
 
 const router = express.Router();
 const VoiceResponse = twilio.twiml.VoiceResponse;
-
-function getLog(req: Request): Logger {
-    return (req as any).log || createLogger('unknown', 'twiml');
-}
 
 /**
  * GET/POST /twiml/conversation-relay
  * Twilio calls this webhook when the outbound call connects.
  */
 router.all('/twiml/conversation-relay', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const log = getLog(req);
+    const log = getLogger('twiml');
     try {
         const callDocId = (req.query.callDocId || req.body?.callDocId || '') as string;
         log.info('TwiML webhook hit by Twilio', { callDocId, method: req.method, query: req.query, body: req.body });

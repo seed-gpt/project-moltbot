@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { createServer } from 'node:http';
 import { createApp } from './app.js';
 import { attachConversationRelayWS } from './services/conversation-relay.js';
+import { getLogger } from './middleware/logger.js';
 
 const PORT = process.env.PORT || 3003;
 const app = createApp();
@@ -13,6 +14,7 @@ if (CALL_MODE === 'LIVE_AI_AGENT') {
   attachConversationRelayWS(server);
 }
 
+const log = getLogger('bootstrap');
 server.listen(PORT, () => {
-  console.log(`Moltphone service listening on port ${PORT} (mode: ${CALL_MODE})`);
+  log.info(`Moltphone service listening on port ${PORT}`, { port: PORT, mode: CALL_MODE });
 });

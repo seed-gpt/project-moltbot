@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { getFirestore, generateApiKey, hashApiKey, authMiddleware, AppError } from '@moltbot/shared';
+import { getLogger, getRequestId } from '../middleware/logger.js';
 
 const router = express.Router();
 
@@ -12,12 +13,18 @@ const registerSchema = z.object({
 
 // POST /register
 router.post('/register', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const log = getLogger('agents');
     try {
         const body = registerSchema.parse(req.body);
         const db = getFirestore();
 
+        log.info('POST /register received', { handle: body.handle, name: body.name, requestId: getRequestId() });
+
         const existing = await db.collection('agents').where('handle', '==', body.handle).limit(1).get();
-        if (!existing.empty) throw new AppError(409, 'Handle already exists', 'HANDLE_EXISTS');
+        if (!existing.empty) {
+            log.warn('Handle already exists', { handle: body.handle });
+            throw new AppError(409, 'Handle already exists', 'HANDLE_EXISTS');
+        }
 
         const apiKey = generateApiKey('moltphone');
         const apiKeyHash = hashApiKey(apiKey);
@@ -31,13 +38,19 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
             agentId: agentRef.id, balance: 0, updatedAt: new Date().toISOString(),
         });
 
+        log.info('Agent registered successfully', { agentId: agentRef.id, handle: body.handle });
+
         res.status(201).json({
             agent: { id: agentRef.id, handle: body.handle, name: body.name },
             api_key: apiKey,
             message: 'Store this API key securely - it will not be shown again',
         });
     } catch (err) {
-        if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
+        if (err instanceof z.ZodError) {
+            log.warn('Validation failed', { errors: err.errors });
+            res.status(400).json({ error: 'Validation failed', details: err.errors });
+            return;
+        }
         next(err);
     }
 });
@@ -56,6 +69,7 @@ router.get('/me', authMiddleware(), async (req: Request, res: Response, next: Ne
 
 // POST /rotate-key
 router.post('/rotate-key', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const log = getLogger('agents');
     try {
         const agent = (req as any).agent;
         const db = getFirestore();
@@ -63,6 +77,8 @@ router.post('/rotate-key', authMiddleware(), async (req: Request, res: Response,
         const newApiKeyHash = hashApiKey(newApiKey);
 
         await db.collection('agents').doc(agent.id).update({ apiKeyHash: newApiKeyHash });
+
+        log.info('API key rotated', { agentId: agent.id });
 
         res.json({
             api_key: newApiKey,

@@ -1786,11 +1786,20 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="task">What should the AI say? <span class="req">*</span></label>
-            <textarea id="task"
-              placeholder="e.g. Call this restaurant and make a reservation for 2 people this Saturday at 8pm. My name is Alex."
+            <label class="form-label" for="first-message">What should the AI say first? <span
+                class="req">*</span></label>
+            <textarea id="first-message"
+              placeholder="e.g. Hi, I'd like to make a reservation for 2 people this Saturday at 8pm. My name is Alex."
               required></textarea>
-            <div class="form-hint">Be specific about what the AI should accomplish and any details to mention.</div>
+            <div class="form-hint">This is the opening line the AI will say when the call connects.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="system-prompt">System Prompt <span class="req">*</span></label>
+            <textarea id="system-prompt"
+              placeholder="e.g. You are a personal assistant. Your goal is to book a taxi. Be polite and concise."
+              required></textarea>
+            <div class="form-hint">Instructions that guide the AI's behavior during the call.</div>
           </div>
 
           <div class="form-group">
@@ -1946,24 +1955,29 @@
             and custom integrations.</p>
           <div class="api-endpoint">
             <span class="api-method">POST</span>
-            api.moltphone.xyz/call/webapp
+            api.moltphone.xyz/call
           </div>
         </div>
         <div class="code-block">
           <button class="code-copy" id="code-copy">Copy</button>
           <pre><code><span style="color:#22c55e">// Make an AI phone call</span>
-<span style="color:#c084fc">const</span> response = <span style="color:#c084fc">await</span> <span style="color:#60a5fa">fetch</span>(<span style="color:#fbbf24">'https://api.moltphone.xyz/call/webapp'</span>, {
+<span style="color:#c084fc">const</span> response = <span style="color:#c084fc">await</span> <span style="color:#60a5fa">fetch</span>(<span style="color:#fbbf24">'https://api.moltphone.xyz/call'</span>, {
   method: <span style="color:#fbbf24">'POST'</span>,
-  headers: { <span style="color:#fbbf24">'Content-Type'</span>: <span style="color:#fbbf24">'application/json'</span> },
+  headers: {
+    <span style="color:#fbbf24">'Authorization'</span>: <span style="color:#fbbf24">'Bearer mp_your_api_key'</span>,
+    <span style="color:#fbbf24">'Content-Type'</span>: <span style="color:#fbbf24">'application/json'</span>
+  },
   body: JSON.<span style="color:#60a5fa">stringify</span>({
-    phoneNumber: <span style="color:#fbbf24">'+15551234567'</span>,
-    task: <span style="color:#fbbf24">'Call and ask about office hours'</span>,
-    agentName: <span style="color:#fbbf24">'My Assistant'</span>
+    to_number: <span style="color:#fbbf24">'+15551234567'</span>,
+    assistant_config: {
+      first_message: <span style="color:#fbbf24">'Hi, can you tell me your office hours?'</span>,
+      system_prompt: <span style="color:#fbbf24">'You are a personal assistant. Be polite.'</span>
+    }
   })
 });
 
 <span style="color:#c084fc">const</span> data = <span style="color:#c084fc">await</span> response.<span style="color:#60a5fa">json</span>();
-console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e">// { callId, status, ... }</span></code></pre>
+console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e">// { call: { id, status, ... }, remaining_balance }</span></code></pre>
         </div>
       </div>
     </div>
@@ -2035,8 +2049,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
   <script>
     // ─── Config ───
-    const API_URL = 'https://api.moltphone.xyz/call/webapp';
-    const API_FALLBACK = 'https://moltphone-737941094496.europe-west1.run.app/call/webapp';
+    const API_URL = 'https://api.moltphone.xyz/call';
+    const API_FALLBACK = 'https://moltphone-737941094496.europe-west1.run.app/call';
     const STORAGE_KEY = 'moltphone_calls';
     const RATE_KEY = 'moltphone_rate';
 
@@ -2165,15 +2179,20 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       const phoneRaw = $('#phone-number').value.replace(/[\s\-\(\)]/g, '');
       const countryCode = $('#country-code').value;
       const phoneNumber = countryCode + phoneRaw;
-      const task = $('#task').value.trim();
+      const firstMessage = $('#first-message').value.trim();
+      const systemPrompt = $('#system-prompt').value.trim();
       const agentName = $('#agent-name').value.trim();
 
       if (!phoneRaw || phoneRaw.length < 4) {
         showFormError('Please enter a valid phone number.');
         return;
       }
-      if (!task) {
-        showFormError('Please describe what the AI should say.');
+      if (!firstMessage) {
+        showFormError('Please enter the first message for the AI to say.');
+        return;
+      }
+      if (!systemPrompt) {
+        showFormError('Please enter a system prompt for the AI.');
         return;
       }
 
@@ -2186,11 +2205,16 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       $('#wave-container').style.display = 'none';
       startTimer();
 
-      const body = { phoneNumber, task };
-      if (agentName) body.agentName = agentName;
+      const body = {
+        to_number: phoneNumber,
+        assistant_config: {
+          first_message: firstMessage,
+          system_prompt: systemPrompt,
+        },
+      };
 
       const historyEntry = {
-        phoneNumber, task, agentName,
+        phoneNumber, task: firstMessage, agentName,
         timestamp: Date.now(), status: 'calling'
       };
 
@@ -2228,7 +2252,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
         setTimeout(() => {
           stopTimer();
           historyEntry.status = 'completed';
-          historyEntry.callId = data.callId || data.id;
+          historyEntry.callId = data.call?.id || data.callId || data.id;
           historyEntry.response = data;
           saveToHistory(historyEntry);
           renderHistory();
@@ -2307,9 +2331,10 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
         $('#result-sub').textContent = `Calling ${phone}`;
         let details = `Phone: ${phone}\n`;
         if (data) {
-          if (data.callId || data.id) details += `Call ID: ${data.callId || data.id}\n`;
-          if (data.status) details += `Status: ${data.status}\n`;
-          if (data.message) details += `${data.message}\n`;
+          const call = data.call || data;
+          if (call.id || data.callId) details += `Call ID: ${call.id || data.callId}\n`;
+          if (call.status || data.status) details += `Status: ${call.status || data.status}\n`;
+          if (data.remaining_balance !== undefined) details += `Remaining balance: ${data.remaining_balance}\n`;
         }
         $('#result-details').textContent = details;
       } else if (type === 'ratelimit') {

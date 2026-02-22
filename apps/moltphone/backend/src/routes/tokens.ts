@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
+import { getLogger, getRequestId } from '../middleware/logger.js';
 
 const router = express.Router();
 
@@ -34,11 +35,14 @@ router.get('/tokens/balance', authMiddleware(), async (req: Request, res: Respon
 
 // POST /tokens/purchase
 router.post('/tokens/purchase', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const log = getLogger('tokens');
     try {
         const agent = (req as any).agent;
         const body = purchaseSchema.parse(req.body);
         const pkg = PACKAGES[body.package];
         const db = getFirestore();
+
+        log.info('Token purchase initiated', { agentId: agent.id, package: body.package, tokens: pkg.tokens, requestId: getRequestId() });
 
         const newBalance = await db.runTransaction(async (tx) => {
             const balRef = db.collection('tokenBalances').doc(agent.id);
@@ -54,12 +58,19 @@ router.post('/tokens/purchase', authMiddleware(), async (req: Request, res: Resp
             priceCents: pkg.priceCents, createdAt: new Date().toISOString(),
         });
 
+        log.info('Token purchase completed', { agentId: agent.id, purchaseId: purchaseRef.id, newBalance });
+
         res.status(201).json({
             purchase: { id: purchaseRef.id, package: body.package, tokens_added: pkg.tokens, price_cents: pkg.priceCents },
             new_balance: newBalance,
         });
     } catch (err) {
-        if (err instanceof z.ZodError) { res.status(400).json({ error: 'Validation failed', details: err.errors }); return; }
+        if (err instanceof z.ZodError) {
+            const log = getLogger('tokens');
+            log.warn('Validation failed', { errors: err.errors });
+            res.status(400).json({ error: 'Validation failed', details: err.errors });
+            return;
+        }
         next(err);
     }
 });
