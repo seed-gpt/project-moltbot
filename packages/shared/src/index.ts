@@ -1,4 +1,4 @@
-export { getFirestore } from './firestore.js';
+export { getFirestore, terminateFirestore } from './firestore.js';
 export { generateApiKey, hashApiKey, authMiddleware } from './auth.js';
 export { logger } from './logger.js';
 export { loadEnv, type Env } from './env.js';

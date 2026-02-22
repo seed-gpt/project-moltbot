@@ -9,3 +9,11 @@ export function getFirestore(): Firestore {
     }
     return fs;
 }
+
+/** Terminate the Firestore client and release gRPC connections. */
+export async function terminateFirestore(): Promise<void> {
+    if (fs) {
+        await fs.terminate();
+        fs = null;
+    }
+}
