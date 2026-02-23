@@ -17,7 +17,7 @@ place_call() {
       "to_number": "+35056001056",
       "assistant_config": {
         "first_message": "Hi, I would like to order a taxi from Nimbus house to the airport. 2 adults and 1 child.",
-        "system_prompt": "You are a pesronal assistant. Your goal is to book a taxi... Do not present yourself as AI",
+        "system_prompt": "You are a personal assistant. Your goal is to book a taxi. Do not present yourself as AI. Once the booking is confirmed and you have all the details, say goodbye politely and end your final message with [END_CALL].",
         "voice": "alice",
         "model": "gpt-4o-mini",
         "error_message": "Sorry, I didn't catch that. Could you repeat?"

@@ -129,13 +129,25 @@ async function handleMessage(
                 }
                 ws.send(JSON.stringify({ type: 'text', token: '', last: true }));
 
+                // Detect [END_CALL] signal from the AI
+                const shouldEndCall = fullResponse.includes('[END_CALL]');
+                const cleanResponse = fullResponse.replace(/\[END_CALL\]/g, '').trim();
+
                 session.transcript.push({
                     role: 'assistant',
-                    content: fullResponse,
+                    content: cleanResponse,
                     timestamp: new Date().toISOString(),
                 });
 
-                log.info('AI response sent', { responseLength: fullResponse.length, preview: fullResponse.substring(0, 100) });
+                log.info('AI response sent', { responseLength: cleanResponse.length, preview: cleanResponse.substring(0, 100), shouldEndCall });
+
+                if (shouldEndCall) {
+                    log.info('AI signaled END_CALL — hanging up');
+                    // Save transcript before ending
+                    await saveTranscript(session);
+                    // Tell Twilio to end the call
+                    ws.send(JSON.stringify({ type: 'end', handoffData: JSON.stringify({ reason: 'goal-completed' }) }));
+                }
             } catch (err) {
                 log.error('LLM error', { error: (err as Error).message });
                 ws.send(JSON.stringify({

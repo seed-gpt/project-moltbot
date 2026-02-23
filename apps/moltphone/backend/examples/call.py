@@ -21,7 +21,12 @@ API_KEY = os.environ.get("MOLTPHONE_API_KEY", "")
 
 DEFAULTS = {
     "first_message": "Hi, I would like to order a taxi from Nimbus house to the airport. 2 adults and 1 child.",
-    "system_prompt": "You are a personal assistant, calling a taxi company. Your goal is to book a taxi with them. Do not present yourself as AI.",
+    "system_prompt": (
+        "You are a personal assistant, calling a taxi company. "
+        "Your goal is to book a taxi with them. Do not present yourself as AI. "
+        "Once the booking is confirmed and you have all the details, "
+        "say goodbye politely and end your final message with [END_CALL]."
+    ),
     "voice": "alice",
     "model": "gpt-5.1",
     "error_message": "Sorry, I didn't catch that. Could you repeat?",
@@ -130,15 +135,23 @@ def cmd_calls(limit=5):
 
 def main():
     parser = argparse.ArgumentParser(description="MoltPhone AI Call Tool")
+
+    # Top-level --to shortcut (so `python call.py --to +123` works)
+    parser.add_argument("--to", help="Phone number (E.164) — shortcut for 'call --to'")
+    parser.add_argument("--system-prompt", help="Custom system prompt", default=DEFAULTS["system_prompt"])
+    parser.add_argument("--first-message", help="Custom first message", default=DEFAULTS["first_message"])
+    parser.add_argument("--error-message", help="Custom error message", default=DEFAULTS["error_message"])
+    parser.add_argument("--model", default=DEFAULTS["model"])
+
     sub = parser.add_subparsers(dest="command")
 
     # call
     p_call = sub.add_parser("call", help="Place a call")
     p_call.add_argument("--to", required=True, help="Phone number (E.164)")
-    p_call.add_argument("--system-prompt", help="Custom system prompt")
-    p_call.add_argument("--first-message", help="Custom first message")
-    p_call.add_argument("--error-message", help="Custom error message")
-    p_call.add_argument("--model", default="gpt-4o-mini")
+    p_call.add_argument("--system-prompt", help="Custom system prompt", default=DEFAULTS["system_prompt"])
+    p_call.add_argument("--first-message", help="Custom first message", default=DEFAULTS["first_message"])
+    p_call.add_argument("--error-message", help="Custom error message", default=DEFAULTS["error_message"])
+    p_call.add_argument("--model", default=DEFAULTS["model"])
 
     # transcript
     p_tr = sub.add_parser("transcript", help="Get call transcript")
@@ -153,26 +166,31 @@ def main():
 
     args = parser.parse_args()
 
+    # --to without subcommand → treat as "call"
+    if not args.command and args.to:
+        args.command = "call"
+
     if args.command == "health":
         cmd_health()
     elif args.command == "call":
-        config = dict(DEFAULTS)
-        if args.system_prompt: config["system_prompt"] = args.system_prompt
-        if args.first_message: config["first_message"] = args.first_message
-        if args.error_message: config["error_message"] = args.error_message
-        config["model"] = args.model
+        config = {
+            "system_prompt": args.system_prompt,
+            "first_message": args.first_message,
+            "error_message": args.error_message,
+            "model": args.model,
+        }
         cmd_call(args.to, config)
     elif args.command == "transcript":
         cmd_transcript(args.id)
     elif args.command == "calls":
         cmd_calls(args.limit)
     else:
-        # No subcommand — interactive
         print("=" * 50)
         print("  📞 MoltPhone AI Call Tool")
         print("=" * 50)
         cmd_health()
         print("\nUsage:")
+        print("  python call.py --to +1234567890")
         print("  python call.py call --to +1234567890")
         print("  python call.py transcript")
         print("  python call.py calls")
