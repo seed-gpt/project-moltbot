@@ -6,7 +6,9 @@ import { getLogger } from '../middleware/logger.js';
 const router = express.Router();
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-/** Parse frontend voice value into ttsProvider + voice for Twilio ConversationRelay */
+/** Parse frontend voice value into ttsProvider + voice for Twilio ConversationRelay.
+ *  ConversationRelay only supports Google, Amazon Polly, and ElevenLabs voices.
+ *  Built-in <Say> voices (alice, man, woman) are NOT valid for ConversationRelay. */
 function parseVoice(raw?: string): { voice?: string; ttsProvider?: string } {
     if (!raw) return {};
     if (raw.startsWith('Google.')) {
@@ -15,8 +17,9 @@ function parseVoice(raw?: string): { voice?: string; ttsProvider?: string } {
     if (raw.startsWith('Polly.')) {
         return { ttsProvider: 'Amazon', voice: raw };
     }
-    // Built-in Twilio voices: alice, man, woman
-    return { voice: raw };
+    // Built-in Twilio <Say> voices (alice, man, woman) are NOT valid for ConversationRelay.
+    // Return empty to use Twilio's default ConversationRelay voice.
+    return {};
 }
 
 /**

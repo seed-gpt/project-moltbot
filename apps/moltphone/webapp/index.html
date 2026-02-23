@@ -1917,7 +1917,7 @@
           <a href="#api">API</a>
         </nav>
         <div class="auth-area" id="auth-area">
-          <button class="auth-btn" id="auth-btn" onclick="showAuthModal()">Sign Up</button>
+          <button class="auth-btn" id="auth-btn" onclick="auth0Login()">Sign Up</button>
         </div>
         <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
       </div>
@@ -1934,8 +1934,8 @@
         <a href="#call" class="hero-cta">📞 Make a Call</a>
         <div class="hero-stats">
           <div class="hero-stat">
-            <div class="num">3</div>
-            <div class="label">Free calls / hour</div>
+            <div class="num">$0.10</div>
+            <div class="label">Per token from</div>
           </div>
           <div class="hero-stat">
             <div class="num">30s</div>
@@ -2076,15 +2076,13 @@
                 <label class="form-label" for="voice-select">Voice <span
                     style="color:var(--text-dim)">(optional)</span></label>
                 <select id="voice-select">
-                  <option value="alice" selected>Alice (Female, US)</option>
-                  <option value="Google.en-US-Standard-C">Google Standard C (Female)</option>
-                  <option value="Google.en-US-Standard-D">Google Standard D (Male)</option>
+                  <option value="" selected>Default</option>
+                  <option value="Google.en-US-Standard-C">Google Standard C (Female, US)</option>
+                  <option value="Google.en-US-Standard-D">Google Standard D (Male, US)</option>
                   <option value="Google.en-GB-Standard-A">Google UK A (Female)</option>
                   <option value="Google.en-GB-Standard-B">Google UK B (Male)</option>
                   <option value="Polly.Joanna">Polly Joanna (Female)</option>
                   <option value="Polly.Matthew">Polly Matthew (Male)</option>
-                  <option value="man">Man (Classic)</option>
-                  <option value="woman">Woman (Classic)</option>
                 </select>
               </div>
               <div class="form-group">
@@ -2107,8 +2105,8 @@
               <div class="form-hint">What the AI says when it can't understand the other party.</div>
             </div>
 
-            <button type="submit" class="call-btn" id="call-btn">
-              <span id="call-btn-text">📞 Call Now — Free</span>
+            <button type="submit" class="call-btn" id="call-btn" disabled>
+              <span id="call-btn-text">⏳ Loading...</span>
             </button>
           </form>
         </div>
@@ -2153,7 +2151,7 @@
       <div class="container section-center">
         <div class="section-label">How It Works</div>
         <div class="section-title">Three simple steps</div>
-        <div class="section-desc">No signup needed. Just describe your call and we handle the rest.</div>
+        <div class="section-desc">Sign up, describe your call, and we handle the rest.</div>
         <div class="steps-grid">
           <div class="step-card fade-in">
             <div class="step-num">1</div>
@@ -2218,7 +2216,7 @@
               <li>Custom AI personas</li>
               <li>Bulk calling</li>
             </ul>
-            <button class="pricing-btn" onclick="openPurchaseModal('enterprise')">Buy Enterprise</button>
+            <button class="pricing-btn primary" onclick="openPurchaseModal('enterprise')">Buy Enterprise</button>
           </div>
         </div>
       </div>
@@ -2271,7 +2269,7 @@
     assistant_config: {
       first_message: <span style="color:#fbbf24">'Hi, can you tell me your office hours?'</span>,
       system_prompt: <span style="color:#fbbf24">'You are a personal assistant. Be polite.'</span>,
-      voice: <span style="color:#fbbf24">'alice'</span>,           <span style="color:#22c55e">// optional</span>
+      voice: <span style="color:#fbbf24">'Google.en-US-Standard-C'</span>,  <span style="color:#22c55e">// optional</span>
       model: <span style="color:#fbbf24">'gpt-4o-mini'</span>,     <span style="color:#22c55e">// optional</span>
       error_message: <span style="color:#fbbf24">'Sorry, could you repeat?'</span> <span style="color:#22c55e">// optional</span>
     }
@@ -2707,7 +2705,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       } else if (type === 'ratelimit') {
         $('#result-icon').textContent = '⏳';
         $('#result-title').textContent = 'Rate Limit Reached';
-        $('#result-sub').textContent = 'You can make 3 free calls per hour';
+        $('#result-sub').textContent = 'Token balance depleted. Purchase more tokens to continue.';
         $('#result-details').textContent = errorMsg || 'Please wait before making another call.';
         updateRateUI();
       } else {
