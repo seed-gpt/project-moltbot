@@ -1795,11 +1795,24 @@
           </div>
 
           <div class="form-group">
+            <label class="form-label" for="prompt-preset">Quick Preset</label>
+            <select id="prompt-preset" onchange="applyPreset(this.value)">
+              <option value="">— Choose a preset or write your own —</option>
+              <option value="restaurant">🍽️ Restaurant Reservation</option>
+              <option value="inquiry">📞 Business Inquiry</option>
+              <option value="appointment">📅 Appointment Booking</option>
+              <option value="taxi">🚕 Taxi / Ride Booking</option>
+              <option value="cancel">❌ Cancel or Reschedule</option>
+              <option value="custom" selected>✏️ Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label class="form-label" for="system-prompt">System Prompt <span class="req">*</span></label>
             <textarea id="system-prompt"
-              placeholder="e.g. You are a personal assistant. Your goal is to book a taxi. Be polite and concise."
-              required></textarea>
-            <div class="form-hint">Instructions that guide the AI's behavior during the call.</div>
+              required>You are a polite and professional personal assistant making a phone call on behalf of your client. Be concise, stay on topic, and confirm all important details before ending the call. Once the task is complete, say goodbye politely and end your final message with [END_CALL].</textarea>
+            <div class="form-hint">Instructions that guide the AI's behavior during the call. Pick a preset above or
+              write your own.</div>
           </div>
 
           <div class="form-group">
@@ -2081,7 +2094,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
   <!-- Footer -->
   <footer>
     <div class="container">
-      <p>📞 MoltPhone — AI Phone Calls &nbsp;·&nbsp; Powered by <a href="https://spring.gib" target="_blank">Spring
+      <p>📞 MoltPhone — AI Phone Calls &nbsp;·&nbsp; Powered by <a href="https://springsoftware.io"
+          target="_blank">Spring
           Software Gibraltar</a> 🦞</p>
     </div>
   </footer>
@@ -2096,6 +2110,38 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     // ─── State ───
     let callTimerInterval = null;
     let callSeconds = 0;
+
+    // ─── Prompt Presets ───
+    const PRESETS = {
+      restaurant: {
+        system_prompt: 'You are a polite personal assistant calling a restaurant to make a reservation on behalf of your client. Confirm the date, time, party size, and any dietary requirements. Once confirmed, repeat the reservation details and say goodbye. End your final message with [END_CALL].',
+        first_message: 'Hi, I would like to make a reservation please.',
+      },
+      inquiry: {
+        system_prompt: 'You are a professional assistant calling a business to ask questions on behalf of your client. Be polite, take note of all information provided, and ask follow-up questions if needed. Once you have the answers, thank them and end the call. End your final message with [END_CALL].',
+        first_message: 'Hello, I have a few questions I was hoping you could help me with.',
+      },
+      appointment: {
+        system_prompt: 'You are a personal assistant calling to book an appointment on behalf of your client. Confirm date, time, and any preparation needed. Be flexible with scheduling alternatives if the preferred time is unavailable. End your final message with [END_CALL].',
+        first_message: 'Hi, I would like to schedule an appointment please.',
+      },
+      taxi: {
+        system_prompt: 'You are a personal assistant calling a taxi or ride service to book a ride on behalf of your client. Confirm pickup location, destination, time, and number of passengers. Once confirmed, repeat all details and say goodbye. End your final message with [END_CALL].',
+        first_message: 'Hello, I would like to book a taxi please.',
+      },
+      cancel: {
+        system_prompt: 'You are a personal assistant calling to cancel or reschedule an existing booking on behalf of your client. Be polite, provide the booking reference if available, and confirm the cancellation or new arrangement. End your final message with [END_CALL].',
+        first_message: 'Hi, I am calling about an existing booking that I need to change.',
+      },
+    };
+
+    function applyPreset(key) {
+      if (!key || key === 'custom') return;
+      const preset = PRESETS[key];
+      if (!preset) return;
+      $('#system-prompt').value = preset.system_prompt;
+      $('#first-message').value = preset.first_message;
+    }
 
     // ─── DOM ───
     const $ = s => document.querySelector(s);
