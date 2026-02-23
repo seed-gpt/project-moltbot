@@ -13,6 +13,7 @@ import webhooksRouter from './routes/webhooks.js';
 import tokensRouter from './routes/tokens.js';
 import auth0Router from './routes/auth0.js';
 import twimlRouter from './routes/twiml.js';
+import stripeRouter from './routes/stripe.js';
 import { requestIdMiddleware, requestLogMiddleware } from './middleware/logger.js';
 
 export function createApp() {
@@ -23,11 +24,16 @@ export function createApp() {
       'https://app.moltphone.xyz',
       'https://moltphone.xyz',
       'https://www.moltphone.xyz',
+      'https://moltcredit.xyz',
+      'https://www.moltcredit.xyz',
       /^http:\/\/localhost(:\d+)?$/,
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }));
+
+  // ⚠ Mount stripe webhook BEFORE express.json() — needs raw body for sig verification
+  app.use('/', stripeRouter);
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

@@ -2436,8 +2436,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
 
     // ─── Auth0 Config ───
     const AUTH0_DOMAIN = 'dev-qi4l073sys2rptlp.us.auth0.com';
-    const AUTH0_CLIENT_ID = 'fFQpwQmlDBGksNYFR5B7G7Y0QaA1c8g1';
-    const AUTH0_AUDIENCE = 'https://api.moltphone.xyz';
+    const AUTH0_CLIENT_ID = '5rqIPtaDw0f07j7Q3DAMfGYYWW8Q0det'; // Moltbot Web SPA
+    const AUTH0_AUDIENCE = 'https://api.moltbot.xyz';
     const AUTH_KEY = 'moltphone_auth';
     const API_BASE = 'https://api.moltphone.xyz';
     const API_BASE_FALLBACK = 'https://moltphone-oy7ayfiglq-uc.a.run.app';
@@ -2726,23 +2726,24 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       errEl.style.display = 'none';
       successEl.style.display = 'none';
       btn.disabled = true;
-      btn.textContent = 'Processing...';
+      btn.textContent = 'Redirecting to payment...';
 
       try {
         const headers = await getAuthHeaders();
-        const res = await apiFetch('/tokens/purchase', {
+        const res = await apiFetch('/tokens/checkout', {
           method: 'POST',
           headers,
           body: JSON.stringify({ package: selectedPackage }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || data.message || 'Purchase failed');
+        if (!res.ok) throw new Error(data.error || data.message || 'Checkout failed');
 
-        successEl.textContent = `✅ Added ${data.purchase.tokens_added} tokens! New balance: ${data.new_balance.toLocaleString()}`;
-        successEl.style.display = 'block';
-        $('#dash-token-balance').textContent = data.new_balance.toLocaleString();
-        btn.textContent = '✅ Purchase Complete';
-        setTimeout(() => { closePurchaseModal(); }, 2500);
+        // Redirect to Stripe Checkout
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL returned');
+        }
       } catch (err) {
         errEl.textContent = err.message;
         errEl.style.display = 'block';
@@ -2775,6 +2776,25 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     initAuth0().then(() => {
       updateRateUI();
       renderHistory();
+
+      // Handle Stripe Checkout return
+      const urlParams = new URLSearchParams(window.location.search);
+      const checkoutResult = urlParams.get('checkout');
+      if (checkoutResult === 'success') {
+        // Show a brief success banner and refresh balance
+        const banner = document.createElement('div');
+        banner.id = 'checkout-success-banner';
+        banner.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:12px 28px;border-radius:12px;font-weight:600;z-index:999;box-shadow:0 4px 24px rgba(0,0,0,.4);';
+        banner.textContent = '✅ Payment successful! Tokens will be credited shortly.';
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 5000);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Refresh balance after short delay (webhook may not be instant)
+        setTimeout(fetchTokenBalance, 3000);
+      } else if (checkoutResult === 'cancelled') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     }).catch(err => {
       console.error('Auth0 init failed:', err);
       updateAuthUI();

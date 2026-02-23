@@ -45,8 +45,8 @@ describe('MoltPhone Tokens — Auth Guards', () => {
         expect(res.status).toBe(401);
     });
 
-    it('POST /tokens/purchase returns 401 without auth', async () => {
-        const res = await request(app).post('/tokens/purchase').send({ package: 'starter' });
+    it('POST /tokens/checkout returns 401 without auth', async () => {
+        const res = await request(app).post('/tokens/checkout').send({ package: 'starter' });
         expect(res.status).toBe(401);
     });
 

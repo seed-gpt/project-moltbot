@@ -1,73 +1,78 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getFirestore, authMiddleware, AppError } from '@moltbot/shared';
+import { getFirestore, authMiddleware, AppError, createCheckoutSession } from '@moltbot/shared';
 import { getLogger, getRequestId } from '../middleware/logger.js';
 
 const router = express.Router();
 
-const PACKAGES: Record<string, { tokens: number; priceCents: number; name: string }> = {
-    starter: { tokens: 100, priceCents: 1000, name: 'Starter' },
-    pro: { tokens: 500, priceCents: 4000, name: 'Pro' },
-    enterprise: { tokens: 2000, priceCents: 12000, name: 'Enterprise' },
+/** Price IDs provisioned via Stripe CLI */
+const PACKAGES: Record<string, { tokens: number; priceCents: number; name: string; priceId: string }> = {
+    starter: { tokens: 100, priceCents: 1000, name: 'Starter', priceId: process.env.STRIPE_PRICE_STARTER || 'price_1T42uYGTbAphZ7vmsoCvuTZK' },
+    pro: { tokens: 500, priceCents: 4000, name: 'Pro', priceId: process.env.STRIPE_PRICE_PRO || 'price_1T42ufGTbAphZ7vm5AtNw2ID' },
+    enterprise: { tokens: 2000, priceCents: 12000, name: 'Enterprise', priceId: process.env.STRIPE_PRICE_ENTERPRISE || 'price_1T42ugGTbAphZ7vmNNSTO2Yx' },
 };
 
-const purchaseSchema = z.object({
+const checkoutSchema = z.object({
     package: z.enum(['starter', 'pro', 'enterprise']),
 });
 
-// GET /tokens/balance
+// GET /tokens/packages — public list of available packages
+router.get('/tokens/packages', (_req: Request, res: Response): void => {
+    res.json({
+        packages: Object.entries(PACKAGES).map(([key, pkg]) => ({
+            id: key,
+            name: pkg.name,
+            tokens: pkg.tokens,
+            price_cents: pkg.priceCents,
+        })),
+    });
+});
+
+// GET /tokens/balance — returns current token balance for authenticated user
 router.get('/tokens/balance', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const agent = (req as any).agent;
         const db = getFirestore();
-
         const doc = await db.collection('tokenBalances').doc(agent.id).get();
         const balance = doc.exists ? (doc.data()?.balance || 0) : 0;
-
-        res.json({
-            balance,
-            packages: Object.entries(PACKAGES).map(([key, pkg]) => ({
-                id: key, name: pkg.name, tokens: pkg.tokens, price_cents: pkg.priceCents,
-            })),
-        });
+        res.json({ balance, packages: Object.entries(PACKAGES).map(([key, pkg]) => ({ id: key, name: pkg.name, tokens: pkg.tokens, price_cents: pkg.priceCents })) });
     } catch (err) { next(err); }
 });
 
-// POST /tokens/purchase
-router.post('/tokens/purchase', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// POST /tokens/checkout — creates a Stripe Checkout session and returns the URL
+router.post('/tokens/checkout', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const log = getLogger('tokens');
     try {
         const agent = (req as any).agent;
-        const body = purchaseSchema.parse(req.body);
+        const body = checkoutSchema.parse(req.body);
         const pkg = PACKAGES[body.package];
         const db = getFirestore();
 
-        log.info('Token purchase initiated', { agentId: agent.id, package: body.package, tokens: pkg.tokens, requestId: getRequestId() });
-
-        const newBalance = await db.runTransaction(async (tx) => {
-            const balRef = db.collection('tokenBalances').doc(agent.id);
-            const balDoc = await tx.get(balRef);
-            const current = balDoc.exists ? (balDoc.data()?.balance || 0) : 0;
-            const updated = current + pkg.tokens;
-            tx.set(balRef, { agentId: agent.id, balance: updated, updatedAt: new Date().toISOString() }, { merge: true });
-            return updated;
+        const baseUrl = process.env.WEBAPP_BASE_URL || 'https://app.moltphone.xyz';
+        const session = await createCheckoutSession({
+            priceId: pkg.priceId,
+            userId: agent.id,
+            packageName: body.package,
+            successUrl: `${baseUrl}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${baseUrl}?checkout=cancelled`,
+            customerEmail: agent.email || undefined,
         });
 
-        const purchaseRef = await db.collection('tokenPurchases').add({
-            agentId: agent.id, packageName: body.package, tokenAmount: pkg.tokens,
-            priceCents: pkg.priceCents, createdAt: new Date().toISOString(),
+        // Store a pending purchase record keyed by Stripe session ID
+        await db.collection('tokenPurchases').add({
+            agentId: agent.id,
+            packageName: body.package,
+            tokenAmount: pkg.tokens,
+            priceCents: pkg.priceCents,
+            stripeSessionId: session.id,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
         });
 
-        log.info('Token purchase completed', { agentId: agent.id, purchaseId: purchaseRef.id, newBalance });
-
-        res.status(201).json({
-            purchase: { id: purchaseRef.id, package: body.package, tokens_added: pkg.tokens, price_cents: pkg.priceCents },
-            new_balance: newBalance,
-        });
+        log.info('Checkout session created', { agentId: agent.id, package: body.package, sessionId: session.id, requestId: getRequestId() });
+        res.status(201).json({ url: session.url, session_id: session.id });
     } catch (err) {
         if (err instanceof z.ZodError) {
-            const log = getLogger('tokens');
-            log.warn('Validation failed', { errors: err.errors });
             res.status(400).json({ error: 'Validation failed', details: err.errors });
             return;
         }
@@ -75,17 +80,15 @@ router.post('/tokens/purchase', authMiddleware(), async (req: Request, res: Resp
     }
 });
 
-// GET /tokens/history
+// GET /tokens/history — purchase history for authenticated user
 router.get('/tokens/history', authMiddleware(), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const agent = (req as any).agent;
         const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
         const db = getFirestore();
-
         const snapshot = await db.collection('tokenPurchases')
             .where('agentId', '==', agent.id)
             .orderBy('createdAt', 'desc').limit(limit).get();
-
         const purchases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         res.json({ purchases });
     } catch (err) { next(err); }

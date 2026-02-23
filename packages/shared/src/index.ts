@@ -5,3 +5,4 @@ export { loadEnv, type Env } from './env.js';
 export { AppError, errorMiddleware, notFoundMiddleware } from './errors.js';
 export { createRateLimiter } from './rateLimit.js';
 export { requestLogger } from './requestLogger.js';
+export { getStripeClient, createCheckoutSession, verifyStripeWebhook, type CheckoutParams } from './stripe.js';
