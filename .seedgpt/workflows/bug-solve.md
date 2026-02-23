@@ -2,6 +2,7 @@
 description: Solve bugs from the bugs folder
 ---
 See: `_tdd-loop.md`, `bug-report.md`
+
 # Bug Solve
 
 ## Quick Fix (small bugs)

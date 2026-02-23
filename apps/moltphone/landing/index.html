@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HP6XZJLHP5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-HP6XZJLHP5');
-</script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HP6XZJLHP5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-HP6XZJLHP5');
+  </script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoltPhone - Voice Calls for AI Agents</title>
-  <meta name="description" content="Give your agent a voice. One API call to make phone calls worldwide with AI assistants.">
+  <meta name="description"
+    content="Give your agent a voice. One API call to make phone calls worldwide with AI assistants.">
   <meta property="og:title" content="MoltPhone - Voice Calls for AI Agents">
-  <meta property="og:description" content="Phone-as-a-Service for AI agents. Make voice calls worldwide with AI assistants powered by Vapi.">
+  <meta property="og:description"
+    content="Phone-as-a-Service for AI agents. Make voice calls worldwide with AI assistants powered by Vapi.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://moltphone.xyz">
   <meta property="og:image" content="https://moltphone.xyz/og.svg">
@@ -25,7 +28,8 @@
   <meta name="twitter:title" content="MoltPhone - Voice Calls for AI Agents">
   <meta name="twitter:description" content="Give your agent a voice. One API call to make phone calls worldwide.">
   <meta name="twitter:image" content="https://moltphone.xyz/og.svg">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
   <style>
     :root {
       --bg: #09090b;
@@ -39,9 +43,13 @@
       --orange: #f97316;
       --blue: #3b82f6;
     }
-    
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
       background: var(--bg);
@@ -49,13 +57,13 @@
       line-height: 1.6;
       min-height: 100vh;
     }
-    
+
     .container {
       max-width: 1100px;
       margin: 0 auto;
       padding: 0 24px;
     }
-    
+
     /* Header */
     header {
       padding: 20px 0;
@@ -66,13 +74,13 @@
       backdrop-filter: blur(10px);
       z-index: 100;
     }
-    
+
     nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    
+
     .logo {
       font-size: 1.5rem;
       font-weight: 700;
@@ -82,24 +90,28 @@
       align-items: center;
       gap: 10px;
     }
-    
-    .logo span { color: var(--accent); }
-    
+
+    .logo span {
+      color: var(--accent);
+    }
+
     .nav-links {
       display: flex;
       gap: 32px;
       align-items: center;
     }
-    
+
     .nav-links a {
       color: var(--text-muted);
       text-decoration: none;
       font-size: 0.95rem;
       transition: color 0.2s;
     }
-    
-    .nav-links a:hover { color: var(--text); }
-    
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
     .nav-cta {
       background: var(--accent) !important;
       color: white !important;
@@ -107,11 +119,11 @@
       border-radius: 8px;
       font-weight: 600;
     }
-    
+
     .nav-cta:hover {
       background: var(--accent-hover) !important;
     }
-    
+
     /* Hero */
     .hero {
       text-align: center;
@@ -119,7 +131,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .hero::before {
       content: '';
       position: absolute;
@@ -131,7 +143,7 @@
       background: radial-gradient(ellipse, rgba(34, 197, 94, 0.15) 0%, transparent 70%);
       pointer-events: none;
     }
-    
+
     .hero-badge {
       display: inline-flex;
       align-items: center;
@@ -144,7 +156,7 @@
       color: var(--text-muted);
       margin-bottom: 32px;
     }
-    
+
     .hero-badge .dot {
       width: 8px;
       height: 8px;
@@ -152,12 +164,19 @@
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
-    
+
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
     }
-    
+
     .hero h1 {
       font-size: 4rem;
       margin-bottom: 20px;
@@ -166,7 +185,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
+
     .hero p {
       font-size: 1.25rem;
       color: var(--text-muted);
@@ -175,14 +194,14 @@
       margin-left: auto;
       margin-right: auto;
     }
-    
+
     .hero-buttons {
       display: flex;
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
     }
-    
+
     .btn {
       padding: 14px 28px;
       border-radius: 10px;
@@ -193,45 +212,45 @@
       align-items: center;
       gap: 8px;
     }
-    
+
     .btn-primary {
       background: var(--accent);
       color: white;
     }
-    
+
     .btn-primary:hover {
       background: var(--accent-hover);
       transform: translateY(-1px);
     }
-    
+
     .btn-secondary {
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
     }
-    
+
     .btn-secondary:hover {
       background: var(--border);
     }
-    
+
     /* Features */
     .features {
       padding: 80px 0;
     }
-    
+
     .features h2 {
       text-align: center;
       font-size: 2.5rem;
       margin-bottom: 60px;
       color: var(--text);
     }
-    
+
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 40px;
     }
-    
+
     .feature-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -239,46 +258,46 @@
       padding: 32px;
       text-align: center;
     }
-    
+
     .feature-icon {
       font-size: 3rem;
       margin-bottom: 20px;
       display: block;
     }
-    
+
     .feature-card h3 {
       font-size: 1.5rem;
       margin-bottom: 16px;
       color: var(--text);
     }
-    
+
     .feature-card p {
       color: var(--text-muted);
       line-height: 1.7;
     }
-    
+
     /* How it works */
     .how-it-works {
       padding: 80px 0;
       background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
     }
-    
+
     .how-it-works h2 {
       text-align: center;
       font-size: 2.5rem;
       margin-bottom: 60px;
     }
-    
+
     .steps {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 40px;
     }
-    
+
     .step {
       text-align: center;
     }
-    
+
     .step-number {
       width: 50px;
       height: 50px;
@@ -292,52 +311,52 @@
       font-size: 1.5rem;
       margin: 0 auto 20px;
     }
-    
+
     .step h3 {
       font-size: 1.25rem;
       margin-bottom: 12px;
       color: var(--text);
     }
-    
+
     .step p {
       color: var(--text-muted);
     }
-    
+
     /* API Examples */
     .api-examples {
       padding: 80px 0;
     }
-    
+
     .api-examples h2 {
       text-align: center;
       font-size: 2.5rem;
       margin-bottom: 60px;
     }
-    
+
     .code-examples {
       display: grid;
       gap: 40px;
     }
-    
+
     .code-block {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
     }
-    
+
     .code-header {
       padding: 16px 24px;
       border-bottom: 1px solid var(--border);
       font-weight: 600;
       color: var(--accent);
     }
-    
+
     .code-content {
       padding: 24px;
       overflow-x: auto;
     }
-    
+
     pre {
       margin: 0;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -345,30 +364,30 @@
       line-height: 1.6;
       color: var(--text-muted);
     }
-    
+
     .code-content code {
       color: var(--text);
     }
-    
+
     /* Pricing */
     .pricing {
       padding: 80px 0;
       background: var(--surface);
     }
-    
+
     .pricing h2 {
       text-align: center;
       font-size: 2.5rem;
       margin-bottom: 20px;
     }
-    
+
     .pricing-subtitle {
       text-align: center;
       color: var(--text-muted);
       margin-bottom: 60px;
       font-size: 1.1rem;
     }
-    
+
     .pricing-card {
       max-width: 500px;
       margin: 0 auto;
@@ -380,7 +399,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .pricing-card::before {
       content: '';
       position: absolute;
@@ -390,25 +409,25 @@
       height: 4px;
       background: linear-gradient(90deg, var(--accent), var(--blue));
     }
-    
+
     .price {
       font-size: 4rem;
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 10px;
     }
-    
+
     .price-unit {
       font-size: 1.1rem;
       color: var(--text-muted);
       margin-bottom: 30px;
     }
-    
+
     .pricing-features {
       list-style: none;
       margin-bottom: 40px;
     }
-    
+
     .pricing-features li {
       padding: 8px 0;
       color: var(--text-muted);
@@ -417,32 +436,32 @@
       justify-content: center;
       gap: 10px;
     }
-    
+
     .pricing-features li::before {
       content: '✓';
       color: var(--accent);
       font-weight: bold;
     }
-    
+
     /* Social */
     .social {
       padding: 60px 0;
       text-align: center;
     }
-    
+
     .social h3 {
       font-size: 1.5rem;
       margin-bottom: 30px;
       color: var(--text);
     }
-    
+
     .social-buttons {
       display: flex;
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
     }
-    
+
     .social-btn {
       padding: 12px 24px;
       background: var(--surface);
@@ -455,12 +474,12 @@
       align-items: center;
       gap: 8px;
     }
-    
+
     .social-btn:hover {
       background: var(--border);
       transform: translateY(-1px);
     }
-    
+
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
@@ -468,48 +487,49 @@
       text-align: center;
       color: var(--text-muted);
     }
-    
+
     footer a {
       color: var(--accent);
       text-decoration: none;
     }
-    
+
     footer a:hover {
       text-decoration: underline;
     }
-    
+
     /* Mobile responsive */
     @media (max-width: 768px) {
       .hero h1 {
         font-size: 2.5rem;
       }
-      
+
       .hero p {
         font-size: 1.1rem;
       }
-      
+
       .hero-buttons {
         flex-direction: column;
         align-items: center;
       }
-      
+
       .features h2,
       .how-it-works h2,
       .api-examples h2,
       .pricing h2 {
         font-size: 2rem;
       }
-      
+
       .nav-links {
         display: none;
       }
-      
+
       .container {
         padding: 0 16px;
       }
     }
   </style>
 </head>
+
 <body>
   <header>
     <nav class="container">
@@ -549,32 +569,38 @@
         <div class="feature-card">
           <span class="feature-icon">🎙️</span>
           <h3>AI-Powered Voice</h3>
-          <p>Natural-sounding AI assistants that can hold conversations, take appointments, and handle customer calls professionally.</p>
+          <p>Natural-sounding AI assistants that can hold conversations, take appointments, and handle customer calls
+            professionally.</p>
         </div>
         <div class="feature-card">
           <span class="feature-icon">🌍</span>
           <h3>Global Reach</h3>
-          <p>Call any phone number worldwide. Support for international dialing and local numbers in multiple countries.</p>
+          <p>Call any phone number worldwide. Support for international dialing and local numbers in multiple countries.
+          </p>
         </div>
         <div class="feature-card">
           <span class="feature-icon">📝</span>
           <h3>Real-time Transcripts</h3>
-          <p>Get complete conversation transcripts delivered instantly via webhooks or API. Perfect for logging and analysis.</p>
+          <p>Get complete conversation transcripts delivered instantly via webhooks or API. Perfect for logging and
+            analysis.</p>
         </div>
         <div class="feature-card">
           <span class="feature-icon">⚡</span>
           <h3>Lightning Fast</h3>
-          <p>Calls connect in seconds. Low-latency voice processing ensures natural conversations without awkward delays.</p>
+          <p>Calls connect in seconds. Low-latency voice processing ensures natural conversations without awkward
+            delays.</p>
         </div>
         <div class="feature-card">
           <span class="feature-icon">🔒</span>
           <h3>Secure & Private</h3>
-          <p>End-to-end encryption for all calls. Your data stays private and secure with enterprise-grade protection.</p>
+          <p>End-to-end encryption for all calls. Your data stays private and secure with enterprise-grade protection.
+          </p>
         </div>
         <div class="feature-card">
           <span class="feature-icon">💰</span>
           <h3>Simple Pricing</h3>
-          <p>Just $0.15 per call, regardless of duration. No hidden fees, no monthly subscriptions. Pay for what you use.</p>
+          <p>Token-based pricing — buy what you need. No hidden fees, no monthly subscriptions. Start from
+            $0.10 per token.</p>
         </div>
       </div>
     </div>
@@ -624,7 +650,7 @@
   }'</code></pre>
           </div>
         </div>
-        
+
         <div class="code-block">
           <div class="code-header">Make a phone call</div>
           <div class="code-content">
@@ -632,15 +658,17 @@
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "to": "+1234567890",
-    "prompt": "You are a helpful assistant confirming appointments.",
-    "firstMessage": "Hi! I'm calling to confirm your appointment tomorrow at 2 PM.",
-    "maxDurationMin": 5,
-    "voice": "american-female"
+    "to_number": "+1234567890",
+    "assistant_config": {
+      "first_message": "Hi! I'm calling to confirm your appointment tomorrow at 2 PM.",
+      "system_prompt": "You are a helpful assistant confirming appointments.",
+      "voice": "alice",
+      "model": "gpt-4o-mini"
+    }
   }'</code></pre>
           </div>
         </div>
-        
+
         <div class="code-block">
           <div class="code-header">Get call history</div>
           <div class="code-content">
@@ -651,15 +679,14 @@
 {
   "calls": [
     {
-      "id": "call-123",
-      "to": "+1234567890",
+      "id": "call-abc123",
+      "toNumber": "+1234567890",
       "status": "completed",
-      "duration": "2:34",
-      "cost": 0.15,
-      "createdAt": "2024-02-14T14:30:00Z"
+      "mode": "conversation-relay",
+      "createdAt": "2026-02-24T14:30:00Z",
+      "twilioCallSid": "CA..."
     }
-  ],
-  "totalCost": 0.15
+  ]
 }</code></pre>
           </div>
         </div>
@@ -670,20 +697,42 @@
   <section id="pricing" class="pricing">
     <div class="container">
       <h2>Simple Pricing</h2>
-      <p class="pricing-subtitle">No hidden fees. No monthly costs. Just pay per call.</p>
-      <div class="pricing-card">
-        <div class="price">$0.15</div>
-        <div class="price-unit">per call</div>
-        <ul class="pricing-features">
-          <li>Any duration (up to 30 minutes)</li>
-          <li>Global phone number support</li>
-          <li>Real-time transcripts</li>
-          <li>Webhook notifications</li>
-          <li>Call recordings included</li>
-          <li>Multiple voice options</li>
-          <li>Rate limiting: 10 calls/hour</li>
-        </ul>
-        <a href="https://app.moltphone.xyz" class="btn btn-primary">Start Calling Now</a>
+      <p class="pricing-subtitle">Token-based. No monthly fees. Scale as you grow.</p>
+      <div
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:900px;margin:0 auto">
+        <div class="pricing-card">
+          <div class="price">$10</div>
+          <div class="price-unit">100 tokens</div>
+          <ul class="pricing-features">
+            <li>Standard AI voice</li>
+            <li>Call status tracking</li>
+            <li>50+ countries</li>
+          </ul>
+          <a href="https://app.moltphone.xyz" class="btn btn-primary" style="width:100%;justify-content:center">Buy
+            Starter</a>
+        </div>
+        <div class="pricing-card" style="border-color:var(--accent)">
+          <div class="price">$40</div>
+          <div class="price-unit">500 tokens</div>
+          <ul class="pricing-features">
+            <li>Priority voice quality</li>
+            <li>Call history & details</li>
+            <li>API access included</li>
+          </ul>
+          <a href="https://app.moltphone.xyz" class="btn btn-primary" style="width:100%;justify-content:center">Buy
+            Pro</a>
+        </div>
+        <div class="pricing-card">
+          <div class="price">$120</div>
+          <div class="price-unit">2,000 tokens</div>
+          <ul class="pricing-features">
+            <li>REST API + Webhooks</li>
+            <li>Custom AI personas</li>
+            <li>Bulk calling</li>
+          </ul>
+          <a href="https://app.moltphone.xyz" class="btn btn-primary" style="width:100%;justify-content:center">Buy
+            Enterprise</a>
+        </div>
       </div>
     </div>
   </section>
@@ -692,8 +741,8 @@
     <div class="container">
       <h3>Share MoltPhone</h3>
       <div class="social-buttons">
-        <a href="https://twitter.com/intent/tweet?text=🔥%20Just%20found%20MoltPhone%20-%20Phone-as-a-Service%20for%20AI%20agents!%20Give%20your%20agent%20a%20voice%20with%20one%20API%20call%20📞&url=https://moltphone.xyz" 
-           target="_blank" class="social-btn">
+        <a href="https://twitter.com/intent/tweet?text=🔥%20Just%20found%20MoltPhone%20-%20Phone-as-a-Service%20for%20AI%20agents!%20Give%20your%20agent%20a%20voice%20with%20one%20API%20call%20📞&url=https://moltphone.xyz"
+          target="_blank" class="social-btn">
           📱 Share on X
         </a>
         <a href="https://molthunt.com" target="_blank" class="social-btn">
@@ -705,9 +754,11 @@
 
   <footer>
     <div class="container">
-      <p>Built by <a href="https://spring.gib">Spring Software Gibraltar</a> 🦞</p>
-      <p><a href="https://app.moltphone.xyz">Try the App</a> • <a href="https://moltphone.xyz/skill.md">API Documentation</a> • <a href="https://api.moltphone.xyz/stats">Stats</a></p>
+      <p>Built by <a href="https://springsoftware.io" target="_blank">Spring Software Gibraltar</a> 🦞</p>
+      <p><a href="https://app.moltphone.xyz">Try the App</a> • <a href="https://moltphone.xyz/skill.md">API
+          Documentation</a> • <a href="https://api.moltphone.xyz/stats">Stats</a></p>
     </div>
   </footer>
 </body>
+
 </html>
