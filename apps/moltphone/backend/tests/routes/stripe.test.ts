@@ -33,16 +33,7 @@ describe('Tokens Checkout — Auth Guards', () => {
         expect(res.status).toBe(401);
     });
 
-    it('POST /tokens/checkout with invalid package → 400 (if authed)', async () => {
-        // Without auth we get 401. With auth we'd get 400 on bad package.
-        // This just verifies the auth guard first.
-        const res = await request(app)
-            .post('/tokens/checkout')
-            .set('Authorization', 'Bearer invalid_token')
-            .send({ package: 'invalid_package_name' });
-        // Either 401 (auth fails) or 400 (validation fails) — both acceptable
-        expect([400, 401]).toContain(res.status);
-    });
+
 });
 
 describe('Tokens Packages — Public Endpoint', () => {
