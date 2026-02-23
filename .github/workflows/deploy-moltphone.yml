@@ -36,3 +36,5 @@ jobs:
           flags: '--min-instances=0 --max-instances=3'
           env_vars: |
             APP_BASE_URL=https://api.moltphone.xyz
+            AUTH0_DOMAIN=dev-qi4l073sys2rptlp.us.auth0.com
+            AUTH0_AUDIENCE=https://api.moltbot.xyz
