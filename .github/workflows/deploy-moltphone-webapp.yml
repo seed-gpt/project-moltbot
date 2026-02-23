@@ -1,0 +1,39 @@
+name: Deploy MoltPhone Webapp
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/moltphone/webapp/**']
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  SERVICE: moltphone-webapp
+  IMAGE: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/moltbot/moltphone-webapp
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: gcloud auth configure-docker us-central1-docker.pkg.dev
+      - run: |
+          docker build -f apps/moltphone/webapp/Dockerfile \
+            -t $IMAGE:${{ github.sha }} \
+            apps/moltphone/webapp
+          docker push $IMAGE:${{ github.sha }}
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          image: ${{ env.IMAGE }}:${{ github.sha }}
+          region: ${{ env.REGION }}
+          flags: '--min-instances=0 --max-instances=3 --port=80 --allow-unauthenticated'
