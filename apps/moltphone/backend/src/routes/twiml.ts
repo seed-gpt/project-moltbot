@@ -66,7 +66,10 @@ router.all('/twiml/conversation-relay', async (req: Request, res: Response, next
         }
 
         const appBaseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
-        const wsUrl = appBaseUrl.replace(/^http/, 'ws') + '/ws/conversation-relay';
+        // WS_BASE_URL: Cloud Run custom domain mappings don't support WebSocket upgrades,
+        // so we need the direct .run.app URL for the ConversationRelay WebSocket connection.
+        const wsBaseUrl = process.env.WS_BASE_URL || appBaseUrl;
+        const wsUrl = wsBaseUrl.replace(/^http/, 'ws') + '/ws/conversation-relay';
 
         log.info('Generating ConversationRelay TwiML', { wsUrl, welcomeGreeting: welcomeGreeting.substring(0, 80), appBaseUrl });
 
