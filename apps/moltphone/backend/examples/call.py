@@ -20,7 +20,7 @@ API_BASE = "https://api.moltphone.xyz"
 API_KEY = os.environ.get("MOLTPHONE_API_KEY", "")
 
 DEFAULTS = {
-    "first_message": "Hi, I would like to order a taxi from Nimbus house to the airport. 2 adults and 1 child.",
+    "first_message": "Hi, I would like to order a taxi from Nimbus house, Tradewinds to the airport. 2 adults and 1 child.",
     "system_prompt": (
         "You are a personal assistant, calling a taxi company. "
         "Your goal is to book a taxi with them. Do not present yourself as AI. "
