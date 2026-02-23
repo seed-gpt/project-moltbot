@@ -1383,6 +1383,244 @@
       cursor: pointer;
     }
 
+    /* ─── Call Detail Page ─── */
+    .call-detail-page {
+      display: none;
+      min-height: 100vh;
+      padding-top: 24px;
+      padding-bottom: 80px;
+    }
+
+    .call-detail-page.active {
+      display: block;
+    }
+
+    .call-detail-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      cursor: pointer;
+      transition: color var(--transition);
+      background: none;
+      border: none;
+      font-family: inherit;
+    }
+
+    .call-detail-back:hover {
+      color: var(--accent);
+    }
+
+    .call-detail-title-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .call-detail-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .call-detail-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    .detail-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .detail-meta-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .detail-meta-card .meta-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .detail-meta-card .meta-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .detail-meta-card .meta-value.accent {
+      color: var(--accent);
+    }
+
+    .detail-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .detail-section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-item {
+      margin-bottom: 14px;
+    }
+
+    .config-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .config-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .config-value {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .config-value.mono {
+      font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
+      font-size: 0.85rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+
+    /* Transcript bubbles */
+    .transcript-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .transcript-empty {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-dim);
+    }
+
+    .transcript-bubble {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .transcript-bubble.ai {
+      background: var(--accent-dim);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      align-self: flex-start;
+    }
+
+    .transcript-bubble.user {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      align-self: flex-end;
+    }
+
+    .transcript-role {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .transcript-bubble.ai .transcript-role {
+      color: var(--accent);
+    }
+
+    .transcript-bubble.user .transcript-role {
+      color: var(--blue);
+    }
+
+    .transcript-content {
+      color: var(--text-secondary);
+    }
+
+    .transcript-time {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .detail-loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-dim);
+    }
+
+    .detail-loading .spinner-large {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    .detail-error {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-dim);
+    }
+
+    .detail-error-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .call-detail-status-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 100px;
+      display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+      .detail-meta-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .transcript-bubble {
+        max-width: 95%;
+      }
+    }
+
     /* ─── Smooth scroll ─── */
     html {
       scroll-behavior: smooth;
@@ -1658,358 +1896,384 @@
 
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="container">
-      <a href="#" class="logo">📞 Molt<span>Phone</span></a>
-      <nav class="nav-links" id="nav-links">
-        <a href="#call">Make a Call</a>
-        <a href="#how">How It Works</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#history">History</a>
-        <a href="#api">API</a>
-      </nav>
-      <div class="auth-area" id="auth-area">
-        <button class="auth-btn" id="auth-btn" onclick="showAuthModal()">Sign Up</button>
-      </div>
-      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
-    </div>
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-badge">🟢 Live — Make calls now</div>
-      <h1>AI <em>Phone Calls</em>,<br>Made Simple</h1>
-      <p>Enter a number, tell the AI what to say, and it handles the conversation. Appointments, inquiries, reservations
-        — done in seconds.</p>
-      <a href="#call" class="hero-cta">📞 Make a Call</a>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="num">3</div>
-          <div class="label">Free calls / hour</div>
-        </div>
-        <div class="hero-stat">
-          <div class="num">30s</div>
-          <div class="label">Average setup time</div>
-        </div>
-        <div class="hero-stat">
-          <div class="num">50+</div>
-          <div class="label">Countries supported</div>
+  <!-- Call Detail Page (hidden by default, shown via hash routing) -->
+  <section class="call-detail-page" id="call-detail-page">
+    <div class="container-sm">
+      <button class="call-detail-back" onclick="navigateHome()">
+        ← Back to MoltPhone
+      </button>
+      <div id="call-detail-content">
+        <div class="detail-loading" id="detail-loading">
+          <div class="spinner-large"></div>
+          <div>Loading call details...</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Dashboard Panel (shown when logged in) -->
-  <section id="dashboard-section">
-    <div class="container-sm">
-      <div class="dashboard-panel" id="dashboard-panel">
-        <div class="dashboard-header">
-          <h3>👤 My Account</h3>
-          <button class="auth-btn secondary" onclick="logout()" style="font-size:0.8rem;padding:6px 14px">Sign
-            Out</button>
+  <!-- Main Content Wrapper -->
+  <div id="main-content">
+
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <a href="#" class="logo">📞 Molt<span>Phone</span></a>
+        <nav class="nav-links" id="nav-links">
+          <a href="#call">Make a Call</a>
+          <a href="#how">How It Works</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#history">History</a>
+          <a href="#api">API</a>
+        </nav>
+        <div class="auth-area" id="auth-area">
+          <button class="auth-btn" id="auth-btn" onclick="showAuthModal()">Sign Up</button>
         </div>
-        <div class="dashboard-grid">
-          <div class="apikey-card">
-            <div class="label">API Key</div>
-            <div class="apikey-row">
-              <div class="apikey-value" id="dash-apikey">mp_••••••••••••••••</div>
-              <button class="apikey-toggle" id="dash-toggle" onclick="toggleApiKeyVisibility()">Show</button>
-              <button class="apikey-copy" id="dash-copy" onclick="copyDashApiKey()">Copy</button>
-            </div>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">🟢 Live — Make calls now</div>
+        <h1>AI <em>Phone Calls</em>,<br>Made Simple</h1>
+        <p>Enter a number, tell the AI what to say, and it handles the conversation. Appointments, inquiries,
+          reservations
+          — done in seconds.</p>
+        <a href="#call" class="hero-cta">📞 Make a Call</a>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="num">3</div>
+            <div class="label">Free calls / hour</div>
           </div>
-          <div class="token-card">
-            <div class="label">Token Balance</div>
-            <div class="token-balance"><span id="dash-token-balance">0</span> <span>tokens</span></div>
-            <button class="token-buy-btn" onclick="openPurchaseModal()">⚡ Buy Tokens</button>
+          <div class="hero-stat">
+            <div class="num">30s</div>
+            <div class="label">Average setup time</div>
+          </div>
+          <div class="hero-stat">
+            <div class="num">50+</div>
+            <div class="label">Countries supported</div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Make a Call -->
-  <section id="call">
-    <div class="container-sm">
-      <!-- Call Form -->
-      <div class="call-card" id="call-form-card">
-        <h2>📞 Make a Call</h2>
-        <p class="subtitle">Your AI assistant will call and handle the conversation.</p>
-
-        <div class="upgrade-banner" id="upgrade-banner">
-          <p>⚡ You've used your free calls. Sign up for more!</p>
-          <a class="upgrade-link" onclick="auth0Login()">Create Free Account →</a>
-        </div>
-
-        <div class="rate-limit-bar" id="rate-limit-bar">
-          <div class="rate-dots" id="rate-dots">
-            <div class="rate-dot"></div>
-            <div class="rate-dot"></div>
-            <div class="rate-dot"></div>
+    <!-- Dashboard Panel (shown when logged in) -->
+    <section id="dashboard-section">
+      <div class="container-sm">
+        <div class="dashboard-panel" id="dashboard-panel">
+          <div class="dashboard-header">
+            <h3>👤 My Account</h3>
+            <button class="auth-btn secondary" onclick="logout()" style="font-size:0.8rem;padding:6px 14px">Sign
+              Out</button>
           </div>
-          <span class="rate-text"><span id="calls-remaining">3</span> calls remaining this hour</span>
-        </div>
-
-        <div id="form-error"></div>
-
-        <form id="call-form" autocomplete="off">
-          <div class="form-group">
-            <label class="form-label">Phone Number <span class="req">*</span></label>
-            <div class="phone-row">
-              <select class="country-select" id="country-code">
-                <option value="+1">🇺🇸 +1</option>
-                <option value="+44">🇬🇧 +44</option>
-                <option value="+33">🇫🇷 +33</option>
-                <option value="+49">🇩🇪 +49</option>
-                <option value="+34">🇪🇸 +34</option>
-                <option value="+39">🇮🇹 +39</option>
-                <option value="+31">🇳🇱 +31</option>
-                <option value="+46">🇸🇪 +46</option>
-                <option value="+47">🇳🇴 +47</option>
-                <option value="+61">🇦🇺 +61</option>
-                <option value="+81">🇯🇵 +81</option>
-                <option value="+82">🇰🇷 +82</option>
-                <option value="+86">🇨🇳 +86</option>
-                <option value="+91">🇮🇳 +91</option>
-                <option value="+351">🇵🇹 +351</option>
-                <option value="+353">🇮🇪 +353</option>
-                <option value="+356">🇲🇹 +356</option>
-                <option value="+350">🇬🇮 +350</option>
-                <option value="+971">🇦🇪 +971</option>
-                <option value="+972">🇮🇱 +972</option>
-                <option value="+55">🇧🇷 +55</option>
-                <option value="+52">🇲🇽 +52</option>
-              </select>
-              <input type="tel" class="phone-input" id="phone-number" placeholder="555 123 4567" required>
+          <div class="dashboard-grid">
+            <div class="apikey-card">
+              <div class="label">API Key</div>
+              <div class="apikey-row">
+                <div class="apikey-value" id="dash-apikey">mp_••••••••••••••••</div>
+                <button class="apikey-toggle" id="dash-toggle" onclick="toggleApiKeyVisibility()">Show</button>
+                <button class="apikey-copy" id="dash-copy" onclick="copyDashApiKey()">Copy</button>
+              </div>
+            </div>
+            <div class="token-card">
+              <div class="label">Token Balance</div>
+              <div class="token-balance"><span id="dash-token-balance">0</span> <span>tokens</span></div>
+              <button class="token-buy-btn" onclick="openPurchaseModal()">⚡ Buy Tokens</button>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="form-group">
-            <label class="form-label" for="first-message">What should the AI say first? <span
-                class="req">*</span></label>
-            <textarea id="first-message"
-              placeholder="e.g. Hi, I'd like to make a reservation for 2 people this Saturday at 8pm. My name is Alex."
-              required></textarea>
-            <div class="form-hint">This is the opening line the AI will say when the call connects.</div>
+    <!-- Make a Call -->
+    <section id="call">
+      <div class="container-sm">
+        <!-- Call Form -->
+        <div class="call-card" id="call-form-card">
+          <h2>📞 Make a Call</h2>
+          <p class="subtitle">Your AI assistant will call and handle the conversation.</p>
+
+          <div class="upgrade-banner" id="upgrade-banner">
+            <p>⚡ You've used your free calls. Sign up for more!</p>
+            <a class="upgrade-link" onclick="auth0Login()">Create Free Account →</a>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="prompt-preset">Quick Preset</label>
-            <select id="prompt-preset" onchange="applyPreset(this.value)">
-              <option value="">— Choose a preset or write your own —</option>
-              <option value="restaurant">🍽️ Restaurant Reservation</option>
-              <option value="inquiry">📞 Business Inquiry</option>
-              <option value="appointment">📅 Appointment Booking</option>
-              <option value="taxi">🚕 Taxi / Ride Booking</option>
-              <option value="cancel">❌ Cancel or Reschedule</option>
-              <option value="custom" selected>✏️ Custom</option>
-            </select>
+          <div class="rate-limit-bar" id="rate-limit-bar">
+            <div class="rate-dots" id="rate-dots">
+              <div class="rate-dot"></div>
+              <div class="rate-dot"></div>
+              <div class="rate-dot"></div>
+            </div>
+            <span class="rate-text"><span id="calls-remaining">3</span> calls remaining this hour</span>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="system-prompt">System Prompt <span class="req">*</span></label>
-            <textarea id="system-prompt"
-              required>You are a polite and professional personal assistant making a phone call on behalf of your client. Be concise, stay on topic, and confirm all important details before ending the call. Once the task is complete, say goodbye politely and end your final message with [END_CALL].</textarea>
-            <div class="form-hint">Instructions that guide the AI's behavior during the call. Pick a preset above or
-              write your own.</div>
-          </div>
+          <div id="form-error"></div>
 
-          <div class="form-group">
-            <label class="form-label" for="agent-name">Caller Name <span
-                style="color:var(--text-dim)">(optional)</span></label>
-            <input type="text" id="agent-name" placeholder="e.g. Alex's Assistant">
-            <div class="form-hint">The AI will introduce itself with this name.</div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <form id="call-form" autocomplete="off">
             <div class="form-group">
-              <label class="form-label" for="voice-select">Voice <span
-                  style="color:var(--text-dim)">(optional)</span></label>
-              <select id="voice-select">
-                <option value="alice" selected>Alice (Female, US)</option>
-                <option value="Google.en-US-Standard-C">Google Standard C (Female)</option>
-                <option value="Google.en-US-Standard-D">Google Standard D (Male)</option>
-                <option value="Google.en-GB-Standard-A">Google UK A (Female)</option>
-                <option value="Google.en-GB-Standard-B">Google UK B (Male)</option>
-                <option value="Polly.Joanna">Polly Joanna (Female)</option>
-                <option value="Polly.Matthew">Polly Matthew (Male)</option>
-                <option value="man">Man (Classic)</option>
-                <option value="woman">Woman (Classic)</option>
-              </select>
+              <label class="form-label">Phone Number <span class="req">*</span></label>
+              <div class="phone-row">
+                <select class="country-select" id="country-code">
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+49">🇩🇪 +49</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+31">🇳🇱 +31</option>
+                  <option value="+46">🇸🇪 +46</option>
+                  <option value="+47">🇳🇴 +47</option>
+                  <option value="+61">🇦🇺 +61</option>
+                  <option value="+81">🇯🇵 +81</option>
+                  <option value="+82">🇰🇷 +82</option>
+                  <option value="+86">🇨🇳 +86</option>
+                  <option value="+91">🇮🇳 +91</option>
+                  <option value="+351">🇵🇹 +351</option>
+                  <option value="+353">🇮🇪 +353</option>
+                  <option value="+356">🇲🇹 +356</option>
+                  <option value="+350">🇬🇮 +350</option>
+                  <option value="+971">🇦🇪 +971</option>
+                  <option value="+972">🇮🇱 +972</option>
+                  <option value="+55">🇧🇷 +55</option>
+                  <option value="+52">🇲🇽 +52</option>
+                </select>
+                <input type="tel" class="phone-input" id="phone-number" placeholder="555 123 4567" required>
+              </div>
             </div>
+
             <div class="form-group">
-              <label class="form-label" for="model-select">AI Model <span
-                  style="color:var(--text-dim)">(optional)</span></label>
-              <select id="model-select">
-                <option value="gpt-4o-mini" selected>GPT-4o Mini (Fast)</option>
-                <option value="gpt-4o">GPT-4o (Balanced)</option>
-                <option value="gpt-4.1">GPT-4.1 (Advanced)</option>
-                <option value="gpt-5.1">GPT-5.1 (Latest)</option>
-                <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+              <label class="form-label" for="first-message">What should the AI say first? <span
+                  class="req">*</span></label>
+              <textarea id="first-message"
+                placeholder="e.g. Hi, I'd like to make a reservation for 2 people this Saturday at 8pm. My name is Alex."
+                required></textarea>
+              <div class="form-hint">This is the opening line the AI will say when the call connects.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prompt-preset">Quick Preset</label>
+              <select id="prompt-preset" onchange="applyPreset(this.value)">
+                <option value="">— Choose a preset or write your own —</option>
+                <option value="restaurant">🍽️ Restaurant Reservation</option>
+                <option value="inquiry">📞 Business Inquiry</option>
+                <option value="appointment">📅 Appointment Booking</option>
+                <option value="taxi">🚕 Taxi / Ride Booking</option>
+                <option value="cancel">❌ Cancel or Reschedule</option>
+                <option value="sales">💼 Sales Outreach</option>
+                <option value="marketing">📣 Marketing Follow-up</option>
+                <option value="home_price">🏠 Home Price Inquiry</option>
+                <option value="rent_inquiry">🔑 Rent Inquiry</option>
+                <option value="support">🛟 Customer Support</option>
+                <option value="debt">💳 Debt Collection</option>
+                <option value="custom" selected>✏️ Custom</option>
               </select>
             </div>
+
+            <div class="form-group">
+              <label class="form-label" for="system-prompt">System Prompt <span class="req">*</span></label>
+              <textarea id="system-prompt"
+                required>You are a polite and professional personal assistant making a phone call on behalf of your client. Be concise, stay on topic, and confirm all important details before ending the call. Once the task is complete, say goodbye politely and end your final message with [END_CALL].</textarea>
+              <div class="form-hint">Instructions that guide the AI's behavior during the call. Pick a preset above or
+                write your own.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="agent-name">Caller Name <span
+                  style="color:var(--text-dim)">(optional)</span></label>
+              <input type="text" id="agent-name" placeholder="e.g. Alex's Assistant">
+              <div class="form-hint">The AI will introduce itself with this name.</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label" for="voice-select">Voice <span
+                    style="color:var(--text-dim)">(optional)</span></label>
+                <select id="voice-select">
+                  <option value="alice" selected>Alice (Female, US)</option>
+                  <option value="Google.en-US-Standard-C">Google Standard C (Female)</option>
+                  <option value="Google.en-US-Standard-D">Google Standard D (Male)</option>
+                  <option value="Google.en-GB-Standard-A">Google UK A (Female)</option>
+                  <option value="Google.en-GB-Standard-B">Google UK B (Male)</option>
+                  <option value="Polly.Joanna">Polly Joanna (Female)</option>
+                  <option value="Polly.Matthew">Polly Matthew (Male)</option>
+                  <option value="man">Man (Classic)</option>
+                  <option value="woman">Woman (Classic)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="model-select">AI Model <span
+                    style="color:var(--text-dim)">(optional)</span></label>
+                <select id="model-select">
+                  <option value="gpt-4o-mini" selected>GPT-4o Mini (Fast)</option>
+                  <option value="gpt-4o">GPT-4o (Balanced)</option>
+                  <option value="gpt-4.1">GPT-4.1 (Advanced)</option>
+                  <option value="gpt-5.1">GPT-5.1 (Latest)</option>
+                  <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="error-message">Error Recovery Message <span
+                  style="color:var(--text-dim)">(optional)</span></label>
+              <input type="text" id="error-message" value="Sorry, I didn't catch that. Could you repeat?">
+              <div class="form-hint">What the AI says when it can't understand the other party.</div>
+            </div>
+
+            <button type="submit" class="call-btn" id="call-btn">
+              <span id="call-btn-text">📞 Call Now — Free</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Call In Progress -->
+        <div class="call-card call-status-card" id="call-progress">
+          <div class="call-status-icon ringing" id="call-icon">📞</div>
+          <div class="call-status-text" id="status-text">Initiating call...</div>
+          <div class="call-status-sub" id="status-number"></div>
+          <div class="call-timer-display" id="call-timer">00:00</div>
+          <div class="wave-container" id="wave-container" style="display:none">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
           </div>
+          <button class="end-call-btn" id="end-call-btn">✕ End Call</button>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label" for="error-message">Error Recovery Message <span
-                style="color:var(--text-dim)">(optional)</span></label>
-            <input type="text" id="error-message" value="Sorry, I didn't catch that. Could you repeat?">
-            <div class="form-hint">What the AI says when it can't understand the other party.</div>
+        <!-- Call Result -->
+        <div class="call-card call-result" id="call-result">
+          <div class="result-header">
+            <div class="result-icon" id="result-icon">✅</div>
+            <div class="result-title" id="result-title">Call Complete</div>
+            <div class="result-sub" id="result-sub"></div>
           </div>
-
-          <button type="submit" class="call-btn" id="call-btn">
-            <span id="call-btn-text">📞 Call Now — Free</span>
-          </button>
-        </form>
-      </div>
-
-      <!-- Call In Progress -->
-      <div class="call-card call-status-card" id="call-progress">
-        <div class="call-status-icon ringing" id="call-icon">📞</div>
-        <div class="call-status-text" id="status-text">Initiating call...</div>
-        <div class="call-status-sub" id="status-number"></div>
-        <div class="call-timer-display" id="call-timer">00:00</div>
-        <div class="wave-container" id="wave-container" style="display:none">
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-        </div>
-        <button class="end-call-btn" id="end-call-btn">✕ End Call</button>
-      </div>
-
-      <!-- Call Result -->
-      <div class="call-card call-result" id="call-result">
-        <div class="result-header">
-          <div class="result-icon" id="result-icon">✅</div>
-          <div class="result-title" id="result-title">Call Complete</div>
-          <div class="result-sub" id="result-sub"></div>
-        </div>
-        <div class="result-box" id="result-details-box">
-          <h4>Call Details</h4>
-          <div id="result-details"></div>
-        </div>
-        <div class="result-actions">
-          <button class="result-btn result-btn-primary" id="new-call-btn">📞 New Call</button>
-          <button class="result-btn result-btn-secondary" id="copy-result-btn">📋 Copy Details</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works -->
-  <section id="how">
-    <div class="container section-center">
-      <div class="section-label">How It Works</div>
-      <div class="section-title">Three simple steps</div>
-      <div class="section-desc">No signup needed. Just describe your call and we handle the rest.</div>
-      <div class="steps-grid">
-        <div class="step-card fade-in">
-          <div class="step-num">1</div>
-          <div class="step-icon">📱</div>
-          <h3>Enter a Number</h3>
-          <p>Type the phone number you want to call with international format support.</p>
-        </div>
-        <div class="step-card fade-in">
-          <div class="step-num">2</div>
-          <div class="step-icon">💬</div>
-          <h3>Describe the Task</h3>
-          <p>Tell the AI what to say — make a reservation, ask a question, schedule a meeting.</p>
-        </div>
-        <div class="step-card fade-in">
-          <div class="step-num">3</div>
-          <div class="step-icon">🤖</div>
-          <h3>AI Makes the Call</h3>
-          <p>Our AI calls the number, handles the conversation naturally, and reports back.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pricing -->
-  <section id="pricing">
-    <div class="container section-center">
-      <div class="section-label">Pricing</div>
-      <div class="section-title">Simple, transparent pricing</div>
-      <div class="section-desc">Start free. Scale when you need to.</div>
-      <div class="pricing-grid">
-        <div class="pricing-card">
-          <div class="pricing-tier">Starter</div>
-          <div class="pricing-price">$10 <span>/ 100 tokens</span></div>
-          <div class="pricing-desc">Try it out, get started fast</div>
-          <ul class="pricing-features">
-            <li>100 call tokens</li>
-            <li>Standard AI voice</li>
-            <li>Call status tracking</li>
-            <li>50+ countries</li>
-          </ul>
-          <button class="pricing-btn primary" onclick="openPurchaseModal('starter')">Buy Starter</button>
-        </div>
-        <div class="pricing-card featured">
-          <div class="pricing-tier">Pro</div>
-          <div class="pricing-price">$40 <span>/ 500 tokens</span></div>
-          <div class="pricing-desc">Best value for regular users</div>
-          <ul class="pricing-features">
-            <li>500 call tokens</li>
-            <li>Priority voice quality</li>
-            <li>Call history & details</li>
-            <li>API access included</li>
-          </ul>
-          <button class="pricing-btn primary" onclick="openPurchaseModal('pro')">Buy Pro</button>
-        </div>
-        <div class="pricing-card">
-          <div class="pricing-tier">Enterprise</div>
-          <div class="pricing-price">$120 <span>/ 2000 tokens</span></div>
-          <div class="pricing-desc">For developers & AI agents</div>
-          <ul class="pricing-features">
-            <li>2000 call tokens</li>
-            <li>REST API + Webhooks</li>
-            <li>Custom AI personas</li>
-            <li>Bulk calling</li>
-          </ul>
-          <button class="pricing-btn" onclick="openPurchaseModal('enterprise')">Buy Enterprise</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Recent Calls -->
-  <section id="history">
-    <div class="container-sm">
-      <div class="section-label">History</div>
-      <div class="section-title">Recent Calls</div>
-      <div class="section-desc">Your calls are stored locally in your browser.</div>
-      <div class="calls-list" id="calls-list">
-        <div class="empty-calls" id="empty-calls">
-          <div class="empty-calls-icon">📞</div>
-          <div>No calls yet. Make your first call above!</div>
-        </div>
-      </div>
-      <div style="text-align:center">
-        <button class="clear-history-btn" id="clear-history" style="display:none">Clear History</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- API Section -->
-  <section id="api" class="api-section">
-    <div class="container">
-      <div class="api-grid">
-        <div class="api-info">
-          <div class="section-label">For Developers</div>
-          <div class="section-title" style="margin-bottom:16px">API Access</div>
-          <p>Integrate AI phone calls into your app with a single API call. Perfect for AI agents, automation workflows,
-            and custom integrations.</p>
-          <div class="api-endpoint">
-            <span class="api-method">POST</span>
-            api.moltphone.xyz/call
+          <div class="result-box" id="result-details-box">
+            <h4>Call Details</h4>
+            <div id="result-details"></div>
+          </div>
+          <div class="result-actions">
+            <button class="result-btn result-btn-primary" id="new-call-btn">📞 New Call</button>
+            <button class="result-btn result-btn-secondary" id="copy-result-btn">📋 Copy Details</button>
           </div>
         </div>
-        <div class="code-block">
-          <button class="code-copy" id="code-copy">Copy</button>
-          <pre><code><span style="color:#22c55e">// Make an AI phone call</span>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how">
+      <div class="container section-center">
+        <div class="section-label">How It Works</div>
+        <div class="section-title">Three simple steps</div>
+        <div class="section-desc">No signup needed. Just describe your call and we handle the rest.</div>
+        <div class="steps-grid">
+          <div class="step-card fade-in">
+            <div class="step-num">1</div>
+            <div class="step-icon">📱</div>
+            <h3>Enter a Number</h3>
+            <p>Type the phone number you want to call with international format support.</p>
+          </div>
+          <div class="step-card fade-in">
+            <div class="step-num">2</div>
+            <div class="step-icon">💬</div>
+            <h3>Describe the Task</h3>
+            <p>Tell the AI what to say — make a reservation, ask a question, schedule a meeting.</p>
+          </div>
+          <div class="step-card fade-in">
+            <div class="step-num">3</div>
+            <div class="step-icon">🤖</div>
+            <h3>AI Makes the Call</h3>
+            <p>Our AI calls the number, handles the conversation naturally, and reports back.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing">
+      <div class="container section-center">
+        <div class="section-label">Pricing</div>
+        <div class="section-title">Simple, transparent pricing</div>
+        <div class="section-desc">Start free. Scale when you need to.</div>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-tier">Starter</div>
+            <div class="pricing-price">$10 <span>/ 100 tokens</span></div>
+            <div class="pricing-desc">Try it out, get started fast</div>
+            <ul class="pricing-features">
+              <li>100 call tokens</li>
+              <li>Standard AI voice</li>
+              <li>Call status tracking</li>
+              <li>50+ countries</li>
+            </ul>
+            <button class="pricing-btn primary" onclick="openPurchaseModal('starter')">Buy Starter</button>
+          </div>
+          <div class="pricing-card featured">
+            <div class="pricing-tier">Pro</div>
+            <div class="pricing-price">$40 <span>/ 500 tokens</span></div>
+            <div class="pricing-desc">Best value for regular users</div>
+            <ul class="pricing-features">
+              <li>500 call tokens</li>
+              <li>Priority voice quality</li>
+              <li>Call history & details</li>
+              <li>API access included</li>
+            </ul>
+            <button class="pricing-btn primary" onclick="openPurchaseModal('pro')">Buy Pro</button>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-tier">Enterprise</div>
+            <div class="pricing-price">$120 <span>/ 2000 tokens</span></div>
+            <div class="pricing-desc">For developers & AI agents</div>
+            <ul class="pricing-features">
+              <li>2000 call tokens</li>
+              <li>REST API + Webhooks</li>
+              <li>Custom AI personas</li>
+              <li>Bulk calling</li>
+            </ul>
+            <button class="pricing-btn" onclick="openPurchaseModal('enterprise')">Buy Enterprise</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Calls -->
+    <section id="history">
+      <div class="container-sm">
+        <div class="section-label">History</div>
+        <div class="section-title">Recent Calls</div>
+        <div class="section-desc">Your calls are stored locally in your browser.</div>
+        <div class="calls-list" id="calls-list">
+          <div class="empty-calls" id="empty-calls">
+            <div class="empty-calls-icon">📞</div>
+            <div>No calls yet. Make your first call above!</div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <button class="clear-history-btn" id="clear-history" style="display:none">Clear History</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Section -->
+    <section id="api" class="api-section">
+      <div class="container">
+        <div class="api-grid">
+          <div class="api-info">
+            <div class="section-label">For Developers</div>
+            <div class="section-title" style="margin-bottom:16px">API Access</div>
+            <p>Integrate AI phone calls into your app with a single API call. Perfect for AI agents, automation
+              workflows,
+              and custom integrations.</p>
+            <div class="api-endpoint">
+              <span class="api-method">POST</span>
+              api.moltphone.xyz/call
+            </div>
+          </div>
+          <div class="code-block">
+            <button class="code-copy" id="code-copy">Copy</button>
+            <pre><code><span style="color:#22c55e">// Make an AI phone call</span>
 <span style="color:#c084fc">const</span> response = <span style="color:#c084fc">await</span> <span style="color:#60a5fa">fetch</span>(<span style="color:#fbbf24">'https://api.moltphone.xyz/call'</span>, {
   method: <span style="color:#fbbf24">'POST'</span>,
   headers: {
@@ -2030,69 +2294,71 @@
 
 <span style="color:#c084fc">const</span> data = <span style="color:#c084fc">await</span> response.<span style="color:#60a5fa">json</span>();
 console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e">// { call: { id, status, ... }, remaining_balance }</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Key Login Modal (for agents only) -->
+    <div class="modal-overlay" id="login-modal">
+      <div class="modal">
+        <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+        <h2>🔑 Agent Login</h2>
+        <p class="subtitle">Enter your MoltPhone API key to sign in as an agent.</p>
+        <div class="modal-error" id="login-error"></div>
+        <form id="login-form" onsubmit="handleApiKeyLogin(event)">
+          <div class="form-group">
+            <label class="form-label">API Key</label>
+            <input type="text" id="login-apikey" placeholder="mp_..." required>
+          </div>
+          <button type="submit" class="modal-btn">Sign In with API Key</button>
+        </form>
+        <div class="modal-switch">
+          Not an agent? <a onclick="closeLoginModal(); auth0Login()">Sign in with Auth0</a>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- API Key Login Modal (for agents only) -->
-  <div class="modal-overlay" id="login-modal">
-    <div class="modal">
-      <button class="modal-close" onclick="closeLoginModal()">&times;</button>
-      <h2>🔑 Agent Login</h2>
-      <p class="subtitle">Enter your MoltPhone API key to sign in as an agent.</p>
-      <div class="modal-error" id="login-error"></div>
-      <form id="login-form" onsubmit="handleApiKeyLogin(event)">
-        <div class="form-group">
-          <label class="form-label">API Key</label>
-          <input type="text" id="login-apikey" placeholder="mp_..." required>
+
+    <!-- Token Purchase Modal -->
+    <div class="modal-overlay" id="purchase-modal">
+      <div class="modal" style="max-width:560px">
+        <button class="modal-close" onclick="closePurchaseModal()">&times;</button>
+        <h2>⚡ Buy Tokens</h2>
+        <p class="subtitle">Select a package to add tokens to your account.</p>
+        <div class="modal-error" id="purchase-error"></div>
+        <div class="modal-success" id="purchase-success"></div>
+        <div class="pkg-grid">
+          <div class="pkg-card" data-pkg="starter" onclick="selectPackage('starter')">
+            <div class="pkg-name">Starter</div>
+            <div class="pkg-tokens">100</div>
+            <div class="pkg-price">$10</div>
+            <div class="pkg-rate">$0.10 / token</div>
+          </div>
+          <div class="pkg-card" data-pkg="pro" onclick="selectPackage('pro')">
+            <div class="pkg-name">Pro</div>
+            <div class="pkg-tokens">500</div>
+            <div class="pkg-price">$40</div>
+            <div class="pkg-rate">$0.08 / token</div>
+          </div>
+          <div class="pkg-card" data-pkg="enterprise" onclick="selectPackage('enterprise')">
+            <div class="pkg-name">Enterprise</div>
+            <div class="pkg-tokens">2,000</div>
+            <div class="pkg-price">$120</div>
+            <div class="pkg-rate">$0.06 / token</div>
+          </div>
         </div>
-        <button type="submit" class="modal-btn">Sign In with API Key</button>
-      </form>
-      <div class="modal-switch">
-        Not an agent? <a onclick="closeLoginModal(); auth0Login()">Sign in with Auth0</a>
+        <button class="modal-btn" id="purchase-btn" onclick="handlePurchase()" disabled>Select a package</button>
+        <div class="modal-switch" style="margin-top:12px">
+          Not signed up? <a onclick="closePurchaseModal(); auth0Login()">Create account first</a>
+        </div>
       </div>
     </div>
-  </div>
 
-
-  <!-- Token Purchase Modal -->
-  <div class="modal-overlay" id="purchase-modal">
-    <div class="modal" style="max-width:560px">
-      <button class="modal-close" onclick="closePurchaseModal()">&times;</button>
-      <h2>⚡ Buy Tokens</h2>
-      <p class="subtitle">Select a package to add tokens to your account.</p>
-      <div class="modal-error" id="purchase-error"></div>
-      <div class="modal-success" id="purchase-success"></div>
-      <div class="pkg-grid">
-        <div class="pkg-card" data-pkg="starter" onclick="selectPackage('starter')">
-          <div class="pkg-name">Starter</div>
-          <div class="pkg-tokens">100</div>
-          <div class="pkg-price">$10</div>
-          <div class="pkg-rate">$0.10 / token</div>
-        </div>
-        <div class="pkg-card" data-pkg="pro" onclick="selectPackage('pro')">
-          <div class="pkg-name">Pro</div>
-          <div class="pkg-tokens">500</div>
-          <div class="pkg-price">$40</div>
-          <div class="pkg-rate">$0.08 / token</div>
-        </div>
-        <div class="pkg-card" data-pkg="enterprise" onclick="selectPackage('enterprise')">
-          <div class="pkg-name">Enterprise</div>
-          <div class="pkg-tokens">2,000</div>
-          <div class="pkg-price">$120</div>
-          <div class="pkg-rate">$0.06 / token</div>
-        </div>
-      </div>
-      <button class="modal-btn" id="purchase-btn" onclick="handlePurchase()" disabled>Select a package</button>
-      <div class="modal-switch" style="margin-top:12px">
-        Not signed up? <a onclick="closePurchaseModal(); auth0Login()">Create account first</a>
-      </div>
-    </div>
-  </div>
+  </div><!-- /main-content -->
 
   <!-- Footer -->
-  <footer>
+  <footer id="main-footer">
     <div class="container">
       <p>📞 MoltPhone — AI Phone Calls &nbsp;·&nbsp; Powered by <a href="https://springsoftware.io"
           target="_blank">Spring
@@ -2132,6 +2398,30 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       cancel: {
         system_prompt: 'You are a personal assistant calling to cancel or reschedule an existing booking on behalf of your client. Be polite, provide the booking reference if available, and confirm the cancellation or new arrangement. End your final message with [END_CALL].',
         first_message: 'Hi, I am calling about an existing booking that I need to change.',
+      },
+      sales: {
+        system_prompt: 'You are a friendly and professional sales representative reaching out to a potential client. Introduce your company and product briefly, gauge their interest, ask about their current needs and pain points, and offer to schedule a follow-up demo or meeting. Do not be pushy — focus on building rapport. End your final message with [END_CALL].',
+        first_message: 'Hi there, my name is Alex. I am reaching out from our team because we have a solution that might be a great fit for your business. Do you have a moment to chat?',
+      },
+      marketing: {
+        system_prompt: 'You are a marketing specialist following up with a lead who recently engaged with your brand — for example, downloaded a resource, attended a webinar, or filled out a form. Your goal is to understand their needs, answer any questions about your services, and see if they would like to schedule a more in-depth conversation. Be warm and conversational, not salesy. End your final message with [END_CALL].',
+        first_message: 'Hello! I am calling to follow up — we noticed you recently showed interest in our services and I wanted to see if you had any questions we can help with.',
+      },
+      home_price: {
+        system_prompt: 'You are a personal assistant calling a real estate agency or property listing office to inquire about the price and availability of homes for sale. Ask about location, number of bedrooms, square footage, asking price, property condition, and whether viewings can be arranged. Take detailed notes and confirm all information before ending the call. End your final message with [END_CALL].',
+        first_message: 'Hi, I am calling to inquire about properties you have listed for sale. Could you share some details on what is currently available?',
+      },
+      rent_inquiry: {
+        system_prompt: 'You are a personal assistant calling a landlord or letting agency to inquire about rental properties on behalf of your client. Ask about monthly rent, deposit requirements, lease terms, included utilities, pet policy, move-in availability, and how to arrange a viewing. Confirm all key details before ending the call. End your final message with [END_CALL].',
+        first_message: 'Hello, I am calling about a rental property listing. Could you tell me more about availability and terms?',
+      },
+      support: {
+        system_prompt: 'You are a personal assistant calling a company\'s customer support line on behalf of your client. Clearly describe the issue, provide relevant account or order details when asked, and work with the agent to reach a resolution. Take note of any ticket numbers, next steps, or timelines. Be patient and polite. End your final message with [END_CALL].',
+        first_message: 'Hi, I am calling on behalf of a customer who needs help resolving an issue. Can I speak with someone in support?',
+      },
+      debt: {
+        system_prompt: 'You are a professional and courteous collections representative calling to remind a client about an overdue payment. Verify the identity of the person you are speaking with, clearly state the amount owed and the due date, and offer to discuss payment options or set up a payment plan. Remain calm and respectful at all times. End your final message with [END_CALL].',
+        first_message: 'Hello, I am calling regarding an outstanding balance on your account. Do you have a moment so we can review this together?',
       },
     };
 
@@ -2222,6 +2512,10 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       history.slice(0, 20).forEach(call => {
         const item = document.createElement('div');
         item.className = 'call-item';
+        item.style.cursor = call.callId ? 'pointer' : 'default';
+        if (call.callId) {
+          item.onclick = () => { location.hash = '#/calls/' + call.callId; };
+        }
         const statusClass = call.status === 'completed' ? 'status-completed'
           : call.status === 'failed' ? 'status-failed' : 'status-calling';
         const timeStr = new Date(call.timestamp).toLocaleString(undefined, {
@@ -2860,6 +3154,191 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     setInterval(updateRateUI, 30000);
     // Refresh token balance every 60s
     setInterval(fetchTokenBalance, 60000);
+
+    // ─── Call Detail Page — Hash Routing ───
+    function navigateHome() {
+      location.hash = '';
+    }
+
+    function handleRouting() {
+      const hash = location.hash;
+      const callMatch = hash.match(/^#\/calls\/(.+)$/);
+      const detailPage = $('#call-detail-page');
+      const mainContent = $('#main-content');
+      const mainFooter = $('#main-footer');
+
+      if (callMatch) {
+        const callId = callMatch[1];
+        mainContent.style.display = 'none';
+        mainFooter.style.display = 'none';
+        detailPage.classList.add('active');
+        loadCallDetail(callId);
+        window.scrollTo(0, 0);
+      } else {
+        detailPage.classList.remove('active');
+        mainContent.style.display = '';
+        mainFooter.style.display = '';
+      }
+    }
+
+    window.addEventListener('hashchange', handleRouting);
+
+    // Check on initial load
+    if (location.hash.match(/^#\/calls\/.+$/)) {
+      handleRouting();
+    }
+
+    async function loadCallDetail(callId) {
+      const container = $('#call-detail-content');
+      container.innerHTML = `
+        <div class="detail-loading">
+          <div class="spinner-large"></div>
+          <div>Loading call details...</div>
+        </div>
+      `;
+
+      try {
+        const headers = await getAuthHeaders();
+
+        // Fetch call details and transcript in parallel
+        const [callRes, transcriptRes] = await Promise.all([
+          apiFetch('/calls/' + callId, { headers }),
+          apiFetch('/calls/' + callId + '/transcript', { headers }),
+        ]);
+
+        if (!callRes.ok) {
+          const err = await callRes.json().catch(() => ({}));
+          throw new Error(err.error || err.message || 'Call not found (' + callRes.status + ')');
+        }
+
+        const callData = await callRes.json();
+        const call = callData.call || callData;
+
+        let transcript = [];
+        if (transcriptRes.ok) {
+          const tData = await transcriptRes.json();
+          transcript = tData.transcript || tData.transcripts || [];
+        }
+
+        renderCallDetailPage(call, transcript);
+      } catch (err) {
+        container.innerHTML = `
+          <div class="detail-error">
+            <div class="detail-error-icon">❌</div>
+            <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Failed to load call</div>
+            <div style="color:var(--text-dim)">${escapeHtml(err.message)}</div>
+            <button class="result-btn result-btn-secondary" style="margin-top:20px" onclick="navigateHome()">← Back</button>
+          </div>
+        `;
+      }
+    }
+
+    function formatDuration(seconds) {
+      if (!seconds && seconds !== 0) return '—';
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return m > 0 ? m + 'm ' + s + 's' : s + 's';
+    }
+
+    function formatTimestamp(ts) {
+      if (!ts) return '—';
+      try {
+        return new Date(ts).toLocaleString(undefined, {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+        });
+      } catch { return ts; }
+    }
+
+    function getStatusBadge(status, callResult) {
+      let cls = 'status-calling';
+      let label = status || 'unknown';
+      if (status === 'completed' || callResult === 'success') {
+        cls = 'status-completed';
+        label = 'Completed';
+      } else if (status === 'failed' || callResult === 'failure') {
+        cls = 'status-failed';
+        label = 'Failed';
+      } else if (status === 'in-progress') {
+        cls = 'status-calling';
+        label = 'In Progress';
+      } else if (status === 'queued' || status === 'initiated' || status === 'ringing') {
+        cls = 'status-calling';
+      }
+      return '<span class="call-detail-status-badge ' + cls + '">' + escapeHtml(label) + '</span>';
+    }
+
+    function renderCallDetailPage(call, transcript) {
+      const container = $('#call-detail-content');
+      const config = call.assistantConfig || {};
+
+      let html = '';
+
+      // Title row
+      html += '<div class="call-detail-title-row">';
+      html += '  <div class="call-detail-title">📞 ' + escapeHtml(call.toNumber || call.to_number || 'Unknown') + '</div>';
+      html += '  ' + getStatusBadge(call.status, call.callResult);
+      html += '</div>';
+      html += '<div class="call-detail-subtitle">Call ID: ' + escapeHtml(call.id || '—') + '</div>';
+
+      // Meta grid
+      html += '<div class="detail-meta-grid">';
+      html += '  <div class="detail-meta-card"><div class="meta-label">Duration</div><div class="meta-value accent">' + formatDuration(call.duration) + '</div></div>';
+      html += '  <div class="detail-meta-card"><div class="meta-label">Mode</div><div class="meta-value">' + escapeHtml(call.mode || '—') + '</div></div>';
+      html += '  <div class="detail-meta-card"><div class="meta-label">Direction</div><div class="meta-value">' + escapeHtml(call.direction || '—') + '</div></div>';
+      html += '  <div class="detail-meta-card"><div class="meta-label">Started</div><div class="meta-value">' + formatTimestamp(call.createdAt) + '</div></div>';
+      if (call.endedAt) {
+        html += '  <div class="detail-meta-card"><div class="meta-label">Ended</div><div class="meta-value">' + formatTimestamp(call.endedAt) + '</div></div>';
+      }
+      if (call.twilioCallSid) {
+        html += '  <div class="detail-meta-card"><div class="meta-label">Twilio SID</div><div class="meta-value" style="font-size:0.8rem;font-family:monospace;word-break:break-all">' + escapeHtml(call.twilioCallSid) + '</div></div>';
+      }
+      html += '</div>';
+
+      // Assistant config
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">🤖 Assistant Configuration</div>';
+      if (config.first_message || config.firstMessage) {
+        html += '  <div class="config-item"><div class="config-label">First Message</div><div class="config-value mono">' + escapeHtml(config.first_message || config.firstMessage || '') + '</div></div>';
+      }
+      if (config.system_prompt || config.systemPrompt) {
+        html += '  <div class="config-item"><div class="config-label">System Prompt</div><div class="config-value mono">' + escapeHtml(config.system_prompt || config.systemPrompt || '') + '</div></div>';
+      }
+      const configMeta = [];
+      if (config.voice) configMeta.push('Voice: ' + config.voice);
+      if (config.model) configMeta.push('Model: ' + config.model);
+      if (config.error_message || config.errorMessage) configMeta.push('Error: ' + (config.error_message || config.errorMessage));
+      if (configMeta.length) {
+        html += '  <div class="config-item"><div class="config-label">Settings</div><div class="config-value">' + escapeHtml(configMeta.join('  ·  ')) + '</div></div>';
+      }
+      html += '</div>';
+
+      // Transcript
+      html += '<div class="detail-section">';
+      html += '  <div class="detail-section-title">💬 Transcript (' + transcript.length + ' messages)</div>';
+      if (transcript.length === 0) {
+        html += '  <div class="transcript-empty">No transcript available. The call may still be in progress or no conversation was recorded.</div>';
+      } else {
+        html += '  <div class="transcript-container">';
+        const sorted = transcript.sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+        sorted.forEach(entry => {
+          const isAI = entry.role !== 'user';
+          const roleLabel = isAI ? '🤖 AI' : '🧑 Caller';
+          const bubbleClass = isAI ? 'ai' : 'user';
+          html += '<div class="transcript-bubble ' + bubbleClass + '">';
+          html += '  <div class="transcript-role">' + roleLabel + '</div>';
+          html += '  <div class="transcript-content">' + escapeHtml(entry.content || '') + '</div>';
+          if (entry.timestamp) {
+            html += '  <div class="transcript-time">' + formatTimestamp(entry.timestamp) + '</div>';
+          }
+          html += '</div>';
+        });
+        html += '  </div>';
+      }
+      html += '</div>';
+
+      container.innerHTML = html;
+    }
   </script>
 </body>
 
