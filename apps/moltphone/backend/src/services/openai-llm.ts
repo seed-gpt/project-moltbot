@@ -7,6 +7,26 @@ export interface LLMSession {
     generateResponse(userText: string): AsyncGenerator<string, void, unknown>;
 }
 
+/** Map frontend model identifiers to OpenRouter model IDs */
+const MODEL_MAP: Record<string, string> = {
+    'gpt-4o-mini': 'openai/gpt-4o-mini',
+    'gpt-4o': 'openai/gpt-4o',
+    'gpt-4.1': 'openai/gpt-4.1',
+    'gpt-5.1': 'openai/gpt-5.1',
+    'claude-sonnet-4-20250514': 'anthropic/claude-sonnet-4-20250514',
+};
+
+const DEFAULT_MODEL = 'google/gemini-2.0-flash-001';
+
+/** Resolve a frontend model name to an OpenRouter model ID */
+export function resolveModel(raw?: string): string {
+    if (!raw) return DEFAULT_MODEL;
+    if (MODEL_MAP[raw]) return MODEL_MAP[raw];
+    // If already a qualified OpenRouter ID (contains '/'), pass through
+    if (raw.includes('/')) return raw;
+    return DEFAULT_MODEL;
+}
+
 /**
  * Creates a new LLM session with conversation memory.
  * Streams response tokens for low-latency ConversationRelay integration.
@@ -21,13 +41,13 @@ export function createLLMSession(systemPrompt: string, model?: string): LLMSessi
         apiKey,
         baseURL: 'https://openrouter.ai/api/v1',
     });
-    const selectedModel = model || 'google/gemini-2.0-flash-001';
+    const selectedModel = resolveModel(model);
 
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         { role: 'system', content: systemPrompt },
     ];
 
-    log.info('LLM session created', { model: selectedModel });
+    log.info('LLM session created', { model: selectedModel, requestedModel: model });
 
     return {
         addUserMessage(text: string) {

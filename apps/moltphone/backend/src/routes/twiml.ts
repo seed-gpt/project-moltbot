@@ -6,6 +6,19 @@ import { getLogger } from '../middleware/logger.js';
 const router = express.Router();
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
+/** Parse frontend voice value into ttsProvider + voice for Twilio ConversationRelay */
+function parseVoice(raw?: string): { voice?: string; ttsProvider?: string } {
+    if (!raw) return {};
+    if (raw.startsWith('Google.')) {
+        return { ttsProvider: 'Google', voice: raw.slice('Google.'.length) };
+    }
+    if (raw.startsWith('Polly.')) {
+        return { ttsProvider: 'Amazon', voice: raw };
+    }
+    // Built-in Twilio voices: alice, man, woman
+    return { voice: raw };
+}
+
 /**
  * GET/POST /twiml/conversation-relay
  * Twilio calls this webhook when the outbound call connects.
@@ -21,6 +34,8 @@ router.all('/twiml/conversation-relay', async (req: Request, res: Response, next
         let systemPrompt = 'You are a helpful AI phone assistant. Keep responses concise and conversational.';
         let welcomeGreeting = 'Hello! I am your AI assistant. How can I help you today?';
         let errorMessage = 'I apologize, I encountered an issue. Could you please repeat that?';
+        let voiceRaw: string | undefined;
+        let model: string | undefined;
 
         if (callDocId) {
             const callDoc = await db.collection('calls').doc(callDocId).get();
@@ -39,6 +54,12 @@ router.all('/twiml/conversation-relay', async (req: Request, res: Response, next
                 if (data.assistantConfig?.error_message) {
                     errorMessage = data.assistantConfig.error_message;
                 }
+                if (data.assistantConfig?.voice) {
+                    voiceRaw = data.assistantConfig.voice;
+                }
+                if (data.assistantConfig?.model) {
+                    model = data.assistantConfig.model;
+                }
             } else {
                 log.warn('Call document not found in Firestore', { callDocId });
             }
@@ -53,13 +74,20 @@ router.all('/twiml/conversation-relay', async (req: Request, res: Response, next
         const connect = response.connect({
             action: `${appBaseUrl}/webhooks/twilio-connect-action`,
         });
-        const conversationRelay = connect.conversationRelay({
+
+        const voiceConfig = parseVoice(voiceRaw);
+        const crAttrs: Record<string, string> = {
             url: wsUrl,
             welcomeGreeting,
-        });
+        };
+        if (voiceConfig.voice) crAttrs.voice = voiceConfig.voice;
+        if (voiceConfig.ttsProvider) crAttrs.ttsProvider = voiceConfig.ttsProvider;
+
+        const conversationRelay = connect.conversationRelay(crAttrs as any);
         conversationRelay.parameter({ name: 'callDocId', value: callDocId });
         conversationRelay.parameter({ name: 'systemPrompt', value: systemPrompt });
         conversationRelay.parameter({ name: 'errorMessage', value: errorMessage });
+        if (model) conversationRelay.parameter({ name: 'model', value: model });
 
         const twimlStr = response.toString();
         log.info('TwiML response generated', { twiml: twimlStr.substring(0, 200) });

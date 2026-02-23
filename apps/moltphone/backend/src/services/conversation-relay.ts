@@ -74,16 +74,18 @@ async function handleMessage(
             const callDocId = params.callDocId || '';
             const systemPrompt = params.systemPrompt || 'You are a helpful AI phone assistant. Keep responses concise and conversational.';
             const errorMessage = params.errorMessage || 'I apologize, I encountered an issue. Could you please repeat that?';
+            const model = params.model || undefined;
 
             log.info('Setup message received', {
                 callSid: msg.callSid,
                 direction: msg.direction,
                 callDocId,
+                model,
                 from: msg.from,
                 to: msg.to,
             });
 
-            const llm = createLLMSession(systemPrompt);
+            const llm = createLLMSession(systemPrompt, model);
             const newSession: SessionState = {
                 callDocId,
                 callSid: msg.callSid || '',
