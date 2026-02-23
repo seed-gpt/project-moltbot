@@ -336,23 +336,6 @@
       font-size: 0.85rem;
     }
 
-    .rate-dots {
-      display: flex;
-      gap: 6px;
-    }
-
-    .rate-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-      transition: all var(--transition);
-    }
-
-    .rate-dot.used {
-      background: var(--border);
-    }
-
     .rate-text {
       color: var(--text-muted);
     }
@@ -2008,12 +1991,7 @@
           </div>
 
           <div class="rate-limit-bar" id="rate-limit-bar">
-            <div class="rate-dots" id="rate-dots">
-              <div class="rate-dot"></div>
-              <div class="rate-dot"></div>
-              <div class="rate-dot"></div>
-            </div>
-            <span class="rate-text"><span id="calls-remaining">3</span> calls remaining this hour</span>
+            <span class="rate-text">⚡ <span id="calls-remaining">0</span> tokens available</span>
           </div>
 
           <div id="form-error"></div>
@@ -2379,7 +2357,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     const API_URL = 'https://api.moltphone.xyz/call';
     const API_FALLBACK = 'https://moltphone-oy7ayfiglq-uc.a.run.app/call';
     const STORAGE_KEY = 'moltphone_calls';
-    const RATE_KEY = 'moltphone_rate';
+    let cachedTokenBalance = 0;
 
     // ─── State ───
     let callTimerInterval = null;
@@ -2454,35 +2432,20 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       $('#nav-links').classList.remove('open');
     }));
 
-    // ─── Rate Limiting (client-side tracking) ───
-    function getRateInfo() {
-      try {
-        const data = JSON.parse(localStorage.getItem(RATE_KEY) || '{}');
-        const now = Date.now();
-        const hourAgo = now - 3600000;
-        const calls = (data.calls || []).filter(t => t > hourAgo);
-        return { calls, remaining: Math.max(0, 3 - calls.length) };
-      } catch { return { calls: [], remaining: 3 }; }
-    }
-
-    function recordCall() {
-      const info = getRateInfo();
-      info.calls.push(Date.now());
-      localStorage.setItem(RATE_KEY, JSON.stringify({ calls: info.calls }));
-    }
-
+    // ─── Token Balance UI ───
     function updateRateUI() {
-      const { remaining } = getRateInfo();
-      $('#calls-remaining').textContent = remaining;
-      const dots = $$('#rate-dots .rate-dot');
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('used', i >= remaining);
-      });
-      $('#call-btn').disabled = remaining <= 0;
-      if (remaining <= 0) {
-        $('#call-btn-text').textContent = 'Rate limit reached — try again later';
+      const balance = cachedTokenBalance;
+      $('#calls-remaining').textContent = balance.toLocaleString();
+      const auth = getAuth();
+      if (!auth || (!auth.apiKey && auth.authType !== 'auth0')) {
+        $('#call-btn').disabled = true;
+        $('#call-btn-text').textContent = '🔒 Sign in to make calls';
+      } else if (balance <= 0) {
+        $('#call-btn').disabled = true;
+        $('#call-btn-text').textContent = 'No tokens — purchase more';
       } else {
-        $('#call-btn-text').textContent = '📞 Call Now — Free';
+        $('#call-btn').disabled = false;
+        $('#call-btn-text').textContent = '📞 Call Now — 1 Token';
       }
     }
 
@@ -2564,9 +2527,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
         return;
       }
 
-      const { remaining } = getRateInfo();
-      if (remaining <= 0) {
-        showFormError('Rate limit reached. Please wait before making another call.');
+      if (cachedTokenBalance <= 0) {
+        showFormError('No tokens remaining. Please purchase more tokens.');
         return;
       }
 
@@ -2640,8 +2602,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
           throw new Error(data.error || data.message || `Request failed (${response.status})`);
         }
 
-        // Success
-        recordCall();
+        // Success — update balance from response
+        if (data.remaining_balance !== undefined) cachedTokenBalance = data.remaining_balance;
         updateRateUI();
 
         $('#status-text').textContent = 'Call initiated!';
@@ -2667,8 +2629,12 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
         saveToHistory(historyEntry);
         renderHistory();
 
-        // Check for rate limit
-        if (err.message.toLowerCase().includes('rate') || err.message.toLowerCase().includes('limit')) {
+        // Check for insufficient tokens (402) or rate limit
+        if (err.message.toLowerCase().includes('insufficient') || err.message.toLowerCase().includes('balance')) {
+          cachedTokenBalance = 0;
+          updateRateUI();
+          showResult('ratelimit', phoneNumber, null, 'Insufficient tokens. Please purchase more to continue making calls.');
+        } else if (err.message.toLowerCase().includes('rate') || err.message.toLowerCase().includes('limit')) {
           showResult('ratelimit', phoneNumber, null, err.message);
         } else {
           showResult('error', phoneNumber, null, err.message);
@@ -2983,7 +2949,9 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
         const res = await apiFetch('/tokens/balance', { headers });
         if (res.ok) {
           const data = await res.json();
-          $('#dash-token-balance').textContent = data.balance.toLocaleString();
+          cachedTokenBalance = data.balance || 0;
+          $('#dash-token-balance').textContent = cachedTokenBalance.toLocaleString();
+          updateRateUI();
         }
       } catch { /* silent fail */ }
     }
@@ -3111,9 +3079,8 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     // ─── Upgrade Banner ───
     function checkUpgradeBanner() {
       const auth = getAuth();
-      const { remaining } = getRateInfo();
       const banner = $('#upgrade-banner');
-      if (!auth && remaining <= 0) {
+      if (!auth && cachedTokenBalance <= 0) {
         banner.classList.add('active');
       } else {
         banner.classList.remove('active');
@@ -3158,8 +3125,7 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       renderHistory();
     });
 
-    // Refresh rate limit display every 30s
-    setInterval(updateRateUI, 30000);
+    // Token balance is refreshed by fetchTokenBalance interval (every 60s)
     // Refresh token balance every 60s
     setInterval(fetchTokenBalance, 60000);
 
