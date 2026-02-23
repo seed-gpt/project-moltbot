@@ -26,6 +26,7 @@ export function createApp() {
       'https://www.moltphone.xyz',
       'https://moltcredit.xyz',
       'https://www.moltcredit.xyz',
+      /^https:\/\/moltphone-webapp-[a-z0-9]+-uc\.a\.run\.app$/,
       /^http:\/\/localhost(:\d+)?$/,
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
