@@ -1809,6 +1809,42 @@
             <div class="form-hint">The AI will introduce itself with this name.</div>
           </div>
 
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group">
+              <label class="form-label" for="voice-select">Voice <span
+                  style="color:var(--text-dim)">(optional)</span></label>
+              <select id="voice-select">
+                <option value="alice" selected>Alice (Female, US)</option>
+                <option value="Google.en-US-Standard-C">Google Standard C (Female)</option>
+                <option value="Google.en-US-Standard-D">Google Standard D (Male)</option>
+                <option value="Google.en-GB-Standard-A">Google UK A (Female)</option>
+                <option value="Google.en-GB-Standard-B">Google UK B (Male)</option>
+                <option value="Polly.Joanna">Polly Joanna (Female)</option>
+                <option value="Polly.Matthew">Polly Matthew (Male)</option>
+                <option value="man">Man (Classic)</option>
+                <option value="woman">Woman (Classic)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="model-select">AI Model <span
+                  style="color:var(--text-dim)">(optional)</span></label>
+              <select id="model-select">
+                <option value="gpt-4o-mini" selected>GPT-4o Mini (Fast)</option>
+                <option value="gpt-4o">GPT-4o (Balanced)</option>
+                <option value="gpt-4.1">GPT-4.1 (Advanced)</option>
+                <option value="gpt-5.1">GPT-5.1 (Latest)</option>
+                <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="error-message">Error Recovery Message <span
+                style="color:var(--text-dim)">(optional)</span></label>
+            <input type="text" id="error-message" value="Sorry, I didn't catch that. Could you repeat?">
+            <div class="form-hint">What the AI says when it can't understand the other party.</div>
+          </div>
+
           <button type="submit" class="call-btn" id="call-btn">
             <span id="call-btn-text">📞 Call Now — Free</span>
           </button>
@@ -1971,7 +2007,10 @@
     to_number: <span style="color:#fbbf24">'+15551234567'</span>,
     assistant_config: {
       first_message: <span style="color:#fbbf24">'Hi, can you tell me your office hours?'</span>,
-      system_prompt: <span style="color:#fbbf24">'You are a personal assistant. Be polite.'</span>
+      system_prompt: <span style="color:#fbbf24">'You are a personal assistant. Be polite.'</span>,
+      voice: <span style="color:#fbbf24">'alice'</span>,           <span style="color:#22c55e">// optional</span>
+      model: <span style="color:#fbbf24">'gpt-4o-mini'</span>,     <span style="color:#22c55e">// optional</span>
+      error_message: <span style="color:#fbbf24">'Sorry, could you repeat?'</span> <span style="color:#22c55e">// optional</span>
     }
   })
 });
@@ -2205,11 +2244,18 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       $('#wave-container').style.display = 'none';
       startTimer();
 
+      const voice = $('#voice-select').value;
+      const model = $('#model-select').value;
+      const errorMessage = $('#error-message').value.trim();
+
       const body = {
         to_number: phoneNumber,
         assistant_config: {
           first_message: firstMessage,
           system_prompt: systemPrompt,
+          voice: voice || undefined,
+          model: model || undefined,
+          error_message: errorMessage || undefined,
         },
       };
 
