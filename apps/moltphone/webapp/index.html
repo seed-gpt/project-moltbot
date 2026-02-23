@@ -2255,6 +2255,13 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     $('#call-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      // Require authentication
+      const auth = getAuth();
+      if (!auth || (!auth.apiKey && auth.authType !== 'auth0')) {
+        showFormError('Please sign in or enter your API key to make calls.');
+        return;
+      }
+
       const { remaining } = getRateInfo();
       if (remaining <= 0) {
         showFormError('Rate limit reached. Please wait before making another call.');
