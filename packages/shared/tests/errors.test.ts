@@ -1,4 +1,4 @@
-import { AppError } from './errors.js';
+import { AppError } from '../src/errors.js';
 
 describe('AppError', () => {
     it('creates error with status code', () => {

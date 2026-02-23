@@ -9,6 +9,6 @@ export default {
     }],
   },
   moduleNameMapper: { "^(\\.{1,2}/.*)\\.js$": "$1" },
-  testMatch: ["<rootDir>/src/**/*.test.ts"],
+  testMatch: ["<rootDir>/tests/**/*.test.ts"],
   setupFiles: ["../../../packages/shared/jest.teardown.ts"],
 };

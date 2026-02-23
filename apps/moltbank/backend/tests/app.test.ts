@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { createApp } from './app.js';
+import { createApp } from '../src/app.js';
 
 describe('MoltBank App', () => {
     const app = createApp();

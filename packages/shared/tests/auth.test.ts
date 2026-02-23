@@ -1,4 +1,4 @@
-import { generateApiKey, hashApiKey } from './auth.js';
+import { generateApiKey, hashApiKey } from '../src/auth.js';
 
 describe('auth', () => {
   describe('generateApiKey', () => {

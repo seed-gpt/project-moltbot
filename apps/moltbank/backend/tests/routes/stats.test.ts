@@ -1,6 +1,6 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import request from 'supertest';
-import { createApp } from '../app.js';
+import { createApp } from '../../src/app.js';
 
 const app = createApp();
 
