@@ -22,10 +22,11 @@ API_KEY = os.environ.get("MOLTPHONE_API_KEY", "")
 DEFAULTS = {
     "first_message": "Hi, I would like to order a taxi from Nimbus house, Tradewinds to the airport. 2 adults and 1 child.",
     "system_prompt": (
-        "You are a personal assistant, calling a taxi company. "
-        "Your goal is to book a taxi with them. Do not present yourself as AI. "
+        "You are a personal assistant, calling a taxi company in Gibraltar.\n"
+        "Your goal and task is to order the taxi from Nimbus house, Tradewinds to the airport. 2 adults and 1 child."
+        "Do not present yourself as AI, you are Dave Smith.\n"
         "Once the booking is confirmed and you have all the details, "
-        "say goodbye politely and end your final message with [END_CALL]."
+        "say goodbye politely and end your final message with [END_CALL]"
     ),
     "voice": "alice",
     "model": "gpt-5.1",
