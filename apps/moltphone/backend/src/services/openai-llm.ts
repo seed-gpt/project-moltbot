@@ -13,7 +13,8 @@ const MODEL_MAP: Record<string, string> = {
     'gpt-4o': 'openai/gpt-4o',
     'gpt-4.1': 'openai/gpt-4.1',
     'gpt-5.1': 'openai/gpt-5.1',
-    'claude-sonnet-4-20250514': 'anthropic/claude-sonnet-4-20250514',
+    'claude-sonnet-4': 'anthropic/claude-sonnet-4',
+    'claude-sonnet-4.5': 'anthropic/claude-sonnet-4.5',
 };
 
 const DEFAULT_MODEL = 'google/gemini-2.0-flash-001';
