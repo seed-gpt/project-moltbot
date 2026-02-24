@@ -131,20 +131,19 @@ async function handleMessage(
                 }
                 ws.send(JSON.stringify({ type: 'text', token: '', last: true }));
 
-                // Detect [END_CALL] signal from the AI
-                const shouldEndCall = fullResponse.includes('[END_CALL]');
-                const cleanResponse = fullResponse.replace(/\[END_CALL\]/g, '').trim();
+                // Detect natural goodbye phrase from the AI (case-insensitive)
+                const shouldEndCall = /thank you,? bye/i.test(fullResponse);
 
                 session.transcript.push({
                     role: 'assistant',
-                    content: cleanResponse,
+                    content: fullResponse,
                     timestamp: new Date().toISOString(),
                 });
 
-                log.info('AI response sent', { responseLength: cleanResponse.length, preview: cleanResponse.substring(0, 100), shouldEndCall });
+                log.info('AI response sent', { responseLength: fullResponse.length, preview: fullResponse.substring(0, 100), shouldEndCall });
 
                 if (shouldEndCall) {
-                    log.info('AI signaled END_CALL — hanging up');
+                    log.info('AI said goodbye — hanging up');
                     // Save transcript before ending
                     await saveTranscript(session);
                     // Tell Twilio to end the call
