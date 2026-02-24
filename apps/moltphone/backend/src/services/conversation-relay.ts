@@ -85,7 +85,11 @@ async function handleMessage(
                 to: msg.to,
             });
 
-            const llm = createLLMSession(systemPrompt, model);
+            // Inject the current date so the AI knows what day it is
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const promptWithDate = `${systemPrompt}\n\nToday's date is ${today}.`;
+
+            const llm = createLLMSession(promptWithDate, model);
             const newSession: SessionState = {
                 callDocId,
                 callSid: msg.callSid || '',
