@@ -1386,6 +1386,28 @@
       display: block;
     }
 
+    .call-again-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      margin-top: 28px;
+    }
+
+    .call-again-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.25);
+    }
+
     .call-detail-back {
       display: inline-flex;
       align-items: center;
@@ -2059,7 +2081,7 @@
             <div class="form-group">
               <label class="form-label" for="system-prompt">System Prompt <span class="req">*</span></label>
               <textarea id="system-prompt"
-                required>You are a polite and professional personal assistant making a phone call on behalf of your client. Be concise, stay on topic, and confirm all important details before ending the call. Once the task is complete, say goodbye politely and end your final message with [END_CALL].</textarea>
+                required>You are a polite and professional personal assistant making a phone call on behalf of your client. Be concise, stay on topic, and confirm all important details before ending the call. Once the task is complete, say goodbye politely by saying "thank you, bye bye".</textarea>
               <div class="form-hint">Instructions that guide the AI's behavior during the call. Pick a preset above or
                 write your own.</div>
             </div>
@@ -2367,47 +2389,47 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
     // ─── Prompt Presets ───
     const PRESETS = {
       restaurant: {
-        system_prompt: 'You are a polite personal assistant calling a restaurant to make a reservation on behalf of your client. Confirm the date, time, party size, and any dietary requirements. Once confirmed, repeat the reservation details and say goodbye. End your final message with [END_CALL].',
+        system_prompt: 'You are a polite personal assistant calling a restaurant to make a reservation on behalf of your client. Confirm the date, time, party size, and any dietary requirements. Once confirmed, repeat the reservation details and say goodbye. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hi, I would like to make a reservation please.',
       },
       inquiry: {
-        system_prompt: 'You are a professional assistant calling a business to ask questions on behalf of your client. Be polite, take note of all information provided, and ask follow-up questions if needed. Once you have the answers, thank them and end the call. End your final message with [END_CALL].',
+        system_prompt: 'You are a professional assistant calling a business to ask questions on behalf of your client. Be polite, take note of all information provided, and ask follow-up questions if needed. Once you have the answers, thank them and end the call. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hello, I have a few questions I was hoping you could help me with.',
       },
       appointment: {
-        system_prompt: 'You are a personal assistant calling to book an appointment on behalf of your client. Confirm date, time, and any preparation needed. Be flexible with scheduling alternatives if the preferred time is unavailable. End your final message with [END_CALL].',
+        system_prompt: 'You are a personal assistant calling to book an appointment on behalf of your client. Confirm date, time, and any preparation needed. Be flexible with scheduling alternatives if the preferred time is unavailable. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hi, I would like to schedule an appointment please.',
       },
       taxi: {
-        system_prompt: 'You are a personal assistant calling a taxi or ride service to book a ride on behalf of your client. Confirm pickup location, destination, time, and number of passengers. Once confirmed, repeat all details and say goodbye. End your final message with [END_CALL].',
+        system_prompt: 'You are a personal assistant calling a taxi or ride service to book a ride on behalf of your client. Confirm pickup location, destination, time, and number of passengers. Once confirmed, repeat all details and say goodbye. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hello, I would like to book a taxi please.',
       },
       cancel: {
-        system_prompt: 'You are a personal assistant calling to cancel or reschedule an existing booking on behalf of your client. Be polite, provide the booking reference if available, and confirm the cancellation or new arrangement. End your final message with [END_CALL].',
+        system_prompt: 'You are a personal assistant calling to cancel or reschedule an existing booking on behalf of your client. Be polite, provide the booking reference if available, and confirm the cancellation or new arrangement. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hi, I am calling about an existing booking that I need to change.',
       },
       sales: {
-        system_prompt: 'You are a friendly and professional sales representative reaching out to a potential client. Introduce your company and product briefly, gauge their interest, ask about their current needs and pain points, and offer to schedule a follow-up demo or meeting. Do not be pushy — focus on building rapport. End your final message with [END_CALL].',
+        system_prompt: 'You are a friendly and professional sales representative reaching out to a potential client. Introduce your company and product briefly, gauge their interest, ask about their current needs and pain points, and offer to schedule a follow-up demo or meeting. Do not be pushy — focus on building rapport. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hi there, my name is Alex. I am reaching out from our team because we have a solution that might be a great fit for your business. Do you have a moment to chat?',
       },
       marketing: {
-        system_prompt: 'You are a marketing specialist following up with a lead who recently engaged with your brand — for example, downloaded a resource, attended a webinar, or filled out a form. Your goal is to understand their needs, answer any questions about your services, and see if they would like to schedule a more in-depth conversation. Be warm and conversational, not salesy. End your final message with [END_CALL].',
+        system_prompt: 'You are a marketing specialist following up with a lead who recently engaged with your brand — for example, downloaded a resource, attended a webinar, or filled out a form. Your goal is to understand their needs, answer any questions about your services, and see if they would like to schedule a more in-depth conversation. Be warm and conversational, not salesy. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hello! I am calling to follow up — we noticed you recently showed interest in our services and I wanted to see if you had any questions we can help with.',
       },
       home_price: {
-        system_prompt: 'You are a personal assistant calling a real estate agency or property listing office to inquire about the price and availability of homes for sale. Ask about location, number of bedrooms, square footage, asking price, property condition, and whether viewings can be arranged. Take detailed notes and confirm all information before ending the call. End your final message with [END_CALL].',
+        system_prompt: 'You are a personal assistant calling a real estate agency or property listing office to inquire about the price and availability of homes for sale. Ask about location, number of bedrooms, square footage, asking price, property condition, and whether viewings can be arranged. Take detailed notes and confirm all information before ending the call. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hi, I am calling to inquire about properties you have listed for sale. Could you share some details on what is currently available?',
       },
       rent_inquiry: {
-        system_prompt: 'You are a personal assistant calling a landlord or letting agency to inquire about rental properties on behalf of your client. Ask about monthly rent, deposit requirements, lease terms, included utilities, pet policy, move-in availability, and how to arrange a viewing. Confirm all key details before ending the call. End your final message with [END_CALL].',
+        system_prompt: 'You are a personal assistant calling a landlord or letting agency to inquire about rental properties on behalf of your client. Ask about monthly rent, deposit requirements, lease terms, included utilities, pet policy, move-in availability, and how to arrange a viewing. Confirm all key details before ending the call. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hello, I am calling about a rental property listing. Could you tell me more about availability and terms?',
       },
       support: {
-        system_prompt: 'You are a personal assistant calling a company\'s customer support line on behalf of your client. Clearly describe the issue, provide relevant account or order details when asked, and work with the agent to reach a resolution. Take note of any ticket numbers, next steps, or timelines. Be patient and polite. End your final message with [END_CALL].',
+        system_prompt: 'You are a personal assistant calling a company\'s customer support line on behalf of your client. Clearly describe the issue, provide relevant account or order details when asked, and work with the agent to reach a resolution. Take note of any ticket numbers, next steps, or timelines. Be patient and polite. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hi, I am calling on behalf of a customer who needs help resolving an issue. Can I speak with someone in support?',
       },
       debt: {
-        system_prompt: 'You are a professional and courteous collections representative calling to remind a client about an overdue payment. Verify the identity of the person you are speaking with, clearly state the amount owed and the due date, and offer to discuss payment options or set up a payment plan. Remain calm and respectful at all times. End your final message with [END_CALL].',
+        system_prompt: 'You are a professional and courteous collections representative calling to remind a client about an overdue payment. Verify the identity of the person you are speaking with, clearly state the amount owed and the due date, and offer to discuss payment options or set up a payment plan. Remain calm and respectful at all times. When the conversation is complete, end naturally by saying "thank you, bye bye".',
         first_message: 'Hello, I am calling regarding an outstanding balance on your account. Do you have a moment so we can review this together?',
       },
     };
@@ -3312,7 +3334,77 @@ console.<span style="color:#60a5fa">log</span>(data); <span style="color:#22c55e
       }
       html += '</div>';
 
+      // Call Again button
+      html += '<button class="call-again-btn" id="call-again-btn">🔄 Call Again</button>';
+
       container.innerHTML = html;
+
+      // Attach click handler for Call Again
+      const callAgainBtn = document.getElementById('call-again-btn');
+      if (callAgainBtn) {
+        callAgainBtn.addEventListener('click', () => prefillCallForm(call));
+      }
+    }
+
+    // ─── Call Again — Prefill form from call detail ───
+    function prefillCallForm(call) {
+      const config = call.assistantConfig || {};
+      const fullNumber = call.toNumber || call.to_number || '';
+
+      // Navigate home and show the form
+      location.hash = '';
+
+      // Wait a tick for routing to show main content
+      setTimeout(() => {
+        showView('form');
+
+        // Parse country code from the full phone number
+        const countrySelect = $('#country-code');
+        const phoneInput = $('#phone-number');
+
+        // Collect all country codes from the select, sorted longest first
+        const codes = Array.from(countrySelect.options).map(o => o.value).sort((a, b) => b.length - a.length);
+        let matched = false;
+        for (const code of codes) {
+          if (fullNumber.startsWith(code)) {
+            countrySelect.value = code;
+            phoneInput.value = fullNumber.slice(code.length);
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          phoneInput.value = fullNumber.replace(/^\+/, '');
+        }
+
+        // Prefill text fields
+        $('#first-message').value = config.first_message || config.firstMessage || '';
+        $('#system-prompt').value = config.system_prompt || config.systemPrompt || '';
+        $('#agent-name').value = config.agent_name || config.agentName || '';
+        $('#error-message').value = config.error_message || config.errorMessage || "Sorry, I didn't catch that. Could you repeat?";
+
+        // Prefill selects (only if value exists in the options)
+        const voiceVal = config.voice || '';
+        const voiceSel = $('#voice-select');
+        if (voiceVal && Array.from(voiceSel.options).some(o => o.value === voiceVal)) {
+          voiceSel.value = voiceVal;
+        }
+
+        const modelVal = config.model || '';
+        const modelSel = $('#model-select');
+        if (modelVal && Array.from(modelSel.options).some(o => o.value === modelVal)) {
+          modelSel.value = modelVal;
+        }
+
+        // Reset preset to custom
+        $('#prompt-preset').value = 'custom';
+
+        // Scroll to the form
+        const formCard = $('#call-form-card');
+        if (formCard) {
+          formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 50);
     }
   </script>
 </body>
